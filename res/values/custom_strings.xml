@@ -28,4 +28,7 @@
     <!-- Setting title for the flip action setting. -->
     <string name="flip_action_title">Flip action</string>
     <string name="flip_action_dialog_title">Flip action</string>
+
+    <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
+    <string name="alarm_increasing_volume">Increasing volume</string>
 </resources>
