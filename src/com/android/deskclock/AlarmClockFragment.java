@@ -647,12 +647,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
             uri = Alarm.NO_RINGTONE_URI;
         }
         mSelectedAlarm.alert = uri;
-
-        // Save the last selected ringtone as the default for new alarms
-        if (!Alarm.NO_RINGTONE_URI.equals(uri)) {
-            RingtoneManager.setActualDefaultRingtoneUri(
-                    getActivity(), RingtoneManager.TYPE_ALARM, uri);
-        }
         asyncUpdateAlarm(mSelectedAlarm, false);
     }
 
