@@ -43,7 +43,6 @@
     <!-- no translation found for alarm_missed_text (6585658367289194023) -->
     <skip />
     <string name="alarm_alert_snooze_text" msgid="1774416052207651584">"යළි සිහි කැඳවන්න"</string>
-    <string name="alarm_alert_snooze_set" msgid="656470966696912087">"මිනිත්තු <xliff:g id="MINUTES">%d</xliff:g> කින් යළි සිහි කැඳවන්න."</string>
     <string name="alarm_alert_snooze_until" msgid="6958013659168344550">"<xliff:g id="TIME">%s</xliff:g> තෙක් යළි සිහි කැඳවන්න"</string>
   <string-array name="timer_notifications">
     <item msgid="7760558912503484257">"තවත් මිනිත්තුවකට අඩුවෙන් ඉතිරිව ඇත"</item>
