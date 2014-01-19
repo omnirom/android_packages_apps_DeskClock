@@ -82,8 +82,7 @@ public class AlarmInitReceiver extends BroadcastReceiver {
     private void switchVolumeButtonDefault(SharedPreferences prefs) {
         SharedPreferences.Editor editor = prefs.edit();
 
-        editor.putString(SettingsActivity.KEY_VOLUME_BEHAVIOR,
-            SettingsActivity.DEFAULT_VOLUME_BEHAVIOR);
+        editor.putString(SettingsActivity.KEY_VOLUME_ACTION, SettingsActivity.DEFAULT_ALARM_ACTION);
 
         // Make sure we do it only once
         editor.putBoolean(PREF_VOLUME_DEF_DONE, true);

@@ -21,8 +21,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -111,7 +116,73 @@ public class AlarmActivity extends Activity {
         }
     }
 
+    private final SensorEventListener mFlipListener = new SensorEventListener() {
+        private static final int FACE_UP_LOWER_LIMIT = -45;
+        private static final int FACE_UP_UPPER_LIMIT = 45;
+        private static final int FACE_DOWN_UPPER_LIMIT = 135;
+        private static final int FACE_DOWN_LOWER_LIMIT = -135;
+        private static final int TILT_UPPER_LIMIT = 45;
+        private static final int TILT_LOWER_LIMIT = -45;
+        private static final int SENSOR_SAMPLES = 3;
+
+        private boolean mWasFaceUp;
+        private boolean[] mSamples = new boolean[SENSOR_SAMPLES];
+        private int mSampleIndex;
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int acc) {
+        }
+
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            // Add a sample overwriting the oldest one. Several samples
+            // are used
+            // to avoid the erroneous values the sensor sometimes
+            // returns.
+            float y = event.values[1];
+            float z = event.values[2];
+
+            if (!mWasFaceUp) {
+                // Check if its face up enough.
+                mSamples[mSampleIndex] = y > FACE_UP_LOWER_LIMIT
+                        && y < FACE_UP_UPPER_LIMIT
+                        && z > TILT_LOWER_LIMIT && z < TILT_UPPER_LIMIT;
+
+                // The device first needs to be face up.
+                boolean faceUp = true;
+                for (boolean sample : mSamples) {
+                    faceUp = faceUp && sample;
+                }
+                if (faceUp) {
+                    mWasFaceUp = true;
+                    for (int i = 0; i < SENSOR_SAMPLES; i++) {
+                        mSamples[i] = false;
+                    }
+                }
+            } else {
+                // Check if its face down enough. Note that wanted
+                // values go from FACE_DOWN_UPPER_LIMIT to 180
+                // and from -180 to FACE_DOWN_LOWER_LIMIT
+                mSamples[mSampleIndex] = (y > FACE_DOWN_UPPER_LIMIT || y < FACE_DOWN_LOWER_LIMIT)
+                        && z > TILT_LOWER_LIMIT
+                        && z < TILT_UPPER_LIMIT;
+
+                boolean faceDown = true;
+                for (boolean sample : mSamples) {
+                    faceDown = faceDown && sample;
+                }
+                if (faceDown) {
+                    handleAction(mFlipAction);
+                }
+            }
+
+            mSampleIndex = ((mSampleIndex + 1) % SENSOR_SAMPLES);
+        }
+    };
+
     private AlarmInstance mInstance;
+    private SensorManager mSensorManager;
+    private int mFlipAction;
     private int mVolumeBehavior;
     private GlowPadView mGlowPadView;
     private GlowPadController glowPadController = new GlowPadController();
@@ -155,12 +226,18 @@ public class AlarmActivity extends Activity {
             return;
         }
 
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         // Get the volume/camera button behavior setting
-        final String vol =
-                PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(SettingsActivity.KEY_VOLUME_BEHAVIOR,
-                        SettingsActivity.DEFAULT_VOLUME_BEHAVIOR);
+        final String vol = prefs.getString(SettingsActivity.KEY_VOLUME_ACTION,
+                SettingsActivity.DEFAULT_ALARM_ACTION);
         mVolumeBehavior = Integer.parseInt(vol);
+
+        final String flip = prefs.getString(SettingsActivity.KEY_FLIP_ACTION,
+                SettingsActivity.DEFAULT_ALARM_ACTION);
+        mFlipAction = Integer.parseInt(flip);
 
         final Window win = getWindow();
         win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
@@ -224,12 +301,14 @@ public class AlarmActivity extends Activity {
     protected void onResume() {
         super.onResume();
         glowPadController.startPinger();
+        attachListeners();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         glowPadController.stopPinger();
+        detachListeners();
     }
 
     @Override
@@ -248,31 +327,47 @@ public class AlarmActivity extends Activity {
         // Do this on key down to handle a few of the system keys.
         Log.v("AlarmActivity - dispatchKeyEvent - " + event.getKeyCode());
         switch (event.getKeyCode()) {
-            // Volume keys and camera keys dismiss the alarm
-            case KeyEvent.KEYCODE_POWER:
+            // Volume keys can snooze or dismiss the alarm
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_DOWN:
+                handleAction(mVolumeBehavior);
+                return true;
+            case KeyEvent.KEYCODE_POWER:
             case KeyEvent.KEYCODE_VOLUME_MUTE:
             case KeyEvent.KEYCODE_CAMERA:
             case KeyEvent.KEYCODE_FOCUS:
-                if (event.getAction() == KeyEvent.ACTION_UP) {
-                    switch (mVolumeBehavior) {
-                        case 1:
-                            snooze();
-                            break;
-
-                        case 2:
-                            dismiss();
-                            break;
-
-                        default:
-                            break;
-                    }
-                }
-                return true;
             default:
                 break;
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    private void attachListeners() {
+        if (mFlipAction != SettingsActivity.ALARM_NO_ACTION) {
+            mSensorManager.registerListener(mFlipListener,
+                    mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+                    SensorManager.SENSOR_DELAY_NORMAL,
+                    300 * 1000); //batch every 300 milliseconds
+        }
+    }
+
+    private void detachListeners() {
+        if (mFlipAction != SettingsActivity.ALARM_NO_ACTION) {
+            mSensorManager.unregisterListener(mFlipListener);
+        }
+    }
+
+    private void handleAction(int action) {
+        switch (action) {
+            case SettingsActivity.ALARM_SNOOZE:
+                snooze();
+                break;
+            case SettingsActivity.ALARM_DISMISS:
+                dismiss();
+                break;
+            case SettingsActivity.ALARM_NO_ACTION:
+            default:
+                break;
+        }
     }
 }
