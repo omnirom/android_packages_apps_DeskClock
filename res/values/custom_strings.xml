@@ -24,4 +24,8 @@
 
     <!-- Setting summary for showing/hiding the alarm statusbar icon -->
     <string name="show_status_bar_icon_summary">Show an icon in the status bar when an alarm is set</string>
+
+    <!-- Setting title for the flip action setting. -->
+    <string name="flip_action_title">Flip action</string>
+    <string name="flip_action_dialog_title">Flip action</string>
 </resources>
