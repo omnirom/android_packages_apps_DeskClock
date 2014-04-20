@@ -688,15 +688,21 @@ public class AlarmClockFragment extends DeskClockFragment implements
         private final int mCollapseExpandHeight;
 
         // This determines the order in which it is shown and processed in the UI.
-        private final int[] DAY_ORDER = new int[] {
-                Calendar.SUNDAY,
-                Calendar.MONDAY,
-                Calendar.TUESDAY,
-                Calendar.WEDNESDAY,
-                Calendar.THURSDAY,
-                Calendar.FRIDAY,
-                Calendar.SATURDAY,
-        };
+        private final int[] DAY_ORDER = getDayOrder();
+
+        /**
+         * Generates day order according to Calendar.getFirstDayOfWeek() in the current locale.
+         */
+        private int[] getDayOrder() {
+            int[] order = new int[7];
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+            for (int i = 0; i < 7; i++) {
+                order[i] = cal.get(Calendar.DAY_OF_WEEK);
+                cal.roll(Calendar.DAY_OF_WEEK, 1);
+            }
+            return order;
+        }
 
         public class ItemHolder {
 
