@@ -64,11 +64,9 @@ public class AlarmKlaxon {
                 case INCREASING_VOLUME:
                     if (sStarted && sMediaPlayer != null && sMediaPlayer.isPlaying()) {
                         sCurrentVolume += INCREASING_VOLUME_DELTA;
-                        if (Log.LOGV) {
-                            Log.v("Increasing alarm volume to " + sCurrentVolume);
-                        }
+                        Log.d("Increasing alarm volume to " + sCurrentVolume);
                         sAudioManager.setStreamVolume(AudioManager.STREAM_ALARM, sCurrentVolume, 0);
-                        if (sCurrentVolume < sAlarmVolumeSetting) {
+                        if (sCurrentVolume <= sAlarmVolumeSetting) {
                             sHandler.sendEmptyMessageDelayed(INCREASING_VOLUME,
                                     INCREASING_VOLUME_DELAY);
                         }
@@ -125,11 +123,6 @@ public class AlarmKlaxon {
             // save current value
             sAlarmVolumeSetting = sAudioManager.getStreamVolume(AudioManager.STREAM_ALARM);
 
-            if (instance.mIncreasingVolume) {
-                sCurrentVolume = INCREASING_VOLUME_START;
-                sAudioManager.setStreamVolume(AudioManager.STREAM_ALARM, sCurrentVolume, 0);
-            }
-
             // TODO: Reuse mMediaPlayer instead of creating a new one and/or use RingtoneManager.
             sMediaPlayer = new MediaPlayer();
             sMediaPlayer.setOnErrorListener(new OnErrorListener() {
@@ -181,6 +174,12 @@ public class AlarmKlaxon {
             AlarmInstance instance) throws IOException {
         // do not play alarms if stream volume is 0 (typically because ringer mode is silent).
         if (sAudioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
+            if (instance.mIncreasingVolume) {
+                sCurrentVolume = INCREASING_VOLUME_START;
+                sAudioManager.setStreamVolume(AudioManager.STREAM_ALARM, sCurrentVolume, 0);
+                Log.d("Starting alarm volume " + sCurrentVolume + " max volume " +sAlarmVolumeSetting);
+            }
+
             player.setAudioStreamType(AudioManager.STREAM_ALARM);
             player.setLooping(true);
             player.prepare();
@@ -188,7 +187,7 @@ public class AlarmKlaxon {
                     AudioManager.STREAM_ALARM, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
             player.start();
 
-            if (instance.mIncreasingVolume && sCurrentVolume < sAlarmVolumeSetting) {
+            if (instance.mIncreasingVolume && sCurrentVolume <= sAlarmVolumeSetting) {
                 sHandler.sendEmptyMessageDelayed(INCREASING_VOLUME, INCREASING_VOLUME_DELAY);
             }
         }
