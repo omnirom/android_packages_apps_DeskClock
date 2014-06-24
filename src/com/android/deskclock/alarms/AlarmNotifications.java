@@ -135,7 +135,7 @@ public final class AlarmNotifications {
         nm.notify(instance.hashCode(), notification.build());
     }
 
-    public static void showSnoozeNotification(Context context, AlarmInstance instance) {
+    public static void showSnoozeNotification(Context context, AlarmInstance instance, Calendar snoozeEndTime) {
         Log.v("Displaying snoozed notification for alarm instance: " + instance.mId);
         NotificationManager nm = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -144,7 +144,7 @@ public final class AlarmNotifications {
         Notification.Builder notification = new Notification.Builder(context)
                 .setContentTitle(instance.getLabelOrDefault(context))
                 .setContentText(resources.getString(R.string.alarm_alert_snooze_until,
-                        AlarmUtils.getFormattedTime(context, instance.getAlarmTime())))
+                        AlarmUtils.getFormattedTime(context, snoozeEndTime)))
                 .setSmallIcon(R.drawable.stat_notify_alarm)
                 .setOngoing(true)
                 .setAutoCancel(false)
@@ -221,13 +221,15 @@ public final class AlarmNotifications {
                 .setWhen(0);
 
         // Setup Snooze Action
-        Intent snoozeIntent = AlarmStateManager.createStateChangeIntent(context, "SNOOZE_TAG",
-                instance, AlarmInstance.SNOOZE_STATE);
-        PendingIntent snoozePendingIntent = PendingIntent.getBroadcast(context, instance.hashCode(),
-                snoozeIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        notification.addAction(R.drawable.stat_notify_alarm,
-                resources.getString(R.string.alarm_alert_snooze_text), snoozePendingIntent);
+        if (AlarmStateManager.canSnooze(context, instance)) {
+            Intent snoozeIntent = AlarmStateManager.createStateChangeIntent(context, "SNOOZE_TAG",
+                    instance, AlarmInstance.SNOOZE_STATE);
+            PendingIntent snoozePendingIntent = PendingIntent.getBroadcast(context, instance.hashCode(),
+                    snoozeIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            notification.addAction(R.drawable.stat_notify_alarm,
+                    resources.getString(R.string.alarm_alert_snooze_text), snoozePendingIntent);
+        }
 
         // Setup Dismiss Action
         Intent dismissIntent = AlarmStateManager.createStateChangeIntent(context, "DISMISS_TAG",
@@ -283,5 +285,100 @@ public final class AlarmNotifications {
         Intent alarmChanged = new Intent(SYSTEM_ALARM_CHANGE_ACTION);
         alarmChanged.putExtra("alarmSet", showStatusIcon);
         context.sendBroadcast(alarmChanged);
+    }
+
+    public static void showPreAlarmNotification(Context context, AlarmInstance instance) {
+        Log.v("Displaying pre alarm notification for alarm instance: " + instance.mId);
+
+        NotificationManager nm = (NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Close dialogs and window shade, so this will display
+        context.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+
+        Resources resources = context.getResources();
+        Notification.Builder notification = new Notification.Builder(context)
+                .setContentTitle(resources.getString(R.string.alarm_alert_prealarm_title)
+                    + " - " + instance.getLabelOrDefault(context))
+                .setContentText(AlarmUtils.getFormattedTime(context, instance.getAlarmTime()))
+                .setSmallIcon(R.drawable.stat_notify_alarm)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setPriority(Notification.PRIORITY_HIGH);
+
+        // Setup Snooze Action
+        if (AlarmStateManager.canSnooze(context, instance)) {
+            Intent snoozeIntent = AlarmStateManager.createStateChangeIntent(context, "SNOOZE_TAG",
+                    instance, AlarmInstance.SNOOZE_STATE);
+            PendingIntent snoozePendingIntent = PendingIntent.getBroadcast(context, instance.hashCode(),
+                    snoozeIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            notification.addAction(R.drawable.stat_notify_alarm,
+                    resources.getString(R.string.alarm_alert_snooze_text), snoozePendingIntent);
+        }
+
+        // Setup Dismiss Action
+        Intent dismissIntent = AlarmStateManager.createStateChangeIntent(context, "DISMISS_TAG",
+                instance, AlarmInstance.DISMISSED_STATE);
+        PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(context,
+                instance.hashCode(), dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        notification.addAction(android.R.drawable.ic_menu_close_clear_cancel,
+                resources.getString(R.string.alarm_alert_dismiss_text),
+                dismissPendingIntent);
+
+        // Setup Content Action
+        Intent contentIntent = AlarmInstance.createIntent(context, AlarmActivity.class,
+                instance.mId);
+        notification.setContentIntent(PendingIntent.getActivity(context,
+                instance.hashCode(), contentIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+
+        // Setup fullscreen intent
+        Intent fullScreenIntent = AlarmInstance.createIntent(context, AlarmActivity.class,
+                instance.mId);
+        // set action, so we can be different then content pending intent
+        fullScreenIntent.setAction("fullscreen_activity");
+        fullScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                Intent.FLAG_ACTIVITY_NO_USER_ACTION);
+        notification.setFullScreenIntent(PendingIntent.getActivity(context,
+                instance.hashCode(), fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT), true);
+        notification.setPriority(Notification.PRIORITY_MAX);
+
+        nm.cancel(instance.hashCode());
+        nm.notify(instance.hashCode(), notification.build());
+    }
+
+    public static void showPreAlarmDismissNotification(Context context, AlarmInstance instance) {
+        Log.v("Displaying pre-alarm dismiss notification for alarm instance: " + instance.mId);
+        NotificationManager nm = (NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        Resources resources = context.getResources();
+        Notification.Builder notification = new Notification.Builder(context)
+                .setContentTitle(resources.getString(R.string.alarm_alert_prealarm_dismiss_title)
+                        + " - " + instance.getLabelOrDefault(context))
+                .setContentText(AlarmUtils.getFormattedTime(context, instance.getAlarmTime()))
+                .setSmallIcon(R.drawable.stat_notify_alarm)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setPriority(Notification.PRIORITY_HIGH);
+
+        // Setup up dismiss action
+        Intent dismissIntent = AlarmStateManager.createStateChangeIntent(context, "DISMISS_TAG",
+                instance, AlarmInstance.DISMISSED_STATE);
+        notification.addAction(android.R.drawable.ic_menu_close_clear_cancel,
+                resources.getString(R.string.alarm_alert_dismiss_text),
+                PendingIntent.getBroadcast(context, instance.hashCode(),
+                        dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+
+        // Setup content action if instance is owned by alarm
+        long alarmId = instance.mAlarmId == null ? Alarm.INVALID_ID : instance.mAlarmId;
+        Intent viewAlarmIntent = Alarm.createIntent(context, DeskClock.class, alarmId);
+        viewAlarmIntent.putExtra(DeskClock.SELECT_TAB_INTENT_EXTRA, DeskClock.ALARM_TAB_INDEX);
+        viewAlarmIntent.putExtra(AlarmClockFragment.SCROLL_TO_ALARM_INTENT_EXTRA, alarmId);
+        viewAlarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        notification.setContentIntent(PendingIntent.getActivity(context, instance.hashCode(),
+                viewAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+        nm.cancel(instance.hashCode());
+        nm.notify(instance.hashCode(), notification.build());
     }
 }
