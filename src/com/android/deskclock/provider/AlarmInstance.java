@@ -55,6 +55,13 @@ public final class AlarmInstance implements ClockContract.InstancesColumns {
      */
     private static final String DEFAULT_ALARM_TIMEOUT_SETTING = "10";
 
+    public static final int DEFAULT_PRE_ALARM_TIME = 5;
+
+    public static final int ALARM_OPTION_OFF = 0;
+    public static final int ALARM_OPTION_MAIN_ONLY = 1;
+    public static final int ALARM_OPTION_PREALARM_ONLY = 2;
+    public static final int ALARM_OPTION_BOTH = 3;
+
     /**
      * AlarmInstances start with an invalid id when it hasn't been saved to the database.
      */
@@ -73,6 +80,14 @@ public final class AlarmInstance implements ClockContract.InstancesColumns {
             ALARM_ID,
             ALARM_STATE,
             INCREASING_VOLUME,
+            PRE_ALARM,
+            ALARM_VOLUME,
+            PRE_ALARM_VOLUME,
+            PRE_ALARM_TIME,
+            PRE_ALARM_RINGTONE,
+            PAIN_MODE,
+            RANDOM_MODE,
+            MEDIA_START
     };
 
     /**
@@ -91,8 +106,16 @@ public final class AlarmInstance implements ClockContract.InstancesColumns {
     private static final int ALARM_ID_INDEX = 9;
     private static final int ALARM_STATE_INDEX = 10;
     private static final int INCREASING_VOLUME_INDEX = 11;
+    private static final int PRE_ALARM_INDEX = 12;
+    private static final int ALARM_VOLUME_INDEX = 13;
+    private static final int PRE_ALARM_VOLUME_INDEX = 14;
+    private static final int PRE_ALARM_TIME_INDEX = 15;
+    private static final int PRE_ALARM_RINGTONE_INDEX = 16;
+    private static final int PAIN_MODE_INDEX = 17;
+    private static final int RANDOM_MODE_INDEX = 18;
+    private static final int MEDIA_START_INDEX = 19;
 
-    private static final int COLUMN_COUNT = INCREASING_VOLUME_INDEX + 1;
+    private static final int COLUMN_COUNT = MEDIA_START_INDEX + 1;
     private Calendar mTimeout;
 
     public static ContentValues createContentValues(AlarmInstance instance) {
@@ -108,7 +131,7 @@ public final class AlarmInstance implements ClockContract.InstancesColumns {
         values.put(MINUTES, instance.mMinute);
         values.put(LABEL, instance.mLabel);
         values.put(VIBRATE, instance.mVibrate ? 1 : 0);
-        values.put(INCREASING_VOLUME, instance.mIncreasingVolume ? 1 : 0);
+        values.put(INCREASING_VOLUME, instance.mIncreasingVolume);
 
         if (instance.mRingtone == null) {
             // We want to put null in the database, so we'll be able
@@ -119,6 +142,18 @@ public final class AlarmInstance implements ClockContract.InstancesColumns {
         }
         values.put(ALARM_ID, instance.mAlarmId);
         values.put(ALARM_STATE, instance.mAlarmState);
+        values.put(MEDIA_START, instance.mMediaStart ? 1 : 0);
+        values.put(PRE_ALARM, instance.mPreAlarm ? 1 : 0);
+        values.put(ALARM_VOLUME, instance.mAlarmVolume);
+        values.put(PRE_ALARM_VOLUME, instance.mPreAlarmVolume);
+        values.put(PRE_ALARM_TIME, instance.mPreAlarmTime);
+        if (instance.mPreAlarmRingtone == null) {
+            values.putNull(PRE_ALARM_RINGTONE);
+        } else {
+            values.put(PRE_ALARM_RINGTONE, instance.mPreAlarmRingtone.toString());
+        }
+        values.put(RANDOM_MODE, instance.mRandomMode);
+        values.put(PAIN_MODE, instance.mPainMode ? 1 : 0);
         return values;
     }
 
@@ -257,7 +292,15 @@ public final class AlarmInstance implements ClockContract.InstancesColumns {
     public Uri mRingtone;
     public Long mAlarmId;
     public int mAlarmState;
-    public boolean mIncreasingVolume;
+    private int mIncreasingVolume;
+    public boolean mMediaStart;
+    public boolean mPreAlarm;
+    public int mAlarmVolume;
+    public int mPreAlarmVolume;
+    public int mPreAlarmTime;
+    public Uri mPreAlarmRingtone;
+    public boolean mPainMode;
+    private int mRandomMode;
 
     public AlarmInstance(Calendar calendar, Long alarmId) {
         this(calendar);
@@ -269,9 +312,17 @@ public final class AlarmInstance implements ClockContract.InstancesColumns {
         setAlarmTime(calendar);
         mLabel = "";
         mVibrate = false;
-        mIncreasingVolume = false;
+        mIncreasingVolume = 0;
         mRingtone = null;
         mAlarmState = SILENT_STATE;
+        mMediaStart = false;
+        mPreAlarm = false;
+        mAlarmVolume = -1;
+        mPreAlarmVolume = -1;
+        mPreAlarmTime = DEFAULT_PRE_ALARM_TIME;
+        mPreAlarmRingtone = null;
+        mPainMode = false;
+        mRandomMode = 0;
     }
 
     public AlarmInstance(Cursor c) {
@@ -283,19 +334,28 @@ public final class AlarmInstance implements ClockContract.InstancesColumns {
         mMinute = c.getInt(MINUTES_INDEX);
         mLabel = c.getString(LABEL_INDEX);
         mVibrate = c.getInt(VIBRATE_INDEX) == 1;
-        mIncreasingVolume = c.getInt(INCREASING_VOLUME_INDEX) == 1;
-        if (c.isNull(RINGTONE_INDEX)) {
-            // Should we be saving this with the current ringtone or leave it null
-            // so it changes when user changes default ringtone?
-            mRingtone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        } else {
-            mRingtone = Uri.parse(c.getString(RINGTONE_INDEX));
+        mIncreasingVolume = c.getInt(INCREASING_VOLUME_INDEX);
+        if (!c.isNull(RINGTONE_INDEX)) {
+            String r = c.getString(RINGTONE_INDEX);
+            mRingtone = Uri.parse(r);
         }
 
         if (!c.isNull(ALARM_ID_INDEX)) {
             mAlarmId = c.getLong(ALARM_ID_INDEX);
         }
         mAlarmState = c.getInt(ALARM_STATE_INDEX);
+        mPreAlarm = c.getInt(PRE_ALARM_INDEX) == 1;
+        mAlarmVolume = c.getInt(ALARM_VOLUME_INDEX);
+        mPreAlarmVolume = c.getInt(PRE_ALARM_VOLUME_INDEX);
+        mPreAlarmTime = c.getInt(PRE_ALARM_TIME_INDEX);
+
+        if (!c.isNull(PRE_ALARM_RINGTONE_INDEX)) {
+            String r = c.getString(PRE_ALARM_RINGTONE_INDEX);
+            mPreAlarmRingtone = Uri.parse(r);
+        }
+        mPainMode = c.getInt(PAIN_MODE_INDEX) == 1;
+        mRandomMode = c.getInt(RANDOM_MODE_INDEX);
+        mMediaStart = c.getInt(MEDIA_START_INDEX) == 1;
     }
 
     public String getLabelOrDefault(Context context) {
@@ -328,12 +388,23 @@ public final class AlarmInstance implements ClockContract.InstancesColumns {
     }
 
     /**
+     * Return the time when a pre alarm should fire.
+     *
+     * @return the time
+     */
+    public Calendar getPreAlarmTime() {
+        Calendar preAlarmTime = getAlarmTime();
+        preAlarmTime.add(Calendar.MINUTE, -(mPreAlarmTime));
+        return preAlarmTime;
+    }
+
+    /**
      * Return the time when a low priority notification should be shown.
      *
      * @return the time
      */
     public Calendar getLowNotificationTime() {
-        Calendar calendar = getAlarmTime();
+        Calendar calendar = getPreAlarmTime();
         calendar.add(Calendar.HOUR_OF_DAY, LOW_NOTIFICATION_HOUR_OFFSET);
         return calendar;
     }
@@ -344,7 +415,7 @@ public final class AlarmInstance implements ClockContract.InstancesColumns {
      * @return the time
      */
     public Calendar getHighNotificationTime() {
-        Calendar calendar = getAlarmTime();
+        Calendar calendar = getPreAlarmTime();
         calendar.add(Calendar.MINUTE, HIGH_NOTIFICATION_MINUTE_OFFSET);
         return calendar;
     }
@@ -408,6 +479,106 @@ public final class AlarmInstance implements ClockContract.InstancesColumns {
                 ", mAlarmId=" + mAlarmId +
                 ", mAlarmState=" + mAlarmState +
                 ", mIncreasingVolume=" + mIncreasingVolume +
+                ", mPreAlarm=" + mPreAlarm +
+                ", mMediaStart=" + mMediaStart +
+                ", mAlarmVolume=" + mAlarmVolume +
+                ", mPreAlarmVolume=" + mPreAlarmVolume +
+                ", mPreAlarmTime=" + mPreAlarmTime +
+                ", mPreAlarmRingtone=" + mPreAlarmRingtone +
+                ", mPainMode=" + mPainMode +
+                ", mRandomMode=" + mRandomMode +
                 '}';
+    }
+
+    public boolean getIncreasingVolume(boolean preAlarm) {
+        if (preAlarm) {
+            return mIncreasingVolume == AlarmInstance.ALARM_OPTION_PREALARM_ONLY
+            || mIncreasingVolume == AlarmInstance.ALARM_OPTION_BOTH;
+        } else {
+            return mIncreasingVolume == AlarmInstance.ALARM_OPTION_MAIN_ONLY
+            || mIncreasingVolume == AlarmInstance.ALARM_OPTION_BOTH;
+        }
+    }
+
+    public void setIncreasingVolume(int increasingVolume) {
+        mIncreasingVolume = increasingVolume;
+    }
+
+    public void setIncreasingVolume(boolean preAlarm, boolean value) {
+        if (preAlarm) {
+            if (value) {
+                if (getIncreasingVolume(false)){
+                    mIncreasingVolume = AlarmInstance.ALARM_OPTION_BOTH;
+                } else {
+                    mIncreasingVolume = AlarmInstance.ALARM_OPTION_PREALARM_ONLY;
+                }
+            } else {
+                if (getIncreasingVolume(false)){
+                    mIncreasingVolume = AlarmInstance.ALARM_OPTION_MAIN_ONLY;
+                } else {
+                    mIncreasingVolume = AlarmInstance.ALARM_OPTION_OFF;
+                }
+            }
+        } else {
+            if (value) {
+                if (getIncreasingVolume(true)){
+                    mIncreasingVolume = AlarmInstance.ALARM_OPTION_BOTH;
+                } else {
+                    mIncreasingVolume = AlarmInstance.ALARM_OPTION_MAIN_ONLY;
+                }
+            } else {
+                if (getIncreasingVolume(true)){
+                    mIncreasingVolume = AlarmInstance.ALARM_OPTION_PREALARM_ONLY;
+                } else {
+                    mIncreasingVolume = AlarmInstance.ALARM_OPTION_OFF;
+                }
+            }
+        }
+    }
+
+    public boolean getRandomMode(boolean preAlarm) {
+        if (preAlarm) {
+            return mRandomMode == AlarmInstance.ALARM_OPTION_PREALARM_ONLY
+            || mRandomMode == AlarmInstance.ALARM_OPTION_BOTH;
+        } else {
+            return mRandomMode == AlarmInstance.ALARM_OPTION_MAIN_ONLY
+            || mRandomMode == AlarmInstance.ALARM_OPTION_BOTH;
+        }
+    }
+
+    public void setRandomMode(int randomMode) {
+        mRandomMode = randomMode;
+    }
+
+    public void setRandomMode(boolean preAlarm, boolean value) {
+        if (preAlarm) {
+            if (value) {
+                if (getRandomMode(false)){
+                    mRandomMode = AlarmInstance.ALARM_OPTION_BOTH;
+                } else {
+                    mRandomMode = AlarmInstance.ALARM_OPTION_PREALARM_ONLY;
+                }
+            } else {
+                if (getRandomMode(false)){
+                    mRandomMode = AlarmInstance.ALARM_OPTION_MAIN_ONLY;
+                } else {
+                    mRandomMode = AlarmInstance.ALARM_OPTION_OFF;
+                }
+            }
+        } else {
+            if (value) {
+                if (getRandomMode(true)){
+                    mRandomMode = AlarmInstance.ALARM_OPTION_BOTH;
+                } else {
+                    mRandomMode = AlarmInstance.ALARM_OPTION_MAIN_ONLY;
+                }
+            } else {
+                if (getRandomMode(true)){
+                    mRandomMode = AlarmInstance.ALARM_OPTION_PREALARM_ONLY;
+                } else {
+                    mRandomMode = AlarmInstance.ALARM_OPTION_OFF;
+                }
+            }
+        }
     }
 }
