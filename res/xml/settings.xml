@@ -52,6 +52,14 @@
             android:title="@string/snooze_duration_title"
             android:defaultValue="10"/>
 
+        <ListPreference
+            android:key="snooze_count"
+            android:entries="@array/snooze_count_entries"
+            android:entryValues="@array/snooze_count_values"
+            android:dialogTitle="@string/snooze_count_title"
+            android:title="@string/snooze_count_title"
+            android:defaultValue="0" />
+
         <VolumePreference
             android:key="volume_setting"
             android:title="@string/alarm_volume_title"
@@ -70,6 +78,14 @@
             android:key="flip_action_setting"
             android:title="@string/flip_action_title"
             android:dialogTitle="@string/flip_action_dialog_title"
+            android:entries="@array/volume_button_setting_entries"
+            android:entryValues="@array/volume_button_setting_values"
+            android:defaultValue="0" />
+
+        <ListPreference
+            android:key="shake_action_setting"
+            android:title="@string/shake_action_title"
+            android:dialogTitle="@string/shake_action_dialog_title"
             android:entries="@array/volume_button_setting_entries"
             android:entryValues="@array/volume_button_setting_values"
             android:defaultValue="0" />

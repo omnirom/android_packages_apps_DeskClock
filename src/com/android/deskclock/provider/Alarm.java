@@ -58,7 +58,13 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
             LABEL,
             RINGTONE,
             DELETE_AFTER_USE,
-            INCREASING_VOLUME
+            INCREASING_VOLUME,
+            PRE_ALARM,
+            ALARM_VOLUME,
+            PRE_ALARM_VOLUME,
+            PRE_ALARM_TIME,
+            PRE_ALARM_RINGTONE,
+            MEDIA_START
     };
 
     /**
@@ -75,8 +81,14 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
     private static final int RINGTONE_INDEX = 7;
     private static final int DELETE_AFTER_USE_INDEX = 8;
     private static final int INCREASING_VOLUME_INDEX = 9;
+    private static final int PRE_ALARM_INDEX = 10;
+    private static final int ALARM_VOLUME_INDEX = 11;
+    private static final int PRE_ALARM_VOLUME_INDEX = 12;
+    private static final int PRE_ALARM_TIME_INDEX = 13;
+    private static final int PRE_ALARM_RINGTONE_INDEX = 14;
+    private static final int MEDIA_START_INDEX = 15;    
 
-    private static final int COLUMN_COUNT = INCREASING_VOLUME_INDEX + 1;
+    private static final int COLUMN_COUNT = MEDIA_START_INDEX + 1;
 
     public static ContentValues createContentValues(Alarm alarm) {
         ContentValues values = new ContentValues(COLUMN_COUNT);
@@ -98,7 +110,17 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         } else {
             values.put(RINGTONE, alarm.alert.toString());
         }
-
+        values.put(PRE_ALARM, alarm.preAlarm ? 1 : 0);
+        values.put(ALARM_VOLUME, alarm.alarmVolume);
+        values.put(PRE_ALARM_VOLUME, alarm.preAlarmVolume);
+        values.put(PRE_ALARM_TIME, alarm.preAlarmTime);
+        if (alarm.preAlarmAlert == null) {
+            // We want to put null, so default alarm changes
+            values.putNull(PRE_ALARM_RINGTONE);
+        } else {
+            values.put(PRE_ALARM_RINGTONE, alarm.preAlarmAlert.toString());
+        }
+        values.put(MEDIA_START, alarm.mediaStart ? 1 : 0);
         return values;
     }
 
@@ -230,6 +252,12 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
     public Uri alert;
     public boolean deleteAfterUse;
     public boolean increasingVolume;
+    public boolean mediaStart;
+    public boolean preAlarm;
+    public int alarmVolume;
+    public int preAlarmVolume;
+    public int preAlarmTime;
+    public Uri preAlarmAlert;
 
     // Creates a default alarm at the current time.
     public Alarm() {
@@ -243,9 +271,15 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         this.vibrate = true;
         this.daysOfWeek = new DaysOfWeek(0);
         this.label = "";
-        this.alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        this.alert = null;
         this.deleteAfterUse = false;
         this.increasingVolume = false;
+        this.mediaStart = false;
+        this.preAlarm = false;
+        this.alarmVolume = -1;
+        this.preAlarmVolume = -1;
+        this.preAlarmTime = 2;
+        this.preAlarmAlert = null;
     }
 
     public Alarm(Cursor c) {
@@ -258,14 +292,19 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         label = c.getString(LABEL_INDEX);
         deleteAfterUse = c.getInt(DELETE_AFTER_USE_INDEX) == 1;
         increasingVolume = c.getInt(INCREASING_VOLUME_INDEX) == 1;
-
-        if (c.isNull(RINGTONE_INDEX)) {
-            // Should we be saving this with the current ringtone or leave it null
-            // so it changes when user changes default ringtone?
-            alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        } else {
-            alert = Uri.parse(c.getString(RINGTONE_INDEX));
+        if (!c.isNull(RINGTONE_INDEX)) {
+            String r = c.getString(RINGTONE_INDEX);
+            alert = Uri.parse(r);
         }
+        preAlarm = c.getInt(PRE_ALARM_INDEX) == 1;
+        alarmVolume = c.getInt(ALARM_VOLUME_INDEX);
+        preAlarmVolume = c.getInt(PRE_ALARM_VOLUME_INDEX);
+        preAlarmTime = c.getInt(PRE_ALARM_TIME_INDEX);
+        if (!c.isNull(PRE_ALARM_RINGTONE_INDEX)) {
+            String r = c.getString(PRE_ALARM_RINGTONE_INDEX);
+            preAlarmAlert = Uri.parse(r);
+        }
+        mediaStart = c.getInt(MEDIA_START_INDEX) == 1;
     }
 
     Alarm(Parcel p) {
@@ -279,6 +318,12 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         alert = (Uri) p.readParcelable(null);
         deleteAfterUse = p.readInt() == 1;
         increasingVolume = p.readInt() == 1;
+        preAlarm = p.readInt() == 1;
+        alarmVolume = p.readInt();
+        preAlarmVolume = p.readInt();
+        preAlarmTime = p.readInt();
+        preAlarmAlert = (Uri) p.readParcelable(null);
+        mediaStart = p.readInt() == 1;
     }
 
     public String getLabelOrDefault(Context context) {
@@ -299,6 +344,12 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         p.writeParcelable(alert, flags);
         p.writeInt(deleteAfterUse ? 1 : 0);
         p.writeInt(increasingVolume ? 1 : 0);
+        p.writeInt(preAlarm ? 1 : 0);
+        p.writeInt(alarmVolume);
+        p.writeInt(preAlarmVolume);
+        p.writeInt(preAlarmTime);
+        p.writeParcelable(preAlarmAlert, flags);
+        p.writeInt(mediaStart ? 1 : 0);
     }
 
     public int describeContents() {
@@ -331,6 +382,12 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         result.mLabel = label;
         result.mRingtone = alert;
         result.mIncreasingVolume = increasingVolume;
+        result.mMediaStart = mediaStart;
+        result.mPreAlarm = preAlarm;
+        result.mAlarmVolume = alarmVolume;
+        result.mPreAlarmVolume = preAlarmVolume;
+        result.mPreAlarmTime = preAlarmTime;
+        result.mPreAlarmRingtone = preAlarmAlert;
         return result;
     }
 
@@ -359,6 +416,12 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
                 ", label='" + label + '\'' +
                 ", deleteAfterUse=" + deleteAfterUse +
                 ", increasingVolume=" + increasingVolume +
+                ", preAlarm=" + preAlarm +
+                ", mediaStart=" + mediaStart +
+                ", alarmVolume=" + alarmVolume +
+                ", preAlarmVolume=" + preAlarmVolume +
+                ", preAlarmTime=" + preAlarmTime +
+                ", preAlarmAlert=" + preAlarmAlert +
                 '}';
     }
 }
