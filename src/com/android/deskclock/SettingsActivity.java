@@ -66,6 +66,10 @@ public class SettingsActivity extends PreferenceActivity
             "volume_button_setting";
     public static final String KEY_FLIP_ACTION =
             "flip_action_setting";
+    public static final String KEY_ALARM_SNOOZE_COUNT =
+            "snooze_count";
+    public static final String KEY_SHAKE_ACTION =
+            "shake_action_setting";
 
     // default action for alarm action
     public static final String DEFAULT_ALARM_ACTION = "0";
@@ -190,6 +194,14 @@ public class SettingsActivity extends PreferenceActivity
             final ListPreference listPref = (ListPreference) pref;
             final int idx = listPref.findIndexOfValue((String) newValue);
             listPref.setSummary(listPref.getEntries()[idx]);
+        } else if (KEY_ALARM_SNOOZE_COUNT.equals(pref.getKey())) {
+            final ListPreference listPref = (ListPreference) pref;
+            final int idx = listPref.findIndexOfValue((String) newValue);
+            listPref.setSummary(listPref.getEntries()[idx]);
+        } else if (KEY_SHAKE_ACTION.equals(pref.getKey())) {
+            final ListPreference listPref = (ListPreference) pref;
+            final int idx = listPref.findIndexOfValue((String) newValue);
+            listPref.setSummary(listPref.getEntries()[idx]);
         }
         return true;
     }
@@ -242,11 +254,19 @@ public class SettingsActivity extends PreferenceActivity
         listPref.setSummary(listPref.getEntry());
         listPref.setOnPreferenceChangeListener(this);
 
+        listPref = (ListPreference) findPreference(KEY_SHAKE_ACTION);
+        listPref.setSummary(listPref.getEntry());
+        listPref.setOnPreferenceChangeListener(this);
+
         CheckBoxPreference hideStatusbarIcon = (CheckBoxPreference) findPreference(KEY_SHOW_STATUS_BAR_ICON);
         hideStatusbarIcon.setOnPreferenceChangeListener(this);
 
         SnoozeLengthDialog snoozePref = (SnoozeLengthDialog) findPreference(KEY_ALARM_SNOOZE);
         snoozePref.setSummary();
+
+        listPref = (ListPreference) findPreference(KEY_ALARM_SNOOZE_COUNT);
+        listPref.setSummary(listPref.getEntry());
+        listPref.setOnPreferenceChangeListener(this);
     }
 
     private class TimeZoneRow implements Comparable<TimeZoneRow> {
