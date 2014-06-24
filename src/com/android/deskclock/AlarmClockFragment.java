@@ -63,6 +63,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import android.provider.OpenableColumns;
+import android.provider.MediaStore;
+import android.provider.MediaStore.Audio;
+import android.provider.MediaStore.Audio.Media;
 
 import com.android.datetimepicker.time.RadialPickerLayout;
 import com.android.datetimepicker.time.TimePickerDialog;
@@ -76,7 +80,10 @@ import com.android.deskclock.widget.TextTime;
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.io.File;
 
 /**
  * AlarmClock application.
@@ -84,7 +91,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AlarmClockFragment extends DeskClockFragment implements
         LoaderManager.LoaderCallbacks<Cursor>,
         TimePickerDialog.OnTimeSetListener,
-        View.OnTouchListener
+        View.OnTouchListener,
+        AlarmRingtoneDialog.AlarmRingtoneDialogListener
         {
     private static final float EXPAND_DECELERATION = 1f;
     private static final float COLLAPSE_DECELERATION = 0.7f;
@@ -98,8 +106,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
     private static final String KEY_PREVIOUS_DAY_MAP = "previousDayMap";
     private static final String KEY_SELECTED_ALARM = "selectedAlarm";
     private static final String KEY_DELETE_CONFIRMATION = "deleteConfirmation";
-
-    private static final int REQUEST_CODE_RINGTONE = 1;
 
     // This extra is used when receiving an intent to create an alarm, but no alarm details
     // have been passed in, so the alarm page should start the process of creating a new alarm.
@@ -144,6 +150,8 @@ public class AlarmClockFragment extends DeskClockFragment implements
     // Cached layout positions of items in listview prior to add/removal of alarm item
     private ConcurrentHashMap<Long, Integer> mItemIdTopMap = new ConcurrentHashMap<Long, Integer>();
 
+    private List<Uri> mAlarms;
+
     public AlarmClockFragment() {
         // Basic provider required by Fragment.java
     }
@@ -159,6 +167,8 @@ public class AlarmClockFragment extends DeskClockFragment implements
             Bundle savedState) {
         // Inflate the layout for this fragment
         final View v = inflater.inflate(R.layout.alarm_clock, container, false);
+
+        cacheSystemTones();
 
         long[] expandedIds = null;
         long[] repeatCheckedIds = null;
@@ -545,14 +555,10 @@ public class AlarmClockFragment extends DeskClockFragment implements
         if (mSelectedAlarm == null) {
             // If mSelectedAlarm is null then we're creating a new alarm.
             Alarm a = new Alarm();
-            a.alert = RingtoneManager.getActualDefaultRingtoneUri(getActivity(),
-                    RingtoneManager.TYPE_ALARM);
-            if (a.alert == null) {
-                a.alert = Uri.parse("content://settings/system/alarm_alert");
-            }
             a.hour = hourOfDay;
             a.minutes = minute;
             a.enabled = true;
+            a.alert = getDefaultAlarmUri();
             asyncAddAlarm(a);
         } else {
             mSelectedAlarm.hour = hourOfDay;
@@ -631,38 +637,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
         mAdapter.swapCursor(null);
     }
 
-    private void launchRingTonePicker(Alarm alarm) {
-        mSelectedAlarm = alarm;
-        Uri oldRingtone = Alarm.NO_RINGTONE_URI.equals(alarm.alert) ? null : alarm.alert;
-        final Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, oldRingtone);
-        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM);
-        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, false);
-        startActivityForResult(intent, REQUEST_CODE_RINGTONE);
-    }
-
-    private void saveRingtoneUri(Intent intent) {
-        Uri uri = intent.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-        if (uri == null) {
-            uri = Alarm.NO_RINGTONE_URI;
-        }
-        mSelectedAlarm.alert = uri;
-        asyncUpdateAlarm(mSelectedAlarm, false);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            switch (requestCode) {
-                case REQUEST_CODE_RINGTONE:
-                    saveRingtoneUri(data);
-                    break;
-                default:
-                    Log.w("Unhandled request code in onActivityResult: " + requestCode);
-            }
-        }
-    }
-
     public class AlarmItemAdapter extends CursorAdapter {
         private static final int EXPAND_DURATION = 300;
         private static final int COLLAPSE_DURATION = 250;
@@ -721,12 +695,18 @@ public class AlarmClockFragment extends DeskClockFragment implements
             ViewGroup[] dayButtonParents = new ViewGroup[7];
             ToggleButton[] dayButtons = new ToggleButton[7];
             CheckBox vibrate;
-            CheckBox increasingVolume;
             TextView ringtone;
             View hairLine;
             View arrow;
             View collapseExpandArea;
             View footerFiller;
+            CheckBox preAlarm;
+            CheckBox alarmtone;
+            LinearLayout alarmProperties;
+            TextView prealarmRingtone;
+            LinearLayout prealarmProperties;
+            TextView prealarmTime;
+            CheckBox painMode;
 
             // Other states
             Alarm alarm;
@@ -1015,8 +995,14 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 holder.dayButtonParents[i] = viewgroup;
             }
             holder.vibrate = (CheckBox) view.findViewById(R.id.vibrate_onoff);
-            holder.increasingVolume = (CheckBox) view.findViewById(R.id.increasing_volume_onoff);
             holder.ringtone = (TextView) view.findViewById(R.id.choose_ringtone);
+            holder.preAlarm = (CheckBox) view.findViewById(R.id.pre_alarm);
+            holder.alarmtone = (CheckBox) view.findViewById(R.id.alarm_select);
+            holder.alarmProperties = (LinearLayout) view.findViewById(R.id.alarm_properties);
+            holder.prealarmProperties = (LinearLayout) view.findViewById(R.id.prealarm_properties);            
+            holder.prealarmRingtone = (TextView) view.findViewById(R.id.prealarm_choose_ringtone);
+            holder.prealarmTime = (TextView) view.findViewById(R.id.prealarm_time);
+            holder.painMode = (CheckBox) view.findViewById(R.id.pain_mode);
 
             view.setTag(holder);
         }
@@ -1173,11 +1159,14 @@ public class AlarmClockFragment extends DeskClockFragment implements
 
             if (mRepeatChecked.contains(alarm.id) || itemHolder.alarm.daysOfWeek.isRepeating()) {
                 itemHolder.repeat.setChecked(true);
+                itemHolder.repeat.setTextColor(mColorLit);
                 itemHolder.repeatDays.setVisibility(View.VISIBLE);
             } else {
                 itemHolder.repeat.setChecked(false);
+                itemHolder.repeat.setTextColor(mColorDim);
                 itemHolder.repeatDays.setVisibility(View.GONE);
             }
+
             itemHolder.repeat.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -1262,45 +1251,147 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 @Override
                 public void onClick(View v) {
                     final boolean checked = ((CheckBox) v).isChecked();
-                    if (checked) {
-                        itemHolder.vibrate.setTextColor(mColorLit);
-                    } else {
-                        itemHolder.vibrate.setTextColor(mColorDim);
-                    }
                     alarm.vibrate = checked;
                     asyncUpdateAlarm(alarm, false);
                 }
             });
 
-            final String ringtone;
-            if (Alarm.NO_RINGTONE_URI.equals(alarm.alert)) {
-                ringtone = mContext.getResources().getString(R.string.silent_alarm_summary);
+            String ringtone = mContext.getResources().getString(R.string.ringtone_disabled);
+            if (!alarm.mediaStart) {
+                boolean mediaAlertEnabled = false;
+                if (alarm.alert != null) {
+                    if (!Alarm.NO_RINGTONE_URI.equals(alarm.alert)) {
+                        if (!mAlarms.contains(alarm.alert)) {
+                            mediaAlertEnabled = true;
+                        }
+                    }
+                }
+
+                if (mediaAlertEnabled){
+                    ringtone = getMediaTitle(alarm.alert);
+                } else {
+                    if (Alarm.NO_RINGTONE_URI.equals(alarm.alert)) {
+                        ringtone = mContext.getResources().getString(R.string.silent_alarm_summary);
+                    } else {
+                        ringtone = getRingToneTitle(alarm.alert);
+                    }
+                }
             } else {
-                ringtone = getRingToneTitle(alarm.alert);
+                ringtone = mContext.getResources().getString(R.string.mediaStartType);
             }
             itemHolder.ringtone.setText(ringtone);
             itemHolder.ringtone.setContentDescription(
                     mContext.getResources().getString(R.string.ringtone_description) + " "
                             + ringtone);
+
             itemHolder.ringtone.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    launchRingTonePicker(alarm);
+                    showAlarmRingtoneDialog(alarm, false);
                 }
             });
 
+            boolean silentAlarm = alarm.alert != null && Alarm.NO_RINGTONE_URI.equals(alarm.alert) && !alarm.mediaStart;
 
-            itemHolder.increasingVolume.setVisibility(View.VISIBLE);
-            itemHolder.increasingVolume.setChecked(alarm.increasingVolume);
-            itemHolder.increasingVolume.setTextColor(
-                    alarm.increasingVolume ? mColorLit : mColorDim);
-            itemHolder.increasingVolume.setOnClickListener(new View.OnClickListener() {
+            itemHolder.preAlarm.setChecked(alarm.preAlarm);
+            itemHolder.preAlarm.setTextColor(
+                    alarm.preAlarm ? mColorLit : mColorDim);
+            itemHolder.preAlarm.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     final boolean checked = ((CheckBox) v).isChecked();
-                    //When action mode is on - simulate long click
-                    itemHolder.increasingVolume.setTextColor(checked ? mColorLit : mColorDim);
-                    alarm.increasingVolume = checked;
+                    itemHolder.preAlarm.setTextColor(checked ? mColorLit : mColorDim);
+                    alarm.preAlarm = checked;
+
+                    if (!checked) {
+                        itemHolder.prealarmProperties.setVisibility(View.GONE);
+                        alarm.preAlarmAlert = Alarm.NO_RINGTONE_URI;
+                        alarm.preAlarmVolume = -1;
+                    } else {
+                        itemHolder.prealarmProperties.setVisibility(View.VISIBLE);
+                        alarm.preAlarmAlert = getDefaultAlarmUri();
+                    }
+                    itemHolder.prealarmProperties.requestLayout();
+                    asyncUpdateAlarm(alarm, false);
+                }
+            });
+
+            itemHolder.prealarmProperties.setVisibility(alarm.preAlarm ? View.VISIBLE : View.GONE);
+
+            itemHolder.alarmtone.setChecked(!silentAlarm || alarm.mediaStart);
+            itemHolder.alarmtone.setTextColor(
+                    !silentAlarm ? mColorLit : mColorDim);
+            itemHolder.alarmProperties.setVisibility(itemHolder.alarmtone.isChecked() ? View.VISIBLE : View.GONE);
+
+            itemHolder.alarmtone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (!itemHolder.alarmtone.isChecked()) {
+                        itemHolder.alarmProperties.setVisibility(View.GONE);
+                        // set to silent
+                        alarm.alert = Alarm.NO_RINGTONE_URI;
+                        alarm.mediaStart = false;
+                        alarm.alarmVolume = -1;
+                    } else {
+                        itemHolder.alarmProperties.setVisibility(View.VISIBLE);
+                        alarm.alert = getDefaultAlarmUri();
+                        alarm.mediaStart = false;
+                    }
+                    itemHolder.alarmProperties.requestLayout();
+                    asyncUpdateAlarm(alarm, false);
+                }
+            });
+
+            itemHolder.prealarmTime.setText(String.format(mContext.getResources()
+                    .getQuantityText(R.plurals.snooze_duration, alarm.preAlarmTime)
+                    .toString(), alarm.preAlarmTime));
+            itemHolder.prealarmTime.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showPreAlarmTimeDialog(alarm);
+                }
+            });
+
+            boolean mediaAlertEnabled = false;
+            if (alarm.preAlarmAlert != null) {
+                if (!Alarm.NO_RINGTONE_URI.equals(alarm.preAlarmAlert)) {
+                    if (!mAlarms.contains(alarm.preAlarmAlert)) {
+                        mediaAlertEnabled = true;
+                    }
+                }
+            }
+
+            ringtone = mContext.getResources().getString(R.string.ringtone_disabled);
+            if (mediaAlertEnabled){
+                ringtone = getMediaTitle(alarm.preAlarmAlert);
+            } else {
+                if (Alarm.NO_RINGTONE_URI.equals(alarm.preAlarmAlert)) {
+                    ringtone = mContext.getResources().getString(R.string.silent_alarm_summary);
+                } else {
+                    ringtone = getRingToneTitle(alarm.preAlarmAlert);
+                }
+            }
+            itemHolder.prealarmRingtone.setText(ringtone);
+            itemHolder.prealarmRingtone.setContentDescription(
+                    mContext.getResources().getString(R.string.ringtone_description) + " "
+                            + ringtone);
+
+            itemHolder.prealarmRingtone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showAlarmRingtoneDialog(alarm, true);
+                }
+            });
+            // TODO
+            itemHolder.painMode.setVisibility(View.GONE);
+            itemHolder.painMode.setChecked(alarm.painMode);
+            itemHolder.painMode.setTextColor(
+                    alarm.painMode ? mColorLit : mColorDim);
+            itemHolder.painMode.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final boolean checked = ((CheckBox) v).isChecked();
+                    alarm.painMode = checked;
                     asyncUpdateAlarm(alarm, false);
                 }
             });
@@ -1372,6 +1463,9 @@ public class AlarmClockFragment extends DeskClockFragment implements
          * @return The ringtone title. {@literal null} if no matching ringtone found.
          */
         private String getRingToneTitle(Uri uri) {
+            if (uri == null) {
+                uri = getDefaultAlarmUri();
+            }
             // Try the cache first
             String title = mRingtoneTitleCache.getString(uri.toString());
             if (title == null) {
@@ -1383,6 +1477,26 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 }
             }
             return title;
+        }
+
+        private String getMediaTitle(Uri uri) {
+            File f = new File(uri.getPath());
+            if (f.exists() && f.isDirectory()) {
+                return uri.getPath();
+            }
+            Cursor cursor = null;
+            try {
+                cursor = mContext.getContentResolver().query(uri,  null, null, null, null);
+                int nameIndex = cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME);
+                cursor.moveToFirst();
+                return cursor.getString(nameIndex);
+            } catch(Exception e) {
+                return uri.toString();
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
         }
 
         public void setNewAlarm(long alarmId) {
@@ -1747,6 +1861,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
     }
 
     private void asyncAddAlarm(final Alarm alarm) {
+        Log.d("asyncAddAlarm " + alarm.toString());
         final Context context = AlarmClockFragment.this.getActivity().getApplicationContext();
         final AsyncTask<Void, Void, AlarmInstance> updateTask =
                 new AsyncTask<Void, Void, AlarmInstance>() {
@@ -1829,5 +1944,62 @@ public class AlarmClockFragment extends DeskClockFragment implements
     public boolean onTouch(View v, MotionEvent event) {
         hideUndoBar(true, event);
         return false;
+    }
+
+    private void cacheSystemTones() {
+        mAlarms = new ArrayList<Uri>();
+
+        RingtoneManager ringtoneMgr = new RingtoneManager(getActivity().getApplicationContext());
+        ringtoneMgr.setType(RingtoneManager.TYPE_ALL);
+
+        Cursor alarmsCursor = ringtoneMgr.getCursor();
+        int alarmsCount = alarmsCursor.getCount();
+        if (alarmsCount == 0 && !alarmsCursor.moveToFirst()) {
+            return;
+        }
+
+        while(!alarmsCursor.isAfterLast() && alarmsCursor.moveToNext()) {
+            int currentPosition = alarmsCursor.getPosition();
+            mAlarms.add(ringtoneMgr.getRingtoneUri(currentPosition));
+        }
+        mAlarms.add(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM));
+        alarmsCursor.close();
+    }
+
+    private void showPreAlarmTimeDialog(Alarm alarm) {
+        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        final Fragment prev = getFragmentManager().findFragmentByTag("prealarm_time_edit");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        PreAlarmTimeDialog fragment = PreAlarmTimeDialog.newInstance(this, alarm);
+        fragment.show(getFragmentManager(), "prealarm_time_edit");
+    }
+
+    private void showAlarmRingtoneDialog(Alarm alarm, boolean preAlarm) {
+        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        final Fragment prev = getFragmentManager().findFragmentByTag("alarm_volume_edit");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        AlarmRingtoneDialog fragment = AlarmRingtoneDialog.newInstance(this, alarm, preAlarm);
+        fragment.show(getFragmentManager(), "alarm_ringtone_edit");
+    }
+
+    public void onFinishOk(Alarm alarm) {
+        asyncUpdateAlarm(alarm, false);
+    }
+
+    private Uri getDefaultAlarmUri() {
+        Uri alert = RingtoneManager.getActualDefaultRingtoneUri(getActivity(),
+                    RingtoneManager.TYPE_ALARM);
+        if (alert == null) {
+            alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        }
+        return alert;
     }
 }

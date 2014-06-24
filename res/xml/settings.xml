@@ -52,6 +52,14 @@
             android:title="@string/snooze_duration_title"
             android:defaultValue="10"/>
 
+        <ListPreference
+            android:key="snooze_count"
+            android:entries="@array/snooze_count_entries"
+            android:entryValues="@array/snooze_count_values"
+            android:dialogTitle="@string/snooze_count_title"
+            android:title="@string/snooze_count_title"
+            android:defaultValue="0" />
+
         <VolumePreference
             android:key="volume_setting"
             android:title="@string/alarm_volume_title"
@@ -74,10 +82,24 @@
             android:entryValues="@array/volume_button_setting_values"
             android:defaultValue="0" />
 
+        <ListPreference
+            android:key="shake_action_setting"
+            android:title="@string/shake_action_title"
+            android:dialogTitle="@string/shake_action_dialog_title"
+            android:entries="@array/volume_button_setting_entries"
+            android:entryValues="@array/volume_button_setting_values"
+            android:defaultValue="0" />
+
         <CheckBoxPreference
             android:key="show_status_bar_icon"
             android:title="@string/show_status_bar_icon_title"
             android:summary="@string/show_status_bar_icon_summary"
+            android:defaultValue="true"  />
+
+        <CheckBoxPreference
+            android:key="keep_screen_on"
+            android:title="@string/keep_screen_on_title"
+            android:summary="@string/keep_screen_on_summary"
             android:defaultValue="true"  />
 
     </PreferenceCategory>

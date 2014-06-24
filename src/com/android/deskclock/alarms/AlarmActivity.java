@@ -119,10 +119,14 @@ public class AlarmActivity extends Activity {
     private AlarmInstance mInstance;
     private SensorManager mSensorManager;
     private int mFlipAction;
+    private int mShakeAction;
     private FlipSensorListener mFlipListener;
+    private ShakeSensorListener mShakeListener;
     private int mVolumeBehavior;
     private GlowPadView mGlowPadView;
     private GlowPadController glowPadController = new GlowPadController();
+    private int mDismissCount = 0;
+    private boolean mPreFiredMode;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -141,10 +145,21 @@ public class AlarmActivity extends Activity {
     };
 
     private void snooze() {
+        if (mInstance.mPainMode && !mPreFiredMode){
+            // feel the pain!
+            return;
+        }
         AlarmStateManager.setSnoozeState(this, mInstance);
     }
 
     private void dismiss() {
+        if (mInstance.mPainMode){
+            // feel the pain!
+            mDismissCount++;
+            if (mDismissCount != 3){
+                return;
+            }
+        }
         AlarmStateManager.setDismissState(this, mInstance);
     }
 
@@ -163,6 +178,12 @@ public class AlarmActivity extends Activity {
             return;
         }
 
+        mPreFiredMode = false;
+        if (mInstance.mAlarmState == AlarmInstance.PRE_FIRED_STATE) {
+            mPreFiredMode = true;
+            Log.v("Pre-alarm mode: " + mInstance);
+        }
+
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mFlipListener = new FlipSensorListener(new Runnable(){
             @Override
@@ -171,6 +192,12 @@ public class AlarmActivity extends Activity {
             }
         });
 
+        mShakeListener = new ShakeSensorListener(new Runnable(){
+            @Override
+            public void run() {
+                handleAction(mShakeAction);
+            }
+        });
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         // Get the volume/camera button behavior setting
@@ -182,12 +209,23 @@ public class AlarmActivity extends Activity {
                 SettingsActivity.DEFAULT_ALARM_ACTION);
         mFlipAction = Integer.parseInt(flip);
 
+        final String shake = prefs.getString(SettingsActivity.KEY_SHAKE_ACTION,
+                SettingsActivity.DEFAULT_ALARM_ACTION);
+        mShakeAction = Integer.parseInt(shake);
+
+        final boolean keepScreenOn = prefs.getBoolean(SettingsActivity.KEY_KEEP_SCREEN_ON, true);
+
+        mShakeAction = Integer.parseInt(shake);
+
         final Window win = getWindow();
         win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
-                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
                 WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+
+        if (keepScreenOn){
+            win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
 
         // In order to allow tablets to freely rotate and phones to stick
         // with "nosensor" (use default device orientation) we have to have
@@ -205,6 +243,8 @@ public class AlarmActivity extends Activity {
         filter.addAction(ALARM_SNOOZE_ACTION);
         filter.addAction(ALARM_DISMISS_ACTION);
         registerReceiver(mReceiver, filter);
+
+        attachListeners();
     }
 
 
@@ -212,7 +252,21 @@ public class AlarmActivity extends Activity {
         final String titleText = mInstance.getLabelOrDefault(this);
         TextView tv = (TextView)findViewById(R.id.alertTitle);
         tv.setText(titleText);
+        if (mPreFiredMode) {
+            tv.setTextColor(getResources().getColor(R.color.clock_blue));
+        } else {
+            tv.setTextColor(getResources().getColor(R.color.clock_red));
+        }
         super.setTitle(titleText);
+    }
+
+    private void updateClockColor() {
+        TextView tv = (TextView)findViewById(R.id.digitalClock);
+        if (mPreFiredMode) {
+            tv.setTextColor(getResources().getColor(R.color.clock_blue));
+        } else {
+            tv.setTextColor(getResources().getColor(R.color.clock_red));
+        }
     }
 
     private void updateLayout() {
@@ -221,11 +275,20 @@ public class AlarmActivity extends Activity {
         view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
         setContentView(view);
         updateTitle();
+        updateClockColor();
         Utils.setTimeFormat((TextClock)(view.findViewById(R.id.digitalClock)),
                 (int)getResources().getDimension(R.dimen.bottom_text_size));
 
         // Setup GlowPadController
         mGlowPadView = (GlowPadView) findViewById(R.id.glow_pad_view);
+
+        // remove snooze target if not possible
+        if (!AlarmStateManager.canSnooze(this, mInstance)) {
+            mGlowPadView.setTargetResources(R.array.dismiss_drawables);
+            mGlowPadView.setTargetDescriptionsResourceId(R.array.dismiss_descriptions);
+            mGlowPadView.setDirectionDescriptionsResourceId(R.array.dismiss_direction_descriptions);
+        }
+
         mGlowPadView.setOnTriggerListener(glowPadController);
         glowPadController.startPinger();
     }
@@ -244,19 +307,18 @@ public class AlarmActivity extends Activity {
     protected void onResume() {
         super.onResume();
         glowPadController.startPinger();
-        attachListeners();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         glowPadController.stopPinger();
-        detachListeners();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        detachListeners();
         unregisterReceiver(mReceiver);
     }
 
@@ -292,11 +354,20 @@ public class AlarmActivity extends Activity {
                     mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                     SensorManager.SENSOR_DELAY_NORMAL);
         }
+        if (mShakeAction != SettingsActivity.ALARM_NO_ACTION) {
+            mShakeListener.reset();
+            mSensorManager.registerListener(mShakeListener,
+                    mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                    SensorManager.SENSOR_DELAY_NORMAL);
+        }
     }
 
     private void detachListeners() {
         if (mFlipAction != SettingsActivity.ALARM_NO_ACTION) {
             mSensorManager.unregisterListener(mFlipListener);
+        }
+        if (mShakeAction != SettingsActivity.ALARM_NO_ACTION) {
+            mSensorManager.unregisterListener(mShakeListener);
         }
     }
 
