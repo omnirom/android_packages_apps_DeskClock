@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2007 The Android Open Source Project
+<!--
+     Copyright (C) 2007 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,14 +14,11 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="?android:attr/actionBarSize" >
-
     <ListView
         android:id="@+id/alarms_list"
         android:layout_width="match_parent"
@@ -28,9 +26,7 @@
         android:clipToPadding="false"
         android:descendantFocusability="beforeDescendants"
         android:divider="@null"
-        android:dividerHeight="0dp"
-        />
-
+        android:dividerHeight="0dp" />
     <TextView
         android:id="@+id/alarms_empty_view"
         style="@style/no_alarms"
@@ -39,55 +35,54 @@
         android:layout_gravity="center"
         android:contentDescription="@string/no_alarms"
         android:drawableTop="@drawable/ic_noalarms"
+        android:paddingBottom="88dp"
         android:text="@string/no_alarms"
-        android:textColor="#4cffffff"
-        android:paddingBottom="88dp" />
-
-    <FrameLayout android:id="@+id/undo_frame"
+        android:textColor="#4cffffff" />
+    <FrameLayout
+        android:id="@+id/undo_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" >
         <com.android.deskclock.widget.ActionableToastBar
             android:id="@+id/undo_bar"
+            style="@style/ToastBarStyle"
             android:layout_width="match_parent"
             android:layout_height="64dip"
             android:layout_gravity="bottom"
             android:layout_marginBottom="96dp"
-            android:layout_marginLeft="@dimen/alarm_undo_bar_horizontal_margin"
-            android:layout_marginStart="@dimen/alarm_undo_bar_horizontal_margin"
-            android:layout_marginRight="@dimen/alarm_undo_bar_horizontal_margin"
             android:layout_marginEnd="@dimen/alarm_undo_bar_horizontal_margin"
-            style="@style/ToastBarStyle" />
+            android:layout_marginLeft="@dimen/alarm_undo_bar_horizontal_margin"
+            android:layout_marginRight="@dimen/alarm_undo_bar_horizontal_margin"
+            android:layout_marginStart="@dimen/alarm_undo_bar_horizontal_margin" />
     </FrameLayout>
-
     <FrameLayout
         android:id="@+id/alarms_footer_view"
-        android:background="@drawable/footer_bg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom" >
+        android:layout_gravity="bottom"
+        android:background="@drawable/footer_bg" >
         <ImageButton
             android:id="@+id/alarm_add_alarm"
-            android:contentDescription="@string/add_alarm"
+            style="@style/button"
             android:layout_width="@dimen/footer_button_size"
             android:layout_height="@dimen/footer_button_size"
-            android:layout_marginTop="@dimen/footer_button_layout_margin"
+            android:layout_gravity="center"
             android:layout_marginBottom="@dimen/footer_button_layout_margin"
-            android:layout_marginRight="@dimen/footer_button_layout_margin"
             android:layout_marginEnd="@dimen/footer_button_layout_margin"
             android:layout_marginLeft="@dimen/footer_button_layout_margin"
+            android:layout_marginRight="@dimen/footer_button_layout_margin"
             android:layout_marginStart="@dimen/footer_button_layout_margin"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_add"
-            style="@style/button"
-            android:background="@drawable/main_button_normal" />
+            android:layout_marginTop="@dimen/footer_button_layout_margin"
+            android:background="@drawable/main_button_normal"
+            android:contentDescription="@string/add_alarm"
+            android:src="@drawable/ic_add" />
         <ImageButton
             android:id="@+id/menu_button"
-            android:contentDescription="@string/button_menu"
             style="?android:attr/actionOverflowButtonStyle"
-            android:background="@drawable/item_background"
-            android:layout_gravity="end|center_vertical"
             android:layout_width="@dimen/footer_button_size"
-            android:layout_height="@dimen/footer_button_size" />
+            android:layout_height="@dimen/footer_button_size"
+            android:layout_gravity="end|center_vertical"
+            android:background="@drawable/item_background"
+            android:contentDescription="@string/button_menu" />
     </FrameLayout>
 </FrameLayout>

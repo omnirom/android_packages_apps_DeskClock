@@ -16,22 +16,37 @@
 
 package com.android.deskclock.alarms;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Collections;
+
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
+import android.database.Cursor;
 import android.media.AudioManager;
+import android.media.IAudioService;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.os.RemoteException;
+import android.os.ServiceManager;
+import android.os.SystemClock;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
+import android.view.KeyEvent;
 
 import com.android.deskclock.Log;
 import com.android.deskclock.R;
+import com.android.deskclock.SettingsActivity;
 import com.android.deskclock.provider.AlarmInstance;
-
-import java.io.IOException;
 
 /**
  * Manages playing ringtone and vibrating the device.
@@ -42,17 +57,25 @@ public class AlarmKlaxon {
     // Volume suggested by media team for in-call alarms.
     private static final float IN_CALL_VOLUME = 0.125f;
 
-    // 5sec * 7 volume levels = 30sec till max volume
-    private static final long INCREASING_VOLUME_DELAY = 5000;
     private static final int INCREASING_VOLUME_START = 1;
     private static final int INCREASING_VOLUME_DELTA = 1;
 
     private static boolean sStarted = false;
     private static AudioManager sAudioManager = null;
     private static MediaPlayer sMediaPlayer = null;
+    private static boolean sMediaStarted = false;
+    private static boolean sPreAlarmMode = false;
+    private static boolean sMultiFileMode = false;
+    private static List<Uri> mSongs = new ArrayList<Uri>();
+    private static Uri mCurrentTone;
+    private static int sCurrentIndex;
 
     private static int sCurrentVolume = INCREASING_VOLUME_START;
-    private static int sAlarmVolumeSetting;
+    private static int sSavedVolume;
+    private static int sMaxVolume;
+    private static boolean sIncreasingVolume;
+    private static boolean sRandomPlayback;
+    private static long sVolumeIncreaseSpeed;
 
     // Internal messages
     private static final int INCREASING_VOLUME = 1001;
@@ -61,98 +84,220 @@ public class AlarmKlaxon {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case INCREASING_VOLUME:
-                    if (sStarted && sMediaPlayer != null && sMediaPlayer.isPlaying()) {
-                        sCurrentVolume += INCREASING_VOLUME_DELTA;
-                        Log.d("Increasing alarm volume to " + sCurrentVolume);
-                        sAudioManager.setStreamVolume(AudioManager.STREAM_ALARM, sCurrentVolume, 0);
-                        if (sCurrentVolume <= sAlarmVolumeSetting) {
-                            sHandler.sendEmptyMessageDelayed(INCREASING_VOLUME,
-                                    INCREASING_VOLUME_DELAY);
-                        }
+            case INCREASING_VOLUME:
+                if (sStarted) {
+                    sCurrentVolume += INCREASING_VOLUME_DELTA;
+                    Log.v("Increasing alarm volume to " + sCurrentVolume);
+                    sAudioManager.setStreamVolume(
+                            AudioManager.STREAM_MUSIC, sCurrentVolume, 0);
+                    if (sCurrentVolume <= sMaxVolume) {
+                        sHandler.sendEmptyMessageDelayed(INCREASING_VOLUME,
+                                sVolumeIncreaseSpeed);
                     }
-                    break;
+                }
+                break;
             }
         }
     };
 
-
     public static void stop(Context context) {
-        Log.v("AlarmKlaxon.stop()");
-
         if (sStarted) {
+            Log.v("AlarmKlaxon.stop()");
+
             sStarted = false;
-
             sHandler.removeMessages(INCREASING_VOLUME);
+            // reset to default from before
+            sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+                        sSavedVolume, 0);
 
-            // Stop audio playing
-            if (sMediaPlayer != null) {
-                sMediaPlayer.stop();
-                sMediaPlayer.release();
-                sMediaPlayer = null;
+            if (sMediaStarted) {
+                dispatchMediaKeyWithWakeLockToAudioService(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+                sMediaStarted = false;
 
-                // reset to default from before
-                sAudioManager.setStreamVolume(AudioManager.STREAM_ALARM, sAlarmVolumeSetting, 0);
-                sAudioManager.abandonAudioFocus(null);
-                sAudioManager = null;
+            } else {
+                // Stop audio playing
+                if (sMediaPlayer != null) {
+                    sMediaPlayer.stop();
+                    sMediaPlayer.release();
+                    sMediaPlayer = null;
+                    sAudioManager.abandonAudioFocus(null);
+                    sAudioManager = null;
+                }
+                sPreAlarmMode = false;
             }
-
-            ((Vibrator)context.getSystemService(Context.VIBRATOR_SERVICE)).cancel();
+            ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE))
+                    .cancel();
         }
+    }
+
+    private static Uri getDefaultAlarm(Context context) {
+        Uri alarmNoise = RingtoneManager.getActualDefaultRingtoneUri(context,
+                    RingtoneManager.TYPE_ALARM);
+        if (alarmNoise == null) {
+            alarmNoise = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        }
+        return alarmNoise;
     }
 
     public static void start(final Context context, AlarmInstance instance,
             boolean inTelephoneCall) {
-        Log.v("AlarmKlaxon.start()");
         // Make sure we are stop before starting
         stop(context);
 
-        if (!AlarmInstance.NO_RINGTONE_URI.equals(instance.mRingtone)) {
-            Uri alarmNoise = instance.mRingtone;
-            // Fall back on the default alarm if the database does not have an
-            // alarm stored.
-            if (alarmNoise == null) {
-                alarmNoise = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-                if (Log.LOGV) {
-                    Log.v("Using default alarm: " + alarmNoise.toString());
+        Log.v("AlarmKlaxon.start() " + instance);
+
+        sPreAlarmMode = false;
+        if (instance.mAlarmState == AlarmInstance.PRE_ALARM_STATE) {
+            sPreAlarmMode = true;
+        }
+
+        sVolumeIncreaseSpeed = getVolumeChangeDelay(context);
+        Log.v("Volume increase interval " + sVolumeIncreaseSpeed);
+
+        final Context appContext = context.getApplicationContext();
+        sAudioManager = (AudioManager) appContext
+                .getSystemService(Context.AUDIO_SERVICE);
+        // save current value
+        sSavedVolume = sAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        sMaxVolume = sSavedVolume;
+        sIncreasingVolume = instance.getIncreasingVolume(sPreAlarmMode);
+        sRandomPlayback = instance.getRandomMode(sPreAlarmMode);
+
+        if (sPreAlarmMode) {
+            sMaxVolume = instance.mPreAlarmVolume;
+        } else {
+            sMaxVolume = instance.mAlarmVolume;
+        }
+        if (sMaxVolume == -1){
+            // calc from current alarm volume
+            sMaxVolume = calcMusicVolumeFromCurrentAlarm();
+        }
+        sMediaStarted = false;
+
+        if (!sPreAlarmMode && instance.mMediaStart) {
+            // do not play alarms if stream volume is 0 (typically because
+            // ringer mode is silent).
+            if (sMaxVolume != 0) {
+                sMediaStarted = true;
+                if (sIncreasingVolume) {
+                    sCurrentVolume = INCREASING_VOLUME_START;
+                    sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+                            sCurrentVolume, 0);
+                    Log.v("Starting alarm volume " + sCurrentVolume
+                            + " max volume " + sMaxVolume);
+
+                    if (sCurrentVolume < sMaxVolume) {
+                        sHandler.sendEmptyMessageDelayed(INCREASING_VOLUME,
+                                sVolumeIncreaseSpeed);
+                    }
                 }
+                dispatchMediaKeyWithWakeLockToAudioService(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+            }
+        } else {
+            Uri alarmNoise = null;
+            sMultiFileMode = false;
+            sCurrentIndex = 0;
+            if (sPreAlarmMode) {
+                alarmNoise = instance.mPreAlarmRingtone;
+            } else {
+                alarmNoise = instance.mRingtone;
             }
 
-            final Context appContext = context.getApplicationContext();
-            sAudioManager = (AudioManager) appContext.getSystemService(Context.AUDIO_SERVICE);
-            // save current value
-            sAlarmVolumeSetting = sAudioManager.getStreamVolume(AudioManager.STREAM_ALARM);
+            File folder = new File(alarmNoise.getPath());
+            if (folder.exists() && folder.isDirectory()) {
+                sMultiFileMode = true;
+            }
 
-            // TODO: Reuse mMediaPlayer instead of creating a new one and/or use RingtoneManager.
-            sMediaPlayer = new MediaPlayer();
-            sMediaPlayer.setOnErrorListener(new OnErrorListener() {
+            if (inTelephoneCall) {
+                sMultiFileMode = false;
+            }
+
+            if (sMultiFileMode) {
+                collectFiles(context, alarmNoise);
+                if (mSongs.size() != 0) {
+                    alarmNoise = mSongs.get(0);
+                } else {
+                    alarmNoise = null;
+                    sMultiFileMode = false;
+                }
+            }
+            if (alarmNoise == null) {
+                // no ringtone == default
+                alarmNoise = getDefaultAlarm(context);
+            } else if (AlarmInstance.NO_RINGTONE_URI.equals(alarmNoise)) {
+                // silent
+                alarmNoise = null;
+            }
+
+            if (alarmNoise != null) {
+                playAlarm(context, instance, inTelephoneCall, alarmNoise);
+            }
+        }
+        if (instance.mVibrate) {
+            Vibrator vibrator = (Vibrator) context
+                    .getSystemService(Context.VIBRATOR_SERVICE);
+            vibrator.vibrate(sVibratePattern, 0);
+        }
+        sStarted = true;
+    }
+
+    private static void playAlarm(final Context context,
+            final AlarmInstance instance, final boolean inTelephoneCall, final Uri alarmNoise) {
+
+        sMediaPlayer = new MediaPlayer();
+        sMediaPlayer.setOnErrorListener(new OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                Log.e("Error playing " + alarmNoise);
+                if (sMultiFileMode) {
+                    Log.e("Skipping file");
+                    mSongs.remove(alarmNoise);
+                    nextSong(context, instance, inTelephoneCall);
+                } else {
+                    Log.e("Using the fallback ringtone");
+                    playAlarm(context, instance, inTelephoneCall, getDefaultAlarm(context));
+                }
+                return true;
+            }
+        });
+
+        if (sMultiFileMode) {
+            sMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
                 @Override
-                public boolean onError(MediaPlayer mp, int what, int extra) {
-                    Log.e("Error occurred while playing audio. Stopping AlarmKlaxon.");
-                    AlarmKlaxon.stop(context);
-                    return true;
+                public void onCompletion(MediaPlayer mp) {
+                    nextSong(context, instance, inTelephoneCall);
                 }
             });
+        }
 
-            try {
-                // Check if we are in a call. If we are, use the in-call alarm
-                // resource at a low volume to not disrupt the call.
-                if (inTelephoneCall) {
-                    Log.v("Using the in-call alarm");
-                    sMediaPlayer.setVolume(IN_CALL_VOLUME, IN_CALL_VOLUME);
-                    setDataSourceFromResource(context, sMediaPlayer, R.raw.in_call_alarm);
-                } else {
-                    sMediaPlayer.setDataSource(context, alarmNoise);
-                }
-                startAlarm(context, sMediaPlayer, instance);
-            } catch (Exception ex) {
-                Log.v("Using the fallback ringtone");
+        try {
+            // Check if we are in a call. If we are, use the in-call alarm
+            // resource at a low volume to not disrupt the call.
+            if (inTelephoneCall) {
+                Log.v("Using the in-call alarm");
+                sMediaPlayer.setVolume(IN_CALL_VOLUME, IN_CALL_VOLUME);
+                setDataSourceFromResource(context, sMediaPlayer,
+                        R.raw.in_call_alarm);
+            } else {
+                sMediaPlayer.setDataSource(context, alarmNoise);
+                mCurrentTone = alarmNoise;
+                Log.v("next song:" + mCurrentTone);
+            }
+            startAlarm(context, sMediaPlayer, instance);
+        } catch (Exception ex) {
+            Log.e("Error playing " + alarmNoise);
+            if (sMultiFileMode) {
+                Log.e("Skipping file");
+                mSongs.remove(alarmNoise);
+                nextSong(context, instance, inTelephoneCall);
+            } else {
+                Log.e("Using the fallback ringtone");
                 // The alarmNoise may be on the sd card which could be busy right
                 // now. Use the fallback ringtone.
                 try {
                     // Must reset the media player to clear the error state.
                     sMediaPlayer.reset();
-                    setDataSourceFromResource(context, sMediaPlayer, R.raw.fallbackring);
+                    sMediaPlayer.setDataSource(context, getDefaultAlarm(context));
                     startAlarm(context, sMediaPlayer, instance);
                 } catch (Exception ex2) {
                     // At this point we just don't play anything.
@@ -160,45 +305,129 @@ public class AlarmKlaxon {
                 }
             }
         }
-
-        if (instance.mVibrate) {
-            Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-            vibrator.vibrate(sVibratePattern, 0);
-        }
-
-        sStarted = true;
     }
 
     // Do the common stuff when starting the alarm.
     private static void startAlarm(Context context, MediaPlayer player,
             AlarmInstance instance) throws IOException {
-        // do not play alarms if stream volume is 0 (typically because ringer mode is silent).
-        if (sAudioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
-            if (instance.mIncreasingVolume) {
+        // do not play alarms if alarm volume is 0
+        // this can be either the stored one or the actual can
+        if (sMaxVolume != 0) {
+            if (sIncreasingVolume) {
                 sCurrentVolume = INCREASING_VOLUME_START;
-                sAudioManager.setStreamVolume(AudioManager.STREAM_ALARM, sCurrentVolume, 0);
-                Log.d("Starting alarm volume " + sCurrentVolume + " max volume " +sAlarmVolumeSetting);
+                sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+                        sCurrentVolume, 0);
+                Log.v("Starting alarm volume " + sCurrentVolume
+                        + " max volume " + sMaxVolume);
+            } else {
+                sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+                        sMaxVolume, 0);
             }
-
-            player.setAudioStreamType(AudioManager.STREAM_ALARM);
-            player.setLooping(true);
+            player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            if (!sMultiFileMode) {
+                player.setLooping(true);
+            }
             player.prepare();
-            sAudioManager.requestAudioFocus(null,
-                    AudioManager.STREAM_ALARM, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+            sAudioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
             player.start();
 
-            if (instance.mIncreasingVolume && sCurrentVolume <= sAlarmVolumeSetting) {
-                sHandler.sendEmptyMessageDelayed(INCREASING_VOLUME, INCREASING_VOLUME_DELAY);
+            if (sIncreasingVolume && sCurrentVolume < sMaxVolume) {
+                sHandler.sendEmptyMessageDelayed(INCREASING_VOLUME,
+                        sVolumeIncreaseSpeed);
             }
         }
     }
 
-    private static void setDataSourceFromResource(Context context, MediaPlayer player, int res)
-            throws IOException {
+    private static void setDataSourceFromResource(Context context,
+            MediaPlayer player, int res) throws IOException {
         AssetFileDescriptor afd = context.getResources().openRawResourceFd(res);
         if (afd != null) {
-            player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+            player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(),
+                    afd.getLength());
             afd.close();
+        }
+    }
+
+    private static IAudioService getAudioService() {
+        IAudioService audioService = IAudioService.Stub
+                .asInterface(ServiceManager.checkService(Context.AUDIO_SERVICE));
+        if (audioService == null) {
+            Log.w("Unable to find IAudioService interface.");
+        }
+        return audioService;
+    }
+
+    private static void dispatchMediaKeyWithWakeLockToAudioService(int keycode) {
+        IAudioService audioService = getAudioService();
+        if (audioService != null) {
+            try {
+                KeyEvent event = new KeyEvent(SystemClock.uptimeMillis(),
+                        SystemClock.uptimeMillis(), KeyEvent.ACTION_DOWN,
+                        keycode, 0);
+                audioService.dispatchMediaKeyEventUnderWakelock(event);
+                event = KeyEvent.changeAction(event, KeyEvent.ACTION_UP);
+                audioService.dispatchMediaKeyEventUnderWakelock(event);
+            } catch (RemoteException e) {
+                Log.e("dispatchMediaKeyEvent threw exception " + e);
+            }
+        }
+    }
+
+    private static long getVolumeChangeDelay(Context context) {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String speed = prefs.getString(SettingsActivity.KEY_VOLUME_INCREASE_SPEED, "5");
+        int speedInt = Integer.decode(speed).intValue();
+        return speedInt * 1000;
+    }
+
+    private static int calcMusicVolumeFromCurrentAlarm() {
+        int maxMusicVolume = sAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        int alarmVolume = sAudioManager.getStreamVolume(AudioManager.STREAM_ALARM);
+        int maxAlarmVolume = sAudioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM);
+
+        if (alarmVolume == 0) {
+            return 0;
+        }
+        return (int)(((float)alarmVolume / (float)maxAlarmVolume) * (float)maxMusicVolume);
+    }
+
+    private static void nextSong(final Context context,
+            AlarmInstance instance, boolean inTelephoneCall) {
+        if (mSongs.size() == 0) {
+            sMultiFileMode = false;
+            // something bad happend to our play list
+            // just fall back to the default
+            Log.e("Using the fallback ringtone");
+            playAlarm(context, instance, inTelephoneCall, getDefaultAlarm(context));
+            return;
+        }
+        sCurrentIndex++;
+        // restart if on end
+        if (sCurrentIndex >= mSongs.size()) {
+            sCurrentIndex = 0;
+            if (sRandomPlayback) {
+                Collections.shuffle(mSongs);
+            }
+        }
+        Uri song = mSongs.get(sCurrentIndex);
+        playAlarm(context, instance, inTelephoneCall, song);
+    }
+
+    private static void collectFiles(Context context, Uri folderUri) {
+        mSongs.clear();
+
+        File folder = new File(folderUri.getPath());
+        if (folder.exists() && folder.isDirectory()) {
+            for (final File fileEntry : folder.listFiles()) {
+                if (!fileEntry.isDirectory()) {
+                    mSongs.add(Uri.fromFile(fileEntry));
+                }
+            }
+            if (sRandomPlayback) {
+                Collections.shuffle(mSongs);
+            }
+            Log.v("songs in folder " + folder.getAbsolutePath() + ":" + mSongs);
         }
     }
 }

@@ -52,7 +52,7 @@
             android:baselineAligned="true"
             android:singleLine="true"
             android:ellipsize="none"
-            style="@style/big_thin"
+            style="@style/big_fat"
             android:textColor="@color/clock_white"/>
     </LinearLayout>
 
