@@ -36,10 +36,8 @@ package com.android.deskclock.alarms;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.util.Log;
 
 public class FlipSensorListener implements SensorEventListener {
-    private static final String TAG = "FlipSensorListener";
     private static final int FACE_UP_GRAVITY_THRESHOLD = 7;
     private static final int FACE_DOWN_GRAVITY_THRESHOLD = -7;
     private static final int TILT_THRESHOLD = 3;
@@ -60,7 +58,6 @@ public class FlipSensorListener implements SensorEventListener {
     }
 
     public void reset() {
-        Log.d(TAG, "FlipListener Reset()");
         mWasFaceUp = false;
         mStopped = false;
         for (int i = 0; i < SENSOR_SAMPLES; i++) {
@@ -94,7 +91,6 @@ public class FlipSensorListener implements SensorEventListener {
 
             // face up
             if (filterSamples()) {
-                Log.d(TAG, "onSensorChanged() - Face Up");
                 mWasFaceUp = true;
                 for (int i = 0; i < SENSOR_SAMPLES; i++) {
                     mSamples[i] = false;
@@ -106,7 +102,6 @@ public class FlipSensorListener implements SensorEventListener {
 
             // face down
             if (filterSamples()) {
-                Log.d(TAG, "onSensorChanged() - Face Down");
                 mStopped = true;
                 mFlipAction.run();
             }
