@@ -63,7 +63,6 @@ public class AlarmKlaxon {
     private static boolean sStarted = false;
     private static AudioManager sAudioManager = null;
     private static MediaPlayer sMediaPlayer = null;
-    private static boolean sMediaStarted = false;
     private static boolean sPreAlarmMode = false;
     private static boolean sMultiFileMode = false;
     private static List<Uri> mSongs = new ArrayList<Uri>();
@@ -110,21 +109,16 @@ public class AlarmKlaxon {
             sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
                         sSavedVolume, 0);
 
-            if (sMediaStarted) {
-                dispatchMediaKeyWithWakeLockToAudioService(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
-                sMediaStarted = false;
-
-            } else {
-                // Stop audio playing
-                if (sMediaPlayer != null) {
-                    sMediaPlayer.stop();
-                    sMediaPlayer.release();
-                    sMediaPlayer = null;
-                    sAudioManager.abandonAudioFocus(null);
-                    sAudioManager = null;
-                }
-                sPreAlarmMode = false;
+            // Stop audio playing
+            if (sMediaPlayer != null) {
+                sMediaPlayer.stop();
+                sMediaPlayer.release();
+                sMediaPlayer = null;
+                sAudioManager.abandonAudioFocus(null);
+                sAudioManager = null;
             }
+            sPreAlarmMode = false;
+            
             ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE))
                     .cancel();
         }
@@ -172,67 +166,46 @@ public class AlarmKlaxon {
             // calc from current alarm volume
             sMaxVolume = calcMusicVolumeFromCurrentAlarm();
         }
-        sMediaStarted = false;
 
-        if (!sPreAlarmMode && instance.mMediaStart) {
-            // do not play alarms if stream volume is 0 (typically because
-            // ringer mode is silent).
-            if (sMaxVolume != 0) {
-                sMediaStarted = true;
-                if (sIncreasingVolume) {
-                    sCurrentVolume = INCREASING_VOLUME_START;
-                    sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
-                            sCurrentVolume, 0);
-                    Log.v("Starting alarm volume " + sCurrentVolume
-                            + " max volume " + sMaxVolume);
-
-                    if (sCurrentVolume < sMaxVolume) {
-                        sHandler.sendEmptyMessageDelayed(INCREASING_VOLUME,
-                                sVolumeIncreaseSpeed);
-                    }
-                }
-                dispatchMediaKeyWithWakeLockToAudioService(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
-            }
+        Uri alarmNoise = null;
+        sMultiFileMode = false;
+        sCurrentIndex = 0;
+        if (sPreAlarmMode) {
+            alarmNoise = instance.mPreAlarmRingtone;
         } else {
-            Uri alarmNoise = null;
+            alarmNoise = instance.mRingtone;
+        }
+
+        File folder = new File(alarmNoise.getPath());
+        if (folder.exists() && folder.isDirectory()) {
+            sMultiFileMode = true;
+        }
+
+        if (inTelephoneCall) {
             sMultiFileMode = false;
-            sCurrentIndex = 0;
-            if (sPreAlarmMode) {
-                alarmNoise = instance.mPreAlarmRingtone;
+        }
+
+        if (sMultiFileMode) {
+            collectFiles(context, alarmNoise);
+            if (mSongs.size() != 0) {
+                alarmNoise = mSongs.get(0);
             } else {
-                alarmNoise = instance.mRingtone;
-            }
-
-            File folder = new File(alarmNoise.getPath());
-            if (folder.exists() && folder.isDirectory()) {
-                sMultiFileMode = true;
-            }
-
-            if (inTelephoneCall) {
+                alarmNoise = null;
                 sMultiFileMode = false;
             }
-
-            if (sMultiFileMode) {
-                collectFiles(context, alarmNoise);
-                if (mSongs.size() != 0) {
-                    alarmNoise = mSongs.get(0);
-                } else {
-                    alarmNoise = null;
-                    sMultiFileMode = false;
-                }
-            }
-            if (alarmNoise == null) {
-                // no ringtone == default
-                alarmNoise = getDefaultAlarm(context);
-            } else if (AlarmInstance.NO_RINGTONE_URI.equals(alarmNoise)) {
-                // silent
-                alarmNoise = null;
-            }
-
-            if (alarmNoise != null) {
-                playAlarm(context, instance, inTelephoneCall, alarmNoise);
-            }
         }
+        if (alarmNoise == null) {
+            // no ringtone == default
+            alarmNoise = getDefaultAlarm(context);
+        } else if (AlarmInstance.NO_RINGTONE_URI.equals(alarmNoise)) {
+            // silent
+            alarmNoise = null;
+        }
+
+        if (alarmNoise != null) {
+            playAlarm(context, instance, inTelephoneCall, alarmNoise);
+        }
+        
         if (instance.mVibrate) {
             Vibrator vibrator = (Vibrator) context
                     .getSystemService(Context.VIBRATOR_SERVICE);

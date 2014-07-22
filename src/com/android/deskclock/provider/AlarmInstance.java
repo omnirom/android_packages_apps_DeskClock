@@ -293,7 +293,7 @@ public final class AlarmInstance implements ClockContract.InstancesColumns {
     public Long mAlarmId;
     public int mAlarmState;
     private int mIncreasingVolume;
-    public boolean mMediaStart;
+    private boolean mMediaStart;
     public boolean mPreAlarm;
     public int mAlarmVolume;
     public int mPreAlarmVolume;
