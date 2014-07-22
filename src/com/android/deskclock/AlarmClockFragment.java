@@ -1257,28 +1257,26 @@ public class AlarmClockFragment extends DeskClockFragment implements
             });
 
             String ringtone = mContext.getResources().getString(R.string.ringtone_disabled);
-            if (!alarm.mediaStart) {
-                boolean mediaAlertEnabled = false;
-                if (alarm.alert != null) {
-                    if (!Alarm.NO_RINGTONE_URI.equals(alarm.alert)) {
-                        if (!mAlarms.contains(alarm.alert)) {
-                            mediaAlertEnabled = true;
-                        }
-                    }
-                }
 
-                if (mediaAlertEnabled){
-                    ringtone = getMediaTitle(alarm.alert);
-                } else {
-                    if (Alarm.NO_RINGTONE_URI.equals(alarm.alert)) {
-                        ringtone = mContext.getResources().getString(R.string.silent_alarm_summary);
-                    } else {
-                        ringtone = getRingToneTitle(alarm.alert);
+            boolean mediaAlertEnabled = false;
+            if (alarm.alert != null) {
+                if (!Alarm.NO_RINGTONE_URI.equals(alarm.alert)) {
+                    if (!mAlarms.contains(alarm.alert)) {
+                        mediaAlertEnabled = true;
                     }
                 }
-            } else {
-                ringtone = mContext.getResources().getString(R.string.mediaStartType);
             }
+
+            if (mediaAlertEnabled){
+                ringtone = getMediaTitle(alarm.alert);
+            } else {
+                if (Alarm.NO_RINGTONE_URI.equals(alarm.alert)) {
+                    ringtone = mContext.getResources().getString(R.string.silent_alarm_summary);
+                } else {
+                    ringtone = getRingToneTitle(alarm.alert);
+                }
+            }
+
             itemHolder.ringtone.setText(ringtone);
             itemHolder.ringtone.setContentDescription(
                     mContext.getResources().getString(R.string.ringtone_description) + " "
@@ -1291,8 +1289,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 }
             });
 
-            boolean silentAlarm = alarm.alert != null && Alarm.NO_RINGTONE_URI.equals(alarm.alert) && !alarm.mediaStart;
-
             itemHolder.preAlarm.setChecked(alarm.preAlarm);
             itemHolder.preAlarm.setTextColor(
                     alarm.preAlarm ? mColorLit : mColorDim);
@@ -1301,15 +1297,13 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 public void onClick(View v) {
                     final boolean checked = ((CheckBox) v).isChecked();
                     itemHolder.preAlarm.setTextColor(checked ? mColorLit : mColorDim);
-                    alarm.preAlarm = checked;
 
                     if (!checked) {
                         itemHolder.prealarmProperties.setVisibility(View.GONE);
-                        alarm.preAlarmAlert = Alarm.NO_RINGTONE_URI;
-                        alarm.preAlarmVolume = -1;
+                        alarm.disablePreAlarm();
                     } else {
                         itemHolder.prealarmProperties.setVisibility(View.VISIBLE);
-                        alarm.preAlarmAlert = getDefaultAlarmUri();
+                        alarm.setDefaultPreAlarm(mContext);
                     }
                     itemHolder.prealarmProperties.requestLayout();
                     asyncUpdateAlarm(alarm, false);
@@ -1318,9 +1312,9 @@ public class AlarmClockFragment extends DeskClockFragment implements
 
             itemHolder.prealarmProperties.setVisibility(alarm.preAlarm ? View.VISIBLE : View.GONE);
 
-            itemHolder.alarmtone.setChecked(!silentAlarm || alarm.mediaStart);
+            itemHolder.alarmtone.setChecked(!alarm.isSilentAlarm());
             itemHolder.alarmtone.setTextColor(
-                    !silentAlarm ? mColorLit : mColorDim);
+                    !alarm.isSilentAlarm() ? mColorLit : mColorDim);
             itemHolder.alarmProperties.setVisibility(itemHolder.alarmtone.isChecked() ? View.VISIBLE : View.GONE);
 
             itemHolder.alarmtone.setOnClickListener(new View.OnClickListener() {
@@ -1328,14 +1322,10 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 public void onClick(View view) {
                     if (!itemHolder.alarmtone.isChecked()) {
                         itemHolder.alarmProperties.setVisibility(View.GONE);
-                        // set to silent
-                        alarm.alert = Alarm.NO_RINGTONE_URI;
-                        alarm.mediaStart = false;
-                        alarm.alarmVolume = -1;
+                        alarm.setSilentAlarm();
                     } else {
                         itemHolder.alarmProperties.setVisibility(View.VISIBLE);
-                        alarm.alert = getDefaultAlarmUri();
-                        alarm.mediaStart = false;
+                        alarm.setDefaultAlarm(mContext);
                     }
                     itemHolder.alarmProperties.requestLayout();
                     asyncUpdateAlarm(alarm, false);
@@ -1352,7 +1342,9 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 }
             });
 
-            boolean mediaAlertEnabled = false;
+            ringtone = mContext.getResources().getString(R.string.ringtone_disabled);
+
+            mediaAlertEnabled = false;
             if (alarm.preAlarmAlert != null) {
                 if (!Alarm.NO_RINGTONE_URI.equals(alarm.preAlarmAlert)) {
                     if (!mAlarms.contains(alarm.preAlarmAlert)) {
@@ -1360,8 +1352,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
                     }
                 }
             }
-
-            ringtone = mContext.getResources().getString(R.string.ringtone_disabled);
             if (mediaAlertEnabled){
                 ringtone = getMediaTitle(alarm.preAlarmAlert);
             } else {
@@ -1371,6 +1361,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
                     ringtone = getRingToneTitle(alarm.preAlarmAlert);
                 }
             }
+
             itemHolder.prealarmRingtone.setText(ringtone);
             itemHolder.prealarmRingtone.setContentDescription(
                     mContext.getResources().getString(R.string.ringtone_description) + " "
