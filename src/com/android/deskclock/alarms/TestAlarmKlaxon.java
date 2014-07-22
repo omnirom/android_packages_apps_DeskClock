@@ -96,47 +96,43 @@ public class TestAlarmKlaxon {
 
         sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, sMaxVolume, 0);
 
-        if (instance.mediaStart) {
-            dispatchMediaKeyWithWakeLockToAudioService(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+        Uri alarmNoise = null;
+        sMultiFileMode = false;
+        sCurrentIndex = 0;
+
+        if (preAlarm) {
+            alarmNoise = instance.preAlarmAlert;
         } else {
-            Uri alarmNoise = null;
-            sMultiFileMode = false;
-            sCurrentIndex = 0;
-
-            if (preAlarm) {
-                alarmNoise = instance.preAlarmAlert;
+            alarmNoise = instance.alert;
+        }
+        File folder = new File(alarmNoise.getPath());
+        if (folder.exists() && folder.isDirectory()) {
+            sMultiFileMode = true;
+        }
+        if (sMultiFileMode) {
+            collectFiles(context, alarmNoise);
+            if (mSongs.size() != 0) {
+                alarmNoise = mSongs.get(0);
             } else {
-                alarmNoise = instance.alert;
+                sError = true;
+                sErrorHandler.onError("Empty folder");
+                return;
             }
-            File folder = new File(alarmNoise.getPath());
-            if (folder.exists() && folder.isDirectory()) {
-                sMultiFileMode = true;
-            }
-            if (sMultiFileMode) {
-                collectFiles(context, alarmNoise);
-                if (mSongs.size() != 0) {
-                    alarmNoise = mSongs.get(0);
-                } else {
-                    sError = true;
-                    sErrorHandler.onError("Empty folder");
-                    return;
-                }
-            }
+        }
 
-            if (alarmNoise == null) {
-                // no ringtone == default
-                alarmNoise = getDefaultAlarm(context);
-            } else if (AlarmInstance.NO_RINGTONE_URI.equals(alarmNoise)) {
-                // silent
-                alarmNoise = null;
+        if (alarmNoise == null) {
+            // no ringtone == default
+            alarmNoise = getDefaultAlarm(context);
+        } else if (AlarmInstance.NO_RINGTONE_URI.equals(alarmNoise)) {
+           // silent
+           alarmNoise = null;
+        }
+        if (alarmNoise != null) {
+            Ringtone ringTone = RingtoneManager.getRingtone(context, alarmNoise);
+            if (ringTone != null) {
+                Log.v("Using ringtone: " + ringTone.getTitle(context));
             }
-            if (alarmNoise != null) {
-                Ringtone ringTone = RingtoneManager.getRingtone(context, alarmNoise);
-                if (ringTone != null) {
-                    Log.v("Using ringtone: " + ringTone.getTitle(context));
-                }
-                playTestAlarm(context, instance, alarmNoise);
-            }
+            playTestAlarm(context, instance, alarmNoise);
         }
     }
 
@@ -148,17 +144,14 @@ public class TestAlarmKlaxon {
         sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
                         sSavedVolume, 0);
 
-        if (instance.mediaStart) {
-            dispatchMediaKeyWithWakeLockToAudioService(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
-        } else {
-            if (sMediaPlayer != null) {
-                sMediaPlayer.stop();
-                sMediaPlayer.release();
-                sMediaPlayer = null;
-                sAudioManager.abandonAudioFocus(null);
-                sAudioManager = null;
-            }
+        if (sMediaPlayer != null) {
+            sMediaPlayer.stop();
+            sMediaPlayer.release();
+            sMediaPlayer = null;
+            sAudioManager.abandonAudioFocus(null);
+            sAudioManager = null;
         }
+
         sTestStarted = false;
     }
 
