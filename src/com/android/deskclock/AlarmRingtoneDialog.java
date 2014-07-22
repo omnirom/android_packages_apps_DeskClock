@@ -78,7 +78,6 @@ public class AlarmRingtoneDialog extends DialogFragment implements
 
     private TextView ringtone;
     private Spinner mMediaTypeSelect;
-    private View mRingtoneSection;
     private int mCurrentMediaType;
     private List<Uri> mAlarms;
     private List<Uri> mRingtones;
@@ -92,6 +91,9 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     private TextView mMinVolumeText;
     private TextView mMaxVolumeText;
     private CheckBox mRandomMode;
+    private Button mOkButton;
+    private Button mTestButton;
+    private boolean mSpinnerInit;
 
     public interface AlarmRingtoneDialogListener {
         void onFinishOk(Alarm alarm);
@@ -124,7 +126,16 @@ public class AlarmRingtoneDialog extends DialogFragment implements
             mIncreasingVolumeValue = savedInstanceState.getBoolean(KEY_INCREASING_VOLUME);
             mRandomModeValue = savedInstanceState.getBoolean(KEY_RANDOM_MODE);
             mRingtone = savedInstanceState.getParcelable(KEY_RINGTONE);
-            mAlarm = savedInstanceState.getParcelable(KEY_ALARM);
+        } else {
+            if (mPreAlarm) {
+                mRingtone = mAlarm.preAlarmAlert;
+                mVolume = mAlarm.preAlarmVolume;
+            } else {
+                mRingtone = mAlarm.alert;
+                mVolume = mAlarm.alarmVolume;
+            }
+            mIncreasingVolumeValue = mAlarm.getIncreasingVolume(mPreAlarm);
+            mRandomModeValue = mAlarm.getRandomMode(mPreAlarm);
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
@@ -146,7 +157,6 @@ public class AlarmRingtoneDialog extends DialogFragment implements
         outState.putBoolean(KEY_INCREASING_VOLUME, mIncreasingVolumeValue);
         outState.putBoolean(KEY_RANDOM_MODE, mRandomModeValue);
         outState.putParcelable(KEY_RINGTONE, mRingtone);
-        outState.putParcelable(KEY_ALARM, mAlarm);
     }
 
     @Override
@@ -192,16 +202,6 @@ public class AlarmRingtoneDialog extends DialogFragment implements
                 .getSystemService(Context.AUDIO_SERVICE);
         final int maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 
-        if (mPreAlarm) {
-            mRingtone = mAlarm.preAlarmAlert;
-            mVolume = mAlarm.preAlarmVolume;
-        } else {
-            mRingtone = mAlarm.alert;
-            mVolume = mAlarm.alarmVolume;
-        }
-        mIncreasingVolumeValue = mAlarm.getIncreasingVolume(mPreAlarm);
-        mRandomModeValue = mAlarm.getRandomMode(mPreAlarm);
-
         mMinVolumeText = (TextView) view.findViewById(R.id.alarm_volume_min);
         // must not be 0 if enabled
         mMinVolumeText.setText(String.valueOf(1));
@@ -209,14 +209,12 @@ public class AlarmRingtoneDialog extends DialogFragment implements
         mMaxVolumeText.setText(String.valueOf(maxVol));
 
         mRandomMode = (CheckBox) view.findViewById(R.id.random_mode_enable);
-        mRandomMode.setChecked(mRandomModeValue);
         mRandomMode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mRandomModeValue = mRandomMode.isChecked();
             }
         });
-
         mIncreasingVolume = (CheckBox) view.findViewById(R.id.increasing_volume_onoff);
         mIncreasingVolume.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -230,10 +228,30 @@ public class AlarmRingtoneDialog extends DialogFragment implements
         mEnabledCheckbox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mMaxVolumeSeekBar.setEnabled(!mEnabledCheckbox.isChecked());
+                boolean value = mEnabledCheckbox.isChecked();
+                mMaxVolumeSeekBar.setEnabled(!value);
+                if (value) {
+                    mVolume = -1;
+                } else {
+                    mVolume = mMaxVolumeSeekBar.getProgress() + 1;
+                }
             }
         });
-
+        mMaxVolumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress,
+                    boolean fromUser) {
+                if (fromUser) {
+                    mVolume = progress + 1;
+                }
+            }
+        });
         mMediaTypeSelect = (Spinner) view.findViewById(R.id.alarm_type_select);
         if (mPreAlarm) {
             ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
@@ -249,16 +267,24 @@ public class AlarmRingtoneDialog extends DialogFragment implements
         mMediaTypeSelect.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // On selecting a spinner item
+                if (!mSpinnerInit) {
+                    mSpinnerInit = true;
+                    return;
+                }
                 mCurrentMediaType = position;
-                mRandomMode.setVisibility(mCurrentMediaType == ALARM_TYPE_FOLDER ? View.VISIBLE : View.GONE);
+                if (mCurrentMediaType != ALARM_TYPE_FOLDER) {
+                    mRandomMode.setVisibility(View.GONE);
+                    mRandomModeValue = false;
+                } else {
+                    mRandomMode.setVisibility(View.VISIBLE);
+                }
+                mRandomMode.setChecked(mRandomModeValue);
+                updateButtons(mRingtone != null && !mRingtone.equals(Alarm.NO_RINGTONE_URI));
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
             }});
-
-        mRingtoneSection = (View) view.findViewById(R.id.ringtone_section);
 
         ringtone = (TextView) view.findViewById(R.id.choose_ringtone);
         ringtone.setOnClickListener(new View.OnClickListener() {
@@ -275,7 +301,6 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     }
 
     private void launchRingTonePicker(int mediaType) {
-        Log.d("launchRingTonePicker");
         Uri oldRingtone = Alarm.NO_RINGTONE_URI.equals(mRingtone) ? null : mRingtone;
         final Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
@@ -318,7 +343,6 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     private boolean saveRingtoneUri(Intent intent) {
         Uri uri = intent
                 .getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-        Log.d("saveRingtoneUri " + uri);
         if (uri == null) {
             uri = Alarm.NO_RINGTONE_URI;
         } else if (uri.equals(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE))) {
@@ -489,6 +513,7 @@ public class AlarmRingtoneDialog extends DialogFragment implements
         ringtone.setContentDescription(getResources().getString(
                 R.string.ringtone_description)
                 + " " + ringtone);
+        updateButtons(mRingtone != null && !mRingtone.equals(Alarm.NO_RINGTONE_URI));
     }
 
     private void updateValues() {
@@ -500,12 +525,20 @@ public class AlarmRingtoneDialog extends DialogFragment implements
         } else {
             mEnabledCheckbox.setChecked(false);
             mMaxVolumeSeekBar.setProgress(mVolume - 1);
+            mMaxVolumeSeekBar.setEnabled(true);
         }
 
-        mRingtoneSection.setVisibility(View.VISIBLE);
-        mMediaTypeSelect.setSelection(mCurrentMediaType);
         mIncreasingVolume.setChecked(mIncreasingVolumeValue);
-        mRandomMode.setVisibility(mCurrentMediaType == ALARM_TYPE_FOLDER ? View.VISIBLE : View.GONE);
+        
+        if (mCurrentMediaType != ALARM_TYPE_FOLDER) {
+            mRandomMode.setVisibility(View.GONE);
+            mRandomModeValue = false;
+        } else {
+            mRandomMode.setVisibility(View.VISIBLE);
+        }
+        mRandomMode.setChecked(mRandomModeValue);
+        mMediaTypeSelect.setSelection(mCurrentMediaType);
+        updateButtons(mRingtone != null && !mRingtone.equals(Alarm.NO_RINGTONE_URI));
     }
 
     private Uri getDefaultAlarmUri() {
@@ -551,20 +584,9 @@ public class AlarmRingtoneDialog extends DialogFragment implements
         if (mPreAlarm){
             alarm.preAlarmAlert = mRingtone;
             alarm.preAlarmVolume = mVolume;
-            if (mEnabledCheckbox.isChecked()) {
-                alarm.preAlarmVolume = -1;
-            } else {
-                alarm.preAlarmVolume = mMaxVolumeSeekBar.getProgress() + 1;
-            }
         } else {
             alarm.alert = mRingtone;
-            alarm.mediaStart = false;
             alarm.alarmVolume = mVolume;
-            if (mEnabledCheckbox.isChecked()) {
-                alarm.alarmVolume = -1;
-            } else {
-                alarm.alarmVolume = mMaxVolumeSeekBar.getProgress() + 1;
-            }
         }
         alarm.setIncreasingVolume(mPreAlarm, mIncreasingVolumeValue);
         alarm.setRandomMode(mPreAlarm, mRandomModeValue);
@@ -588,5 +610,36 @@ public class AlarmRingtoneDialog extends DialogFragment implements
 
     @Override
     public void onChooseDirCancel() {
+    }
+
+    private void updateOkButtonState(boolean value) {
+        if (mOkButton == null) {
+            AlertDialog dialog = (AlertDialog) getDialog();
+            if (dialog != null) {
+                mOkButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+            }
+        }
+
+        if (mOkButton != null) {
+            mOkButton.setEnabled(value);
+        }
+    }
+
+    private void updateTestButtonState(boolean value) {
+        if (mTestButton == null) {
+            AlertDialog dialog = (AlertDialog) getDialog();
+            if (dialog != null) {
+                mTestButton = dialog.getButton(DialogInterface.BUTTON_NEUTRAL);
+            }
+        }
+
+        if (mTestButton != null) {
+            mTestButton.setEnabled(value);
+        }
+    }
+
+    private void updateButtons(boolean value) {
+        updateOkButtonState(value);
+        updateTestButtonState(value);
     }
 }

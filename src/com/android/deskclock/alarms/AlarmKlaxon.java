@@ -63,7 +63,6 @@ public class AlarmKlaxon {
     private static boolean sStarted = false;
     private static AudioManager sAudioManager = null;
     private static MediaPlayer sMediaPlayer = null;
-    private static boolean sMediaStarted = false;
     private static boolean sPreAlarmMode = false;
     private static boolean sMultiFileMode = false;
     private static List<Uri> mSongs = new ArrayList<Uri>();
@@ -76,6 +75,7 @@ public class AlarmKlaxon {
     private static boolean sIncreasingVolume;
     private static boolean sRandomPlayback;
     private static long sVolumeIncreaseSpeed;
+    private static boolean sIncreasingVolumeDone;
 
     // Internal messages
     private static final int INCREASING_VOLUME = 1001;
@@ -93,6 +93,8 @@ public class AlarmKlaxon {
                     if (sCurrentVolume <= sMaxVolume) {
                         sHandler.sendEmptyMessageDelayed(INCREASING_VOLUME,
                                 sVolumeIncreaseSpeed);
+                    } else {
+                        sIncreasingVolumeDone = true;
                     }
                 }
                 break;
@@ -110,21 +112,16 @@ public class AlarmKlaxon {
             sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
                         sSavedVolume, 0);
 
-            if (sMediaStarted) {
-                dispatchMediaKeyWithWakeLockToAudioService(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
-                sMediaStarted = false;
-
-            } else {
-                // Stop audio playing
-                if (sMediaPlayer != null) {
-                    sMediaPlayer.stop();
-                    sMediaPlayer.release();
-                    sMediaPlayer = null;
-                    sAudioManager.abandonAudioFocus(null);
-                    sAudioManager = null;
-                }
-                sPreAlarmMode = false;
+            // Stop audio playing
+            if (sMediaPlayer != null) {
+                sMediaPlayer.stop();
+                sMediaPlayer.release();
+                sMediaPlayer = null;
+                sAudioManager.abandonAudioFocus(null);
+                sAudioManager = null;
             }
+            sPreAlarmMode = false;
+            
             ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE))
                     .cancel();
         }
@@ -161,6 +158,7 @@ public class AlarmKlaxon {
         sSavedVolume = sAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         sMaxVolume = sSavedVolume;
         sIncreasingVolume = instance.getIncreasingVolume(sPreAlarmMode);
+        sIncreasingVolumeDone = false;
         sRandomPlayback = instance.getRandomMode(sPreAlarmMode);
 
         if (sPreAlarmMode) {
@@ -172,67 +170,46 @@ public class AlarmKlaxon {
             // calc from current alarm volume
             sMaxVolume = calcMusicVolumeFromCurrentAlarm();
         }
-        sMediaStarted = false;
 
-        if (!sPreAlarmMode && instance.mMediaStart) {
-            // do not play alarms if stream volume is 0 (typically because
-            // ringer mode is silent).
-            if (sMaxVolume != 0) {
-                sMediaStarted = true;
-                if (sIncreasingVolume) {
-                    sCurrentVolume = INCREASING_VOLUME_START;
-                    sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
-                            sCurrentVolume, 0);
-                    Log.v("Starting alarm volume " + sCurrentVolume
-                            + " max volume " + sMaxVolume);
-
-                    if (sCurrentVolume < sMaxVolume) {
-                        sHandler.sendEmptyMessageDelayed(INCREASING_VOLUME,
-                                sVolumeIncreaseSpeed);
-                    }
-                }
-                dispatchMediaKeyWithWakeLockToAudioService(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
-            }
+        Uri alarmNoise = null;
+        sMultiFileMode = false;
+        sCurrentIndex = 0;
+        if (sPreAlarmMode) {
+            alarmNoise = instance.mPreAlarmRingtone;
         } else {
-            Uri alarmNoise = null;
+            alarmNoise = instance.mRingtone;
+        }
+
+        File folder = new File(alarmNoise.getPath());
+        if (folder.exists() && folder.isDirectory()) {
+            sMultiFileMode = true;
+        }
+
+        if (inTelephoneCall) {
             sMultiFileMode = false;
-            sCurrentIndex = 0;
-            if (sPreAlarmMode) {
-                alarmNoise = instance.mPreAlarmRingtone;
+        }
+
+        if (sMultiFileMode) {
+            collectFiles(context, alarmNoise);
+            if (mSongs.size() != 0) {
+                alarmNoise = mSongs.get(0);
             } else {
-                alarmNoise = instance.mRingtone;
-            }
-
-            File folder = new File(alarmNoise.getPath());
-            if (folder.exists() && folder.isDirectory()) {
-                sMultiFileMode = true;
-            }
-
-            if (inTelephoneCall) {
+                alarmNoise = null;
                 sMultiFileMode = false;
             }
-
-            if (sMultiFileMode) {
-                collectFiles(context, alarmNoise);
-                if (mSongs.size() != 0) {
-                    alarmNoise = mSongs.get(0);
-                } else {
-                    alarmNoise = null;
-                    sMultiFileMode = false;
-                }
-            }
-            if (alarmNoise == null) {
-                // no ringtone == default
-                alarmNoise = getDefaultAlarm(context);
-            } else if (AlarmInstance.NO_RINGTONE_URI.equals(alarmNoise)) {
-                // silent
-                alarmNoise = null;
-            }
-
-            if (alarmNoise != null) {
-                playAlarm(context, instance, inTelephoneCall, alarmNoise);
-            }
         }
+        if (alarmNoise == null) {
+            // no ringtone == default
+            alarmNoise = getDefaultAlarm(context);
+        } else if (AlarmInstance.NO_RINGTONE_URI.equals(alarmNoise)) {
+            // silent
+            alarmNoise = null;
+        }
+
+        if (alarmNoise != null) {
+            playAlarm(context, instance, inTelephoneCall, alarmNoise);
+        }
+        
         if (instance.mVibrate) {
             Vibrator vibrator = (Vibrator) context
                     .getSystemService(Context.VIBRATOR_SERVICE);
@@ -311,17 +288,19 @@ public class AlarmKlaxon {
     private static void startAlarm(Context context, MediaPlayer player,
             AlarmInstance instance) throws IOException {
         // do not play alarms if alarm volume is 0
-        // this can be either the stored one or the actual can
+        // this can only happen if "use system alarm volume" is used
         if (sMaxVolume != 0) {
-            if (sIncreasingVolume) {
-                sCurrentVolume = INCREASING_VOLUME_START;
-                sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
-                        sCurrentVolume, 0);
-                Log.v("Starting alarm volume " + sCurrentVolume
-                        + " max volume " + sMaxVolume);
-            } else {
-                sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
-                        sMaxVolume, 0);
+            if (!sIncreasingVolumeDone) {
+                if (sIncreasingVolume) {
+                    sCurrentVolume = INCREASING_VOLUME_START;
+                    sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+                            sCurrentVolume, 0);
+                    Log.v("Starting alarm volume " + sCurrentVolume
+                            + " max volume " + sMaxVolume);
+                } else {
+                    sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+                            sMaxVolume, 0);
+                }
             }
             player.setAudioStreamType(AudioManager.STREAM_MUSIC);
             if (!sMultiFileMode) {
@@ -332,9 +311,13 @@ public class AlarmKlaxon {
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
             player.start();
 
-            if (sIncreasingVolume && sCurrentVolume < sMaxVolume) {
-                sHandler.sendEmptyMessageDelayed(INCREASING_VOLUME,
-                        sVolumeIncreaseSpeed);
+            if (!sIncreasingVolumeDone) {
+                if (sIncreasingVolume && sCurrentVolume < sMaxVolume) {
+                    sHandler.sendEmptyMessageDelayed(INCREASING_VOLUME,
+                            sVolumeIncreaseSpeed);
+                } else {
+                    sIncreasingVolumeDone = true;
+                }
             }
         }
     }

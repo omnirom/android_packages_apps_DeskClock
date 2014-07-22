@@ -258,7 +258,7 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
     public Uri alert;
     public boolean deleteAfterUse;
     private int increasingVolume;
-    public boolean mediaStart;
+    private boolean mediaStart;
     public boolean preAlarm;
     public int alarmVolume;
     public int preAlarmVolume;
@@ -398,7 +398,6 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         result.mLabel = label;
         result.mRingtone = alert;
         result.setIncreasingVolume(increasingVolume);
-        result.mMediaStart = mediaStart;
         result.mPreAlarm = preAlarm;
         result.mAlarmVolume = alarmVolume;
         result.mPreAlarmVolume = preAlarmVolume;
@@ -531,5 +530,39 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
                 }
             }
         }
+    }
+
+    public boolean isSilentAlarm() {
+        boolean silentAlarm = alert != null && Alarm.NO_RINGTONE_URI.equals(alert);
+        return silentAlarm;
+    }
+
+    public void setSilentAlarm() {
+        alert = Alarm.NO_RINGTONE_URI;
+        alarmVolume = -1;
+    }
+
+    public void setDefaultAlarm(Context context) {
+        alert = getDefaultAlarmUri(context);
+    }
+
+    public void setDefaultPreAlarm(Context context) {
+        preAlarmAlert = getDefaultAlarmUri(context);
+        preAlarm = true;
+    }
+
+    public void disablePreAlarm() {
+        preAlarmAlert = Alarm.NO_RINGTONE_URI;
+        preAlarmVolume = -1;
+        preAlarm = false;
+    }
+
+    private Uri getDefaultAlarmUri(Context context) {
+        Uri alert = RingtoneManager.getActualDefaultRingtoneUri(context,
+                    RingtoneManager.TYPE_ALARM);
+        if (alert == null) {
+            alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        }
+        return alert;
     }
 }
