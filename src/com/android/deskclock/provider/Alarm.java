@@ -24,11 +24,13 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.RingtoneManager;
+import android.media.Ringtone;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.android.deskclock.R;
+import com.android.deskclock.Log;
 
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -564,5 +566,19 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
             alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         }
         return alert;
+    }
+
+    private String getRingToneTitle(Context context, boolean preAlarm) {
+        Ringtone ringTone = RingtoneManager.getRingtone(context, preAlarm ? preAlarmAlert : alert);
+        if (ringTone != null) {
+            return ringTone.getTitle(context);
+        }
+        return null;
+    }
+
+    public boolean isFallbackRingtone(Context context, boolean preAlarm) {
+        String unknownRingToneStr = context.getString(com.android.internal.R.string.ringtone_unknown);
+        String title = getRingToneTitle(context, preAlarm);
+        return title == null || title.contains(unknownRingToneStr);
     }
 }
