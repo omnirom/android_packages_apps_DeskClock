@@ -1274,6 +1274,9 @@ public class AlarmClockFragment extends DeskClockFragment implements
                     ringtone = mContext.getResources().getString(R.string.silent_alarm_summary);
                 } else {
                     ringtone = getRingToneTitle(alarm.alert);
+                    if (ringtone == null || alarm.isFallbackRingtone(mContext, false)) {
+                        ringtone = getResources().getString(R.string.fallback_ringtone);
+                    }
                 }
             }
 
@@ -1359,6 +1362,9 @@ public class AlarmClockFragment extends DeskClockFragment implements
                     ringtone = mContext.getResources().getString(R.string.silent_alarm_summary);
                 } else {
                     ringtone = getRingToneTitle(alarm.preAlarmAlert);
+                    if (ringtone == null || alarm.isFallbackRingtone(mContext, true)) {
+                        ringtone = getResources().getString(R.string.fallback_ringtone);
+                    }
                 }
             }
 

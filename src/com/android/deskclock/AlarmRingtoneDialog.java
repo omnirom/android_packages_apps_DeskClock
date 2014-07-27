@@ -382,7 +382,10 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     private String getRingToneTitle(Uri uri) {
         Ringtone ringTone = RingtoneManager.getRingtone(getActivity()
                 .getApplicationContext(), uri);
-        return ringTone.getTitle(getActivity().getApplicationContext());
+        if (ringTone != null) {
+            return ringTone.getTitle(getActivity().getApplicationContext());
+        }
+        return getResources().getString(R.string.fallback_ringtone);
     }
 
     private String getMediaTitle(Uri uri) {
@@ -503,7 +506,11 @@ public class AlarmRingtoneDialog extends DialogFragment implements
             if (mCurrentMediaType == ALARM_TYPE_MUSIC) {
                 ringtoneTitle = getMediaTitle(ringtoneUri);
             } else if (mCurrentMediaType == ALARM_TYPE_ALARM || mCurrentMediaType == ALARM_TYPE_RINGTONE) {
-                ringtoneTitle = getRingToneTitle(ringtoneUri);
+                if (isFallbackRingtone()) {
+                    ringtoneTitle = getResources().getString(R.string.fallback_ringtone);
+                } else {
+                    ringtoneTitle = getRingToneTitle(ringtoneUri);
+                }
             } else if (mCurrentMediaType == ALARM_TYPE_FOLDER) {
                 ringtoneTitle = ringtoneUri.getPath();
             }
@@ -641,5 +648,10 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     private void updateButtons(boolean value) {
         updateOkButtonState(value);
         updateTestButtonState(value);
+    }
+
+    private boolean isFallbackRingtone() {
+        String unknownRingToneStr = getResources().getString(com.android.internal.R.string.ringtone_unknown);
+        return getRingToneTitle(mRingtone).contains(unknownRingToneStr);
     }
 }
