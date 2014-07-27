@@ -251,6 +251,7 @@ public class AlarmKlaxon {
             // resource at a low volume to not disrupt the call.
             if (inTelephoneCall) {
                 Log.v("Using the in-call alarm");
+                sIncreasingVolume = false;
                 sMediaPlayer.setVolume(IN_CALL_VOLUME, IN_CALL_VOLUME);
                 setDataSourceFromResource(context, sMediaPlayer,
                         R.raw.in_call_alarm);
@@ -273,7 +274,7 @@ public class AlarmKlaxon {
                 try {
                     // Must reset the media player to clear the error state.
                     sMediaPlayer.reset();
-                    sMediaPlayer.setDataSource(context, getDefaultAlarm(context));
+                    setDataSourceFromResource(context, sMediaPlayer, R.raw.fallbackring);
                     startAlarm(context, sMediaPlayer, instance);
                 } catch (Exception ex2) {
                     // At this point we just don't play anything.
