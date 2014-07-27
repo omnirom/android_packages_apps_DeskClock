@@ -68,4 +68,5 @@
     <string name="entry_thirty_secs">30 seconds</string>
     <string name="pre_alarm_dismiss_all_summary">Dismissing active pre-alarm will also dismiss main alarm</string>
     <string name="pre_alarm_dismiss_all_title">Dismiss all</string>
+    <string name="fallback_ringtone">Default</string>
 </resources>

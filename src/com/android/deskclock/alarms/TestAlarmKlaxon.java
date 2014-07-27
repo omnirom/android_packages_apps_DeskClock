@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
+import java.io.IOException;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -34,10 +35,12 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.view.KeyEvent;
+import android.content.res.AssetFileDescriptor;
 
 import com.android.deskclock.Log;
 import com.android.deskclock.provider.Alarm;
 import com.android.deskclock.provider.AlarmInstance;
+import com.android.deskclock.R;
 
 /**
  * for testing alarm tones
@@ -56,6 +59,7 @@ public class TestAlarmKlaxon {
     private static boolean sRandomPlayback;
     private static ErrorHandler sErrorHandler;
     private static boolean sError;
+    private static boolean sFallbackRingtone;
 
     public interface ErrorHandler {
         public void onError(String msg);
@@ -95,6 +99,7 @@ public class TestAlarmKlaxon {
         }
 
         sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, sMaxVolume, 0);
+        sFallbackRingtone = instance.isFallbackRingtone(context, preAlarm);
 
         Uri alarmNoise = null;
         sMultiFileMode = false;
@@ -178,7 +183,11 @@ public class TestAlarmKlaxon {
             mCurrentTone = alarmNoise;
             Log.v("next song:" + mCurrentTone);
 
-            sMediaPlayer.setDataSource(context, alarmNoise);
+            if (sFallbackRingtone) {
+                setDataSourceFromResource(context, sMediaPlayer, R.raw.fallbackring);
+            } else {
+                sMediaPlayer.setDataSource(context, alarmNoise);
+            }
             sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             if (!sMultiFileMode) {
                 sMediaPlayer.setLooping(true);
@@ -266,5 +275,15 @@ public class TestAlarmKlaxon {
         }
         Uri song = mSongs.get(sCurrentIndex);
         playTestAlarm(context, instance, song);
+    }
+
+    private static void setDataSourceFromResource(Context context,
+            MediaPlayer player, int res) throws IOException {
+        AssetFileDescriptor afd = context.getResources().openRawResourceFd(res);
+        if (afd != null) {
+            player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(),
+                    afd.getLength());
+            afd.close();
+        }
     }
 }
