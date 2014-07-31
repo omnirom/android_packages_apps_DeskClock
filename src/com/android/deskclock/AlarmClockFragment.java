@@ -1269,6 +1269,10 @@ public class AlarmClockFragment extends DeskClockFragment implements
 
             if (mediaAlertEnabled){
                 ringtone = getMediaTitle(alarm.alert);
+                // file no longer found
+                if (ringtone == null) {
+                    ringtone = getResources().getString(R.string.fallback_ringtone);
+                }
             } else {
                 if (Alarm.NO_RINGTONE_URI.equals(alarm.alert)) {
                     ringtone = mContext.getResources().getString(R.string.silent_alarm_summary);
@@ -1357,6 +1361,10 @@ public class AlarmClockFragment extends DeskClockFragment implements
             }
             if (mediaAlertEnabled){
                 ringtone = getMediaTitle(alarm.preAlarmAlert);
+                // file no longer found
+                if (ringtone == null) {
+                    ringtone = getResources().getString(R.string.fallback_ringtone);
+                }
             } else {
                 if (Alarm.NO_RINGTONE_URI.equals(alarm.preAlarmAlert)) {
                     ringtone = mContext.getResources().getString(R.string.silent_alarm_summary);
@@ -1490,7 +1498,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 cursor.moveToFirst();
                 return cursor.getString(nameIndex);
             } catch(Exception e) {
-                return uri.toString();
+                return null;
             } finally {
                 if (cursor != null) {
                     cursor.close();

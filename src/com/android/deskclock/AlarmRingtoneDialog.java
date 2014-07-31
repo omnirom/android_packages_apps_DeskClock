@@ -400,6 +400,8 @@ public class AlarmRingtoneDialog extends DialogFragment implements
                     .getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME);
             cursor.moveToFirst();
             return cursor.getString(nameIndex);
+        } catch(Exception e) {
+            return null;
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -505,6 +507,17 @@ public class AlarmRingtoneDialog extends DialogFragment implements
         } else {
             if (mCurrentMediaType == ALARM_TYPE_MUSIC) {
                 ringtoneTitle = getMediaTitle(ringtoneUri);
+                // file no longer found - fallback to default alarm if ok pressed
+                if (ringtoneTitle == null) {
+                    mCurrentMediaType = ALARM_TYPE_ALARM;
+                    mRingtone = getDefaultAlarmUri();
+                    ringtoneUri = mRingtone;
+                    if (isFallbackRingtone()) {
+                        ringtoneTitle = getResources().getString(R.string.fallback_ringtone);
+                    } else {
+                        ringtoneTitle = getRingToneTitle(ringtoneUri);
+                    }
+                }
             } else if (mCurrentMediaType == ALARM_TYPE_ALARM || mCurrentMediaType == ALARM_TYPE_RINGTONE) {
                 if (isFallbackRingtone()) {
                     ringtoneTitle = getResources().getString(R.string.fallback_ringtone);
