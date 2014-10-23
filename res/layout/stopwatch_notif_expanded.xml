@@ -27,7 +27,8 @@
         android:layout_width="match_parent"
         android:layout_height="64dp"
         internal:layout_maxHeight="64dp"
-        internal:layout_minHeight="64dp" >
+        internal:layout_minHeight="64dp"
+        android:background="@drawable/notification_background" >
 
         <include layout="@layout/stopwatch_notification_icon"/>
 
@@ -89,10 +90,10 @@
 
             <TextView
                 android:id="@+id/swn_left_button"
-                android:background="?android:attr/selectableItemBackground"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
+                android:background="@drawable/notification_background"
                 android:drawablePadding="8dp"
                 android:ellipsize="end"
                 android:gravity="start|center_vertical"
@@ -101,10 +102,10 @@
 
             <TextView
                 android:id="@+id/swn_right_button"
-                android:background="?android:attr/selectableItemBackground"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
+                android:background="@drawable/notification_background"
                 android:drawablePadding="8dp"
                 android:ellipsize="end"
                 android:gravity="start|center_vertical"
