@@ -209,7 +209,8 @@ public class HandleApiCalls extends Activity {
             Utils.showInUseNotifications(this);
         } else {
             startActivity(new Intent(this, DeskClock.class)
-                    .putExtra(DeskClock.SELECT_TAB_INTENT_EXTRA, DeskClock.TIMER_TAB_INDEX));
+                    .putExtra(DeskClock.SELECT_TAB_INTENT_EXTRA, DeskClock.TIMER_TAB_INDEX)
+                    .putExtra(Timers.FIRST_LAUNCH_FROM_API_CALL, true));
         }
         LogUtils.i("HandleApiCalls timer created: %s", timer);
     }
