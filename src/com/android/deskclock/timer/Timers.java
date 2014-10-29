@@ -42,6 +42,7 @@ public class Timers {
     public static final String NOTIF_TIMES_UP_PLUS_ONE = "notif_times_up_plus_one";
     public static final String NOTIF_TIMES_UP_SHOW = "notif_times_up_show";
     public static final String FROM_ALERT = "from_alert";
+    public static final String FIRST_LAUNCH_FROM_API_CALL = "first_launch_from_api_call";
 
     public static final String TIMESUP_MODE = "times_up";
 
