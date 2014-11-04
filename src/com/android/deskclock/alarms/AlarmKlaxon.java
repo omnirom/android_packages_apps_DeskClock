@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.IAudioService;
 import android.media.MediaPlayer;
@@ -43,7 +44,7 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 
-import com.android.deskclock.Log;
+import com.android.deskclock.LogUtils;
 import com.android.deskclock.R;
 import com.android.deskclock.SettingsActivity;
 import com.android.deskclock.provider.AlarmInstance;
@@ -59,6 +60,11 @@ public class AlarmKlaxon {
 
     private static final int INCREASING_VOLUME_START = 1;
     private static final int INCREASING_VOLUME_DELTA = 1;
+
+    private static final AudioAttributes VIBRATION_ATTRIBUTES = new AudioAttributes.Builder()
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .setUsage(AudioAttributes.USAGE_ALARM)
+            .build();
 
     private static boolean sStarted = false;
     private static AudioManager sAudioManager = null;
@@ -137,10 +143,9 @@ public class AlarmKlaxon {
 
     public static void start(final Context context, AlarmInstance instance,
             boolean inTelephoneCall) {
+        LogUtils.v("AlarmKlaxon.start()");
         // Make sure we are stop before starting
         stop(context);
-
-        Log.v("AlarmKlaxon.start() " + instance);
 
         sPreAlarmMode = false;
         if (instance.mAlarmState == AlarmInstance.PRE_ALARM_STATE) {
@@ -176,7 +181,15 @@ public class AlarmKlaxon {
         if (sPreAlarmMode) {
             alarmNoise = instance.mPreAlarmRingtone;
         } else {
-            alarmNoise = instance.mRingtone;
+            if (!AlarmInstance.NO_RINGTONE_URI.equals(instance.mRingtone)) {
+                Uri alarmNoise = instance.mRingtone;
+                // Fall back on the default alarm if the database does not have an
+                // alarm stored.
+                if (alarmNoise == null) {
+                    alarmNoise = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+                    LogUtils.v("Using default alarm: " + alarmNoise.toString());
+                }
+            }
         }
 
         File folder = new File(alarmNoise.getPath());
@@ -243,6 +256,13 @@ public class AlarmKlaxon {
                 public void onCompletion(MediaPlayer mp) {
                     nextSong(context, instance, inTelephoneCall);
                 }
+
+                @Override
+                public boolean onError(MediaPlayer mp, int what, int extra) {
+                    LogUtils.e("Error occurred while playing audio. Stopping AlarmKlaxon.");
+                    AlarmKlaxon.stop(context);
+                    return true;
+                }
             });
         }
 
@@ -278,10 +298,17 @@ public class AlarmKlaxon {
                     startAlarm(context, sMediaPlayer, instance);
                 } catch (Exception ex2) {
                     // At this point we just don't play anything.
-                    Log.e("Failed to play fallback ringtone", ex2);
+                    LogUtils.e("Failed to play fallback ringtone", ex2);
                 }
             }
         }
+
+        if (instance.mVibrate) {
+            Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+            vibrator.vibrate(sVibratePattern, 0, VIBRATION_ATTRIBUTES);
+        }
+
+        sStarted = true;
     }
 
     // Do the common stuff when starting the alarm.

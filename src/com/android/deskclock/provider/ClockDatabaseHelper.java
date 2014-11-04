@@ -16,7 +16,6 @@
 
 package com.android.deskclock.provider;
 
-import java.util.Calendar;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -27,7 +26,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.android.deskclock.Log;
+import com.android.deskclock.LogUtils;
+
+import java.util.Calendar;
 
 /**
  * Helper class for opening the database from multiple providers.  Also provides
@@ -87,6 +88,7 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
                 ClockContract.AlarmsColumns.RINGTONE + " TEXT, " +
                 ClockContract.AlarmsColumns.DELETE_AFTER_USE + " INTEGER NOT NULL DEFAULT 0, " +
                 ClockContract.AlarmsColumns.INCREASING_VOLUME + " INTEGER NOT NULL DEFAULT 0, " +
+                ClockContract.AlarmsColumns.DELETE_AFTER_USE + " INTEGER NOT NULL DEFAULT 0);");
                 ClockContract.AlarmsColumns.PRE_ALARM + " INTEGER NOT NULL DEFAULT 0, " +
                 ClockContract.AlarmsColumns.ALARM_VOLUME + " INTEGER NOT NULL DEFAULT -1, " +
                 ClockContract.AlarmsColumns.PRE_ALARM_VOLUME + " INTEGER NOT NULL DEFAULT -1, " +
@@ -95,7 +97,8 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
                 ClockContract.AlarmsColumns.PAIN_MODE + " INTEGER NOT NULL DEFAULT 0, " +
                 ClockContract.AlarmsColumns.RANDOM_MODE + " INTEGER NOT NULL DEFAULT 0, " +
                 ClockContract.AlarmsColumns.MEDIA_START + " INTEGER NOT NULL DEFAULT 0);");
-        Log.i("Alarms Table created");
+
+        LogUtils.i("Alarms Table created");
     }
 
     private static void createInstanceTable(SQLiteDatabase db) {
@@ -122,7 +125,7 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
                 ClockContract.InstancesColumns.PAIN_MODE + " INTEGER NOT NULL DEFAULT 0, " +
                 ClockContract.InstancesColumns.RANDOM_MODE + " INTEGER NOT NULL DEFAULT 0, " +
                 ClockContract.InstancesColumns.MEDIA_START + " INTEGER NOT NULL DEFAULT 0);");
-        Log.i("Instance table created");
+        LogUtils.i("Instance table created");
     }
 
     private static void createCitiesTable(SQLiteDatabase db) {
@@ -131,7 +134,7 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
                 ClockContract.CitiesColumns.CITY_NAME + " TEXT NOT NULL, " +
                 ClockContract.CitiesColumns.TIMEZONE_NAME + " TEXT NOT NULL, " +
                 ClockContract.CitiesColumns.TIMEZONE_OFFSET + " INTEGER NOT NULL);");
-        Log.i("Cities table created");
+        LogUtils.i("Cities table created");
     }
 
     private Context mContext;
@@ -148,7 +151,7 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
         createCitiesTable(db);
 
         // insert default alarms
-//        Log.i("Inserting default alarms");
+//        LogUtils.i("Inserting default alarms");
 //        String cs = ", "; //comma and space
 //        String insertMe = "INSERT INTO " + ALARMS_TABLE_NAME + " (" +
 //                ClockContract.AlarmsColumns.HOUR + cs +
@@ -172,9 +175,8 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int currentVersion) {
-        if (Log.LOGV) {
-            Log.v("Upgrading alarms database from version " + oldVersion + " to " + currentVersion);
-        }
+        LogUtils.v("Upgrading alarms database from version "
+                + oldVersion + " to " + currentVersion);
 
         if (oldVersion <= VERSION_6) {
             // These were not used in DB_VERSION_6, so we can just drop them.
@@ -186,7 +188,7 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
             createInstanceTable(db);
             createCitiesTable(db);
 
-            Log.i("Copying old alarms to new table");
+            LogUtils.i("Copying old alarms to new table");
             String[] OLD_TABLE_COLUMNS = {
                     "_id",
                     "hour",
@@ -229,7 +231,7 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
             }
             cursor.close();
 
-            Log.i("Dropping old alarm table");
+            LogUtils.i("Dropping old alarm table");
             db.execSQL("DROP TABLE IF EXISTS " + OLD_ALARMS_TABLE_NAME + ";");
         } else if (oldVersion < VERSION_8) {
             db.execSQL("ALTER TABLE " + ALARMS_TABLE_NAME
@@ -321,7 +323,7 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
         if (rowId < 0) {
             throw new SQLException("Failed to insert row");
         }
-        if (Log.LOGV) Log.v("Added alarm rowId = " + rowId);
+        LogUtils.v("Added alarm rowId = " + rowId);
 
         return rowId;
     }

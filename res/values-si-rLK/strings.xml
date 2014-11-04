@@ -19,8 +19,6 @@
     <string name="app_label" msgid="6674495003718166674">"ඔරලෝසුව"</string>
     <string name="alarm_list_title" msgid="7589940465292950600">"ඇඟවීම්"</string>
     <string name="add_alarm" msgid="5976616107390962899">"ඇඟවීමක් එක් කරන්න"</string>
-    <!-- no translation found for alarm_timeline_title_text (595912293949219821) -->
-    <skip />
     <string name="menu_desk_clock" msgid="3241995064554071588">"මේස ඔරලෝසුව"</string>
     <string name="menu_edit_alarm" msgid="7204602994918829751">"ඇඟවීම සංස්කරණය කරන්න"</string>
     <string name="delete_alarm" msgid="3457780990646206817">"ඇඟවීම් මකන්න"</string>
@@ -37,14 +35,28 @@
     <string name="alert" msgid="6506982899651975645">"ඇඟවීම් රිංග්ටෝනය"</string>
     <string name="ringtone" msgid="9110746249688559579">"රිංග්ටෝනය"</string>
     <string name="time" msgid="8067216534232296518">"කාලය"</string>
+    <string name="alarm_tomorrow" msgid="131356848787643420">"හෙට"</string>
+    <string name="alarm_today" msgid="7873594221106531654">"අද"</string>
+    <string name="alarm_alert_wake_up" msgid="6790780716498252583">"අවදි වෙන්න!"</string>
+    <string name="alarm_alert_off_action_text" msgid="2459925305288819812">"අක්‍රිය කරන්න"</string>
     <string name="alarm_alert_dismiss_text" msgid="4942914605480888820">"ඉවතලන්න"</string>
-    <!-- no translation found for alarm_missed_title (3828345099754063392) -->
-    <skip />
-    <!-- no translation found for alarm_missed_text (6585658367289194023) -->
-    <skip />
+    <string name="alarm_alert_dismiss_now_text" msgid="3272183025444682500">"දැන් අස් කරන්න"</string>
+    <string name="alarm_missed_title" msgid="3828345099754063392">"අත හැරුණ සීනුව"</string>
+    <string name="alarm_missed_text" msgid="6585658367289194023">"<xliff:g id="ALARM_TIME">%s</xliff:g> - <xliff:g id="ALARM_LABEL">%s</xliff:g>"</string>
+    <string name="alarm_alert_snoozed_text" msgid="7064642998528766113">"සිහිකැඳවන ලදී"</string>
+  <plurals name="alarm_alert_snooze_duration">
+    <item quantity="one" msgid="9092917312369131464">"මිනි 1"</item>
+    <item quantity="other" msgid="6731274475422132958">"මිනි <xliff:g id="NUMBER">%d</xliff:g>"</item>
+  </plurals>
+    <string name="alarm_alert_off_text" msgid="4472073417593915002">"සීනුව අක්‍රියයි"</string>
     <string name="alarm_alert_snooze_text" msgid="1774416052207651584">"යළි සිහි කැඳවන්න"</string>
-    <string name="alarm_alert_snooze_set" msgid="656470966696912087">"මිනිත්තු <xliff:g id="MINUTES">%d</xliff:g> කින් යළි සිහි කැඳවන්න."</string>
+  <plurals name="alarm_alert_snooze_set">
+    <item quantity="one" msgid="7884410398338611019">"මිනිත්තු 1 කින් යළි සිහි කැඳවන්න."</item>
+    <item quantity="other" msgid="7377899473014259727">"මිනිත්තු <xliff:g id="MINUTES">%d</xliff:g> කින් යළි සිහි කැඳවන්න."</item>
+  </plurals>
     <string name="alarm_alert_snooze_until" msgid="6958013659168344550">"<xliff:g id="TIME">%s</xliff:g> තෙක් යළි සිහි කැඳවන්න"</string>
+    <string name="alarm_alert_predismiss_title" msgid="5723945586913705445">"ඉදිරියට එන සීනුව"</string>
+    <string name="missed_alarm_has_been_deleted" msgid="5295473204045979335">"ඔබට අත හැරුණ සීනුව මකන ලදි"</string>
   <string-array name="timer_notifications">
     <item msgid="7760558912503484257">"තවත් මිනිත්තුවකට අඩුවෙන් ඉතිරිව ඇත"</item>
     <item msgid="83197792732433351">"<xliff:g id="HOURS">%1$s</xliff:g> ක් ඉතිරිව ඇත"</item>
@@ -127,23 +139,19 @@
     <string name="control_set_alarm" msgid="2194676418924016327">"ඇඟවීම සකසන්න"</string>
     <!-- no translation found for control_set_alarm_with_existing (3359285346655630660) -->
     <skip />
-    <!-- no translation found for menu_alarm (4772010125376647519) -->
-    <skip />
+    <string name="menu_alarm" msgid="4772010125376647519">"සීනුව"</string>
     <string name="menu_timer" msgid="6459070074762877114">"කාල ගණනය"</string>
     <string name="menu_clock" msgid="5612760670606829805">"ඔරලෝසුව"</string>
     <string name="menu_stopwatch" msgid="3396117705293574701">"කාල ඝනකය"</string>
-    <string name="button_alarms" msgid="8016103479617020265">"ඇඟවීම්"</string>
+    <string name="button_alarms" msgid="3907838219512538763">"ඇඟවීමක් එක් කරන්න"</string>
     <string name="button_cities" msgid="4555761857494501363">"නගර"</string>
     <string name="button_menu" msgid="6050484561842120282">"තවත් විකල්ප"</string>
     <string name="menu_item_settings" msgid="1413723516369078665">"සැකසුම්"</string>
     <string name="menu_item_help" msgid="4570953476186849841">"සහාය"</string>
     <string name="menu_item_night_mode" msgid="3486930302245398975">"රාත්‍රී ආකාරය"</string>
-    <!-- no translation found for menu_item_sort_by_gmt_offset (3120860422682721706) -->
-    <skip />
-    <!-- no translation found for menu_item_sort_by_name (1762931290495104106) -->
-    <skip />
-    <!-- no translation found for selected_cities_label (3607479399424246605) -->
-    <skip />
+    <string name="menu_item_sort_by_gmt_offset" msgid="3120860422682721706">"කාලය අනුව අනුපිළිවෙලට සකසන්න"</string>
+    <string name="menu_item_sort_by_name" msgid="1762931290495104106">"නමින් අනුපිළිවෙලට සකසන්න"</string>
+    <string name="selected_cities_label" msgid="3607479399424246605">"තෝරාගත් නගර"</string>
     <string name="sw_resume_button" msgid="2569360966002022248">"නැවත පටන්ගන්න"</string>
     <string name="sw_start_button" msgid="8373422516681242270">"ආරම්භ කරන්න"</string>
     <string name="sw_stop_button" msgid="8322958613123274451">"නතර කරන්න"</string>
@@ -176,13 +184,14 @@
     <string name="timer_start" msgid="6158486445614356442">"ආරම්භ කරන්න"</string>
     <string name="timer_delete" msgid="8699122001991909302">"මකන්න"</string>
     <string name="timer_plus_one" msgid="6631211310420106116">"මිනිත්තු 1 ක් එක් කරන්න"</string>
+    <string name="timer_plus_1_min" msgid="8645224089494875062">"1 මිනි එකතු කරන්න"</string>
     <string name="timer_stop" msgid="3361154678667736722">"නතර කරන්න"</string>
-    <!-- no translation found for timer_done (2375990511982914051) -->
-    <skip />
+    <string name="timer_done" msgid="2375990511982914051">"අවසන්"</string>
     <string name="timer_reset" msgid="7848424809190171640">"යළි පිහිටුවන්න"</string>
     <string name="timer_cancel" msgid="3572868404230815644">"අවලංගු කරන්න"</string>
     <string name="timer_times_up" msgid="9190440395938519009">"වෙලාව ඉවරයි"</string>
     <string name="timer_notification_label" msgid="4933184831583137249">"කාල ගණනය"</string>
+    <string name="timers_max_count_reached" msgid="9140022846793903813">"උපරිම කාල ගැනීම් 4 යි"</string>
   <string-array name="sw_share_strings">
     <item msgid="842841032273927988">"ඔබ ඉතා වේගයෙන් යන්නෙක්."</item>
     <item msgid="6332879039890727169">"ඔබගේ උත්සාහයේ ප්‍රතිපල භුක්ති විඳින්න."</item>
@@ -201,7 +210,7 @@
   </plurals>
     <string name="home_label" msgid="4436139365695453870">"නිවස"</string>
     <string name="cities_activity_title" msgid="8552462751129256730">"නගර"</string>
-    <string name="clock_settings" msgid="8887845806151785393">"ඔරලෝසුව"</string>
+    <string name="clock_settings" msgid="8317286807280600391">"ඔරලෝසුව"</string>
     <string name="clock_style" msgid="2265011060429742344">"විලාසය"</string>
   <string-array name="clock_style_entries">
     <item msgid="917900462224167608">"ප්‍රතිසමය"</item>
@@ -302,15 +311,13 @@
     <item msgid="8255615641810148152">"ඕක්ලන්ඩ්"</item>
     <item msgid="3027153773466391728">"ෆිජි"</item>
     <item msgid="5911600083231840181">"ටොන්ගා"</item>
+    <item msgid="5176858645450908751">"ජකර්තා"</item>
   </string-array>
-    <string name="alarm_settings" msgid="6049627772103646753">"ඇඟවීම්"</string>
-    <string name="see_all" msgid="775983396630163739">"සියල්ල බලන්න…"</string>
+    <string name="alarm_settings" msgid="2947147071388290814">"අනතුරු ඇඟවීම්"</string>
     <string name="stopwatch_service_desc" msgid="8416624630388063996">"දැනුම්දීම් ධාවනය කිරීමට කාල ඝනක සේවාවක්."</string>
     <string name="swn_stopped" msgid="783124901663086172">"නතර කර ඇත"</string>
-    <string name="description_direction_right" msgid="1615911557926085934">"ඉවත ලෑමට දකුණට සර්පණය කරන්න"</string>
-    <string name="description_direction_left" msgid="6328816971226781776">"සිහි කැඳවීමට වමට සර්පණය කරන්න"</string>
-    <string name="description_direction_up" msgid="7875287578324520904">"ඉවත ලෑමට ඉහළට සර්පණය කරන්න"</string>
-    <string name="description_direction_down" msgid="8240473964024874053">"සිහි කැඳවීමට පහලට සර්පණය කරන්න"</string>
+    <string name="description_direction_right" msgid="5709209043267548985">"ඉවත ලෑමට දකුණට ස්වයිප් කරන්න"</string>
+    <string name="description_direction_left" msgid="7448141043674998679">"සිහි කැඳවීමට වමට ස්වයිප් කරන්න"</string>
     <string name="timer_stopped" msgid="2730331837832462008">"කාල ගණනය නතර කෙරුණි"</string>
     <string name="timers_stopped" msgid="2393640808691864520">"කාල ගැනීම් <xliff:g id="NUMBER">%d</xliff:g> නවතා ඇත"</string>
     <string name="all_timers_stopped_notif" msgid="278532320068394600">"ඔබගේ කාල ගණනයන් බැලීමට ස්පර්ශ කරන්න"</string>
@@ -336,8 +343,7 @@
     <string name="timer_delete_confirmation" msgid="2815524107015816453">"මෙම කාල ගණනය මකන්නද?"</string>
     <string name="city_delete_confirmation" msgid="1783441538785676299">"මෙම නගරය ඉවත් කරන්නද?"</string>
     <string name="digital_gadget" msgid="2326954556720571358">"ඩිජිටල් ඔරලෝසුව"</string>
-    <!-- no translation found for no_alarms (6429431324842022917) -->
-    <skip />
-    <!-- no translation found for no_upcoming_alarms (2889840988069436254) -->
-    <skip />
+    <string name="no_alarms" msgid="6429431324842022917">"සීනු නැත"</string>
+    <string name="no_alarms_set" msgid="4887558279496044764">"සීනු සකසා නැත"</string>
+    <string name="no_upcoming_alarms" msgid="2889840988069436254">"ඉදිරියට එන සීනු නොමැත"</string>
 </resources>
