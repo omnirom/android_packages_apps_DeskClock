@@ -79,7 +79,6 @@ public class CountingTimerView extends View {
     private final int mPressedColor;
     private final int mWhiteColor;
     private final int mAccentColor;
-    private TextView mStopStartTextView;
     private final AccessibilityManager mAccessibilityManager;
 
     // Fields for the text serving as a virtual button.
@@ -554,7 +553,6 @@ public class CountingTimerView extends View {
 
     private void virtualButtonPressed(boolean pressedOn) {
         mVirtualButtonPressedOn = pressedOn;
-        mStopStartTextView.setTextColor(pressedOn ? mPressedColor : mWhiteColor);
         invalidate();
     }
 
@@ -633,13 +631,7 @@ public class CountingTimerView extends View {
         float yTextStart = yCenter + mTextHeight/2 - (mTextHeight * FONT_VERTICAL_OFFSET);
 
         // Text color differs based on pressed state.
-        int textColor;
-        if (mVirtualButtonPressedOn) {
-            textColor = mPressedColor;
-            mStopStartTextView.setTextColor(mPressedColor);
-        } else {
-            textColor = mDefaultColor;
-        }
+        final int textColor = mVirtualButtonPressedOn ? mPressedColor : mDefaultColor;
         mPaintBigThin.setColor(textColor);
         mPaintMed.setColor(textColor);
 
@@ -662,9 +654,5 @@ public class CountingTimerView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         mRemeasureText = true;
         resetTextSize();
-    }
-
-    public void registerStopTextView(TextView stopStartTextView) {
-        mStopStartTextView = stopStartTextView;
     }
 }
