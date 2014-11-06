@@ -346,6 +346,7 @@
         <item>Chatham</item>
         <item>Vladivostok</item>
         <item>Kamchatka</item>
+        <item>Ljubljana</item>
     </string-array>
 
     <string-array name="cities_tz" translatable="false">
@@ -679,6 +680,7 @@
         <item>Pacific/Chatham</item>
         <item>Asia/Vladivostok</item>
         <item>Asia/Kamchatka</item>
+        <item>Europe/Ljubljana</item>
     </string-array>
 
     <string-array name="cities_id" translatable="false">
@@ -1012,6 +1014,7 @@
         <item>C328</item>
         <item>C329</item>
         <item>C330</item>
+        <item>C331</item>
     </string-array>
 </resources>
 
