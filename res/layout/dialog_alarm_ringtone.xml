@@ -47,7 +47,6 @@
             android:id="@+id/choose_ringtone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/item_background"
             android:clickable="true"
             android:drawableLeft="@drawable/ic_ringtone_circle"
             android:drawablePadding="5dp"

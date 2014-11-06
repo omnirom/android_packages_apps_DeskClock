@@ -17,7 +17,7 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
     <item>
         <shape android:shape="oval" >
-            <solid android:color="@color/main_button_normal" />
+            <solid android:color="@color/hot_pink" />
         </shape>
     </item>
     <item android:drawable="@drawable/ic_ringtone">
