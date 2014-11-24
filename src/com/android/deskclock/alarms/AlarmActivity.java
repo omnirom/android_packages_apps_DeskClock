@@ -459,9 +459,9 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
 
     private void setAnimatedFractions(float snoozeFraction, float dismissFraction) {
         final float alarmFraction = Math.max(snoozeFraction, dismissFraction);
-        AnimatorUtils.setAnimatedFraction(mAlarmAnimator, alarmFraction);
-        AnimatorUtils.setAnimatedFraction(mSnoozeAnimator, snoozeFraction);
-        AnimatorUtils.setAnimatedFraction(mDismissAnimator, dismissFraction);
+        mAlarmAnimator.setCurrentFraction(alarmFraction);
+        mSnoozeAnimator.setCurrentFraction(snoozeFraction);
+        mDismissAnimator.setCurrentFraction(dismissFraction);
     }
 
     private float getFraction(float x0, float x1, float x) {
