@@ -49,6 +49,9 @@
         <item name="android:amPmTextColor">@color/white</item>
     </style>
 
+    <style name="DialogTheme" parent="@style/TimePickerTheme">
+    </style>
+
     <style name="TimeLabelTextAppearance" parent="@android:style/TextAppearance.Material">
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">60sp</item>
