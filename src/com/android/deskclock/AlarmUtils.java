@@ -48,6 +48,11 @@ public class AlarmUtils {
                 : alarmTimeStr;
     }
 
+    public static String getAlarmTitle(Context context, AlarmInstance instance) {
+        String preAlarmPrefix = instance.mAlarmState == AlarmInstance.PRE_ALARM_STATE ? (context.getString(R.string.prealarm_title) + ": ") : "";
+        return preAlarmPrefix + (instance.mLabel.isEmpty() ? context.getString(R.string.default_label) : instance.mLabel);
+    }
+
     /**
      * Show the time picker dialog. This is called from AlarmClockFragment to set alarm.
      * @param fragment The calling fragment (which is also a onTimeSetListener),
