@@ -79,10 +79,38 @@ public final class ClockContract {
          * Audio alert to play when alarm triggers. Null entry
          * means use system default and entry that equal
          * Uri.EMPTY.toString() means no ringtone.
+         * Constant DISABLED_RINGTONE mean disabled
          *
          * <p>Type: STRING</p>
          */
         public static final String RINGTONE = "ringtone";
+
+        /**
+         * True if alarm should start off quiet and slowly increase volume
+         * <P>Type: BOOLEAN</P>
+         */
+        public static final String INCREASING_VOLUME = "incvol";
+
+        /**
+         * True if alarm should send media start event
+         * only used if both RINGTONE and MEDIA_ALERT is disabled
+         * <P>Type: BOOLEAN</P>
+         */
+        public static final String MEDIA_START = "mediaStart";
+
+        /**
+         * True if pre alarm should be used
+         * <P>Type: BOOLEAN</P>
+         */
+        public static final String PRE_ALARM = "preAlarm";
+
+        public static final String ALARM_VOLUME = "alarmVol";
+        public static final String PRE_ALARM_VOLUME = "preAlarmVol";
+        public static final String PRE_ALARM_TIME = "preAlarmTime";
+        public static final String PRE_ALARM_RINGTONE = "preAlarmRingtone";
+        public static final String PAIN_MODE = "painMode";
+        public static final String RANDOM_MODE = "randomMode";
+
     }
 
     /**
@@ -181,6 +209,25 @@ public final class ClockContract {
         public static final int SNOOZE_STATE = 4;
 
         /**
+         * Alarm state when pre-alarm is being fired.
+         *
+         * Can transitions to:
+         * DISMISSED_STATE
+         * SNOOZED_STATE
+         * FIRED_STATE
+         */
+        public static final int PRE_ALARM_STATE = 5;
+
+        /**
+         * Alarm state when pre-alarm is being dismissed
+         * but main alarm still active - only possible if enabled in settings.
+         *
+         * Can transitions to:
+         * FIRED_STATE
+         */
+        public static final int PRE_ALARM_DISMISS_STATE = 6;
+
+        /**
          * Alarm state when alarm is being fired.
          *
          * Can transitions to:
@@ -188,7 +235,7 @@ public final class ClockContract {
          * SNOOZED_STATE
          * MISSED_STATE
          */
-        public static final int FIRED_STATE = 5;
+        public static final int FIRED_STATE = 7;
 
         /**
          * Alarm state when alarm has been missed.
@@ -196,12 +243,12 @@ public final class ClockContract {
          * Can transitions to:
          * DISMISSED_STATE
          */
-        public static final int MISSED_STATE = 6;
+        public static final int MISSED_STATE = 8;
 
         /**
          * Alarm state when alarm is done.
          */
-        public static final int DISMISSED_STATE = 7;
+        public static final int DISMISSED_STATE = 9;
 
         /**
          * Alarm year.

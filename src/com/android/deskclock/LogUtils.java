@@ -30,13 +30,13 @@ public class LogUtils {
 
     public static void v(String message, Object... args) {
         if (DEBUG || Log.isLoggable(LOGTAG, Log.VERBOSE)) {
-            Log.v(LOGTAG, args == null ? message : String.format(message, args));
+            Log.i(LOGTAG, args == null ? message : String.format(message, args));
         }
     }
 
     public static void v(String tag, String message, Object... args) {
         if (DEBUG || Log.isLoggable(LOGTAG, Log.VERBOSE)) {
-            Log.v(LOGTAG + "/" + tag, args == null ? message : String.format(message, args));
+            Log.i(LOGTAG + "/" + tag, args == null ? message : String.format(message, args));
         }
     }
 

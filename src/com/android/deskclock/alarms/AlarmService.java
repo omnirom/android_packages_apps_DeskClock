@@ -38,11 +38,17 @@ public class AlarmService extends Service {
     // A public action sent by AlarmService when the alarm has stopped for any reason.
     public static final String ALARM_DONE_ACTION = "com.android.deskclock.ALARM_DONE";
 
+    // A public action sent by AlarmService when the alarm has stopped for any reason.
+    public static final String ALARM_CHANGE_ACTION = "com.android.deskclock.ALARM_CHANGE";
+
     // Private action used to start an alarm with this service.
     public static final String START_ALARM_ACTION = "START_ALARM";
 
     // Private action used to stop an alarm with this service.
     public static final String STOP_ALARM_ACTION = "STOP_ALARM";
+
+    // Private action used to change an alarm with this service.
+    public static final String CHANGE_ALARM_ACTION = "CHANGE_ALARM";
 
     /**
      * Utility method to help start alarm properly. If alarm is already firing, it
@@ -75,6 +81,14 @@ public class AlarmService extends Service {
         context.startService(intent);
     }
 
+    public static void changeAlarm(Context context, AlarmInstance instance) {
+        Intent intent = AlarmInstance.createIntent(context, AlarmService.class, instance.mId);
+        intent.setAction(CHANGE_ALARM_ACTION);
+
+        // We don't need a wake lock here, since we are only changing
+        context.startService(intent);
+    }
+
     private TelephonyManager mTelephonyManager;
     private int mInitialCallState;
     private AlarmInstance mCurrentAlarm = null;
@@ -103,6 +117,7 @@ public class AlarmService extends Service {
         AlarmAlertWakeLock.acquireCpuWakeLock(this);
         mCurrentAlarm = instance;
         AlarmNotifications.showAlarmNotification(this, mCurrentAlarm);
+
         mInitialCallState = mTelephonyManager.getCallState();
         mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
         boolean inCall = mInitialCallState != TelephonyManager.CALL_STATE_IDLE;
@@ -122,6 +137,21 @@ public class AlarmService extends Service {
         sendBroadcast(new Intent(ALARM_DONE_ACTION));
         mCurrentAlarm = null;
         AlarmAlertWakeLock.releaseCpuLock();
+    }
+
+    private void changeCurrentAlarm(AlarmInstance instance) {
+        if (mCurrentAlarm == null) {
+            LogUtils.v("There is no current alarm to change");
+            return;
+        }
+
+        mCurrentAlarm = instance;
+        LogUtils.v("AlarmService.change with instance: " + mCurrentAlarm.mId);
+        mInitialCallState = mTelephonyManager.getCallState();
+        mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+        boolean inCall = mInitialCallState != TelephonyManager.CALL_STATE_IDLE;
+        AlarmKlaxon.start(this, mCurrentAlarm, inCall);
+        sendBroadcast(new Intent(ALARM_CHANGE_ACTION));
     }
 
     @Override
@@ -157,6 +187,18 @@ public class AlarmService extends Service {
                 return Service.START_NOT_STICKY;
             }
             stopSelf();
+        } else if(CHANGE_ALARM_ACTION.equals(intent.getAction())) {
+            ContentResolver cr = this.getContentResolver();
+            AlarmInstance instance = AlarmInstance.getInstance(cr, instanceId);
+            if (instance == null) {
+                LogUtils.e("No instance found to change alarm: " + instanceId);
+                if (mCurrentAlarm != null) {
+                    // Only release lock if we are not firing alarm
+                    AlarmAlertWakeLock.releaseCpuLock();
+                }
+                stopSelf();
+            }
+            changeCurrentAlarm(instance);
         }
 
         return Service.START_NOT_STICKY;
