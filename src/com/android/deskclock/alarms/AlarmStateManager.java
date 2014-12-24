@@ -75,6 +75,15 @@ import java.util.List;
  * The SNOOZED_STATE behaves like a HIGH_NOTIFICATION_STATE, but with a different message. It
  * also increments the alarm time in the instance to reflect the new snooze time.
  *
+ * PRE_ALARM_STATE:
+ * The PRE_ALARM_STATE is used when the pre-alarm is firing. It will start the AlarmService, and wait
+ * until the user interacts with the alarm via SNOOZED_STATE or DISMISS_STATE change. If the user
+ * doesn't then it change to FIRED_STATE
+ *
+ * PRE_ALARM_DISMISS_STATE:
+ * PRE_ALARM_DISMISS_STATE pre-alarm is dismissed and option to not dismiss
+ * main alarm with it is enabled.
+ *
  * FIRED_STATE:
  * The FIRED_STATE is used when the alarm is firing. It will start the AlarmService, and wait
  * until the user interacts with the alarm via SNOOZED_STATE or DISMISS_STATE change. If the user
@@ -117,6 +126,11 @@ public final class AlarmStateManager extends BroadcastReceiver {
     // Buffer time in seconds to fire alarm instead of marking it missed.
     public static final int ALARM_FIRE_BUFFER = 15;
 
+    // default is to allow endless snooze numbers
+    private static final String DEFAULT_SNOOZE_COUNT = "0";
+
+    private static int sSnoozeCount = 0;
+
     public static int getGlobalIntentId(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getInt(ALARM_GLOBAL_ID_EXTRA, -1);
@@ -137,7 +151,7 @@ public final class AlarmStateManager extends BroadcastReceiver {
     public static void updateNextAlarm(Context context) {
         AlarmInstance nextAlarm = null;
         ContentResolver cr = context.getContentResolver();
-        String activeAlarmQuery = AlarmInstance.ALARM_STATE + "<" + AlarmInstance.FIRED_STATE;
+        String activeAlarmQuery = AlarmInstance.ALARM_STATE + "<" + AlarmInstance.PRE_ALARM_STATE;
         for (AlarmInstance instance : AlarmInstance.getInstances(cr, activeAlarmQuery)) {
             if (nextAlarm == null || instance.getAlarmTime().before(nextAlarm.getAlarmTime())) {
                 nextAlarm = instance;
@@ -336,8 +350,13 @@ public final class AlarmStateManager extends BroadcastReceiver {
 
         // Setup instance notification and scheduling timers
         AlarmNotifications.showHighPriorityNotification(context, instance);
-        scheduleInstanceStateChange(context, instance.getAlarmTime(),
-                instance, AlarmInstance.FIRED_STATE);
+        if (instance.mPreAlarm) {
+            scheduleInstanceStateChange(context, instance.getPreAlarmTime(),
+                    instance, AlarmInstance.PRE_ALARM_STATE);
+        } else {
+            scheduleInstanceStateChange(context, instance.getAlarmTime(),
+                    instance, AlarmInstance.FIRED_STATE);
+        }
     }
 
     /**
@@ -351,14 +370,20 @@ public final class AlarmStateManager extends BroadcastReceiver {
     public static void setFiredState(Context context, AlarmInstance instance) {
         LogUtils.v("Setting fire state to instance " + instance.mId);
 
+        int lastState = instance.mAlarmState;
         // Update alarm state in db
         ContentResolver contentResolver = context.getContentResolver();
         instance.mAlarmState = AlarmInstance.FIRED_STATE;
         AlarmInstance.updateInstance(contentResolver, instance);
 
-        // Start the alarm and schedule timeout timer for it
-        AlarmService.startAlarm(context, instance);
+        // Start the alarm if required and schedule timeout timer for it
+        if (lastState == AlarmInstance.PRE_ALARM_STATE) {
+            AlarmService.changeAlarm(context, instance);
+        } else {
+            AlarmService.startAlarm(context, instance);
+        }
 
+        // Schedule timeout timer for alarm
         Calendar timeout = instance.getTimeout(context);
         if (timeout != null) {
             scheduleInstanceStateChange(context, timeout, instance, AlarmInstance.MISSED_STATE);
@@ -366,6 +391,57 @@ public final class AlarmStateManager extends BroadcastReceiver {
 
         // Instance not valid anymore, so find next alarm that will fire and notify system
         updateNextAlarm(context);
+    }
+
+    /**
+     * This will set the alarm instance to the PRE_ALARM_STATE and update
+     * the application notifications and schedule any state changes that need
+     * to occur in the future which is FIRED_STATE or PRE_ALARM_DISMISS_STATE
+     *
+     * @param context application context
+     * @param instance to set state to
+     */
+    public static void setPreFiredState(Context context, AlarmInstance instance) {
+        LogUtils.v("Setting pre fire state to instance " + instance.mId);
+
+        // Update alarm state in db
+        ContentResolver contentResolver = context.getContentResolver();
+        instance.mAlarmState = AlarmInstance.PRE_ALARM_STATE;
+        AlarmInstance.updateInstance(contentResolver, instance);
+
+        // Schedule timeout timer for pre-alarm dismiss if before alarm
+        Calendar timeout = instance.getPreAlarmTimeout(context);
+        if (timeout != null && timeout.before(instance.getAlarmTime())) {
+            scheduleInstanceStateChange(context, timeout, instance, AlarmInstance.PRE_ALARM_DISMISS_STATE);
+        }
+
+        // Start the alarm
+        AlarmService.startAlarm(context, instance);
+        scheduleInstanceStateChange(context, instance.getAlarmTime(),
+                instance, AlarmInstance.FIRED_STATE);
+    }
+
+    /**
+     * This will set the alarm instance to the PRE_ALARM_DISMISS_STATE and update
+     * the application notifications and schedule any state changes to FIRED_STATE
+     *
+     * @param context application context
+     * @param instance to set state to
+     */
+    private static void setPreFiredDismissState(Context context, AlarmInstance instance) {
+        LogUtils.v("Setting pre fire dismiss state to instance " + instance.mId);
+
+        // Update alarm state in db
+        ContentResolver contentResolver = context.getContentResolver();
+        instance.mAlarmState = AlarmInstance.PRE_ALARM_DISMISS_STATE;
+        AlarmInstance.updateInstance(contentResolver, instance);
+
+        AlarmNotifications.showPreAlarmDismissNotification(context, instance);
+
+        // Stop the alarm and schedule switch to FIRED_STATE
+        AlarmService.stopAlarm(context, instance);
+        scheduleInstanceStateChange(context, instance.getAlarmTime(),
+                instance, AlarmInstance.FIRED_STATE);
     }
 
     /**
@@ -377,6 +453,12 @@ public final class AlarmStateManager extends BroadcastReceiver {
      * @param instance to set state to
      */
     public static void setSnoozeState(Context context, AlarmInstance instance, boolean showToast) {
+        if (!canSnooze(context, instance)) {
+            return;
+        }
+
+        int lastState = instance.mAlarmState;
+        sSnoozeCount = sSnoozeCount + 1;
         // Stop alarm if this instance is firing it
         AlarmService.stopAlarm(context, instance);
 
@@ -387,18 +469,34 @@ public final class AlarmStateManager extends BroadcastReceiver {
         Calendar newAlarmTime = Calendar.getInstance();
         newAlarmTime.add(Calendar.MINUTE, snoozeMinutes);
 
+        boolean nextStateFired = false;
+        // if we snooze pre alarm - we will not snooze longer then the real alarm time
+        if (lastState == AlarmInstance.PRE_ALARM_STATE) {
+            if (newAlarmTime.after(instance.getAlarmTime())) {
+                // we will switch right to fired
+                nextStateFired = true;
+                newAlarmTime = instance.getAlarmTime();
+            }
+        } else {
+            instance.setAlarmTime(newAlarmTime);
+        }
+
         // Update alarm state and new alarm time in db.
         LogUtils.v("Setting snoozed state to instance " + instance.mId + " for "
                 + AlarmUtils.getFormattedTime(context, newAlarmTime));
-        instance.setAlarmTime(newAlarmTime);
+
         instance.mAlarmState = AlarmInstance.SNOOZE_STATE;
         AlarmInstance.updateInstance(context.getContentResolver(), instance);
 
         // Setup instance notification and scheduling timers
-        AlarmNotifications.showSnoozeNotification(context, instance);
-        scheduleInstanceStateChange(context, instance.getAlarmTime(),
-                instance, AlarmInstance.FIRED_STATE);
-
+        AlarmNotifications.showSnoozeNotification(context, instance, newAlarmTime);
+        if (lastState == AlarmInstance.PRE_ALARM_STATE && !nextStateFired) {
+            scheduleInstanceStateChange(context, newAlarmTime,
+                    instance, AlarmInstance.PRE_ALARM_STATE);
+        } else {
+            scheduleInstanceStateChange(context, instance.getAlarmTime(),
+                    instance, AlarmInstance.FIRED_STATE);
+        }
         // Display the snooze minutes in a toast.
         if (showToast) {
             String displayTime = String.format(context.getResources().getQuantityText
@@ -408,7 +506,6 @@ public final class AlarmStateManager extends BroadcastReceiver {
 
         // Instance time changed, so find next alarm that will fire and notify system
         updateNextAlarm(context);
-
     }
 
     public static String getSnoozedMinutes(Context context) {
@@ -431,6 +528,8 @@ public final class AlarmStateManager extends BroadcastReceiver {
         LogUtils.v("Setting missed state to instance " + instance.mId);
         // Stop alarm if this instance is firing it
         AlarmService.stopAlarm(context, instance);
+
+        sSnoozeCount = 0;
 
         // Check parent if it needs to reschedule, disable or delete itself
         if (instance.mAlarmId != null) {
@@ -461,7 +560,17 @@ public final class AlarmStateManager extends BroadcastReceiver {
      * @param instance to set state to
      */
     public static void setDismissState(Context context, AlarmInstance instance) {
+        // handle separate dismiss for pre-alarm
+        if (instance.mAlarmState == AlarmInstance.PRE_ALARM_STATE) {
+            if (!instance.getDismissAll(context)){
+                // only dismiss the pre-alarm and wait for the main alarm
+                setPreFiredDismissState(context, instance);
+                return;
+            }
+        }
         LogUtils.v("Setting dismissed state to instance " + instance.mId);
+
+        sSnoozeCount = 0;
 
         // Remove all other timers and notifications associated to it
         unregisterInstance(context, instance);
@@ -523,6 +632,7 @@ public final class AlarmStateManager extends BroadcastReceiver {
         Calendar lowNotificationTime = instance.getLowNotificationTime();
         Calendar highNotificationTime = instance.getHighNotificationTime();
         Calendar missedTTL = instance.getMissedTimeToLive();
+        Calendar preAlarmTime = instance.getPreAlarmTime();
 
         // Handle special use cases here
         if (instance.mAlarmState == AlarmInstance.DISMISSED_STATE) {
@@ -578,7 +688,7 @@ public final class AlarmStateManager extends BroadcastReceiver {
         } else if (instance.mAlarmState == AlarmInstance.SNOOZE_STATE) {
             // We only want to display snooze notification and not update the time,
             // so handle showing the notification directly
-            AlarmNotifications.showSnoozeNotification(context, instance);
+            AlarmNotifications.showSnoozeNotification(context, instance, instance.getAlarmTime());
             scheduleInstanceStateChange(context, instance.getAlarmTime(),
                     instance, AlarmInstance.FIRED_STATE);
         } else if (currentTime.after(highNotificationTime)) {
@@ -590,6 +700,10 @@ public final class AlarmStateManager extends BroadcastReceiver {
             } else {
                 setLowNotificationState(context, instance);
             }
+        } else if (instance.mPreAlarm && currentTime.after(preAlarmTime)) {
+            setPreFiredState(context, instance);
+        } else if (instance.mAlarmState == AlarmInstance.PRE_ALARM_DISMISS_STATE) {
+            setPreFiredDismissState(context, instance);
         } else {
           // Alarm is still active, so initialize as a silent alarm
           setSilentState(context, instance);
@@ -609,6 +723,8 @@ public final class AlarmStateManager extends BroadcastReceiver {
      * @param alarmId to find instances to delete.
      */
     public static void deleteAllInstances(Context context, long alarmId) {
+        sSnoozeCount = 0;
+
         ContentResolver cr = context.getContentResolver();
         List<AlarmInstance> instances = AlarmInstance.getInstancesByAlarmId(cr, alarmId);
         for (AlarmInstance instance : instances) {
@@ -656,6 +772,12 @@ public final class AlarmStateManager extends BroadcastReceiver {
                 break;
             case AlarmInstance.FIRED_STATE:
                 setFiredState(context, instance);
+                break;
+            case AlarmInstance.PRE_ALARM_STATE:
+                setPreFiredState(context, instance);
+                break;
+            case AlarmInstance.PRE_ALARM_DISMISS_STATE:
+                setPreFiredDismissState(context, instance);
                 break;
             case AlarmInstance.SNOOZE_STATE:
                 setSnoozeState(context, instance, true /* showToast */);
@@ -712,11 +834,14 @@ public final class AlarmStateManager extends BroadcastReceiver {
                 return;
             }
 
+            LogUtils.v("AlarmStateManager change from: " + instance);
+
             if (alarmState >= 0) {
                 setAlarmState(context, instance, alarmState);
             } else {
                 registerInstance(context, instance, true);
             }
+            LogUtils.v("AlarmStateManager change to: " + instance);
         } else if (SHOW_AND_DISMISS_ALARM_ACTION.equals(action)) {
             Uri uri = intent.getData();
             AlarmInstance instance = AlarmInstance.getInstance(context.getContentResolver(),
@@ -738,5 +863,16 @@ public final class AlarmStateManager extends BroadcastReceiver {
      */
     public static Intent createIndicatorIntent(Context context) {
         return new Intent(context, AlarmStateManager.class).setAction(INDICATOR_ACTION);
+    }
+
+    public static boolean canSnooze(Context context, AlarmInstance instance) {
+        String snoozeCountStr = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(SettingsActivity.KEY_ALARM_SNOOZE_COUNT, DEFAULT_SNOOZE_COUNT);
+        int snoozeCount = Integer.parseInt(snoozeCountStr);
+        if (snoozeCount != 0 && snoozeCount == sSnoozeCount){
+            // dont allow snooze
+            return false;
+        }
+        return true;
     }
 }
