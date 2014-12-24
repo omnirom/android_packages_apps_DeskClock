@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2009 The Android Open Source Project
+<!--
+     Copyright (C) 2009 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -11,59 +12,93 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/settings">
-    <PreferenceCategory
-        android:title="@string/clock_settings">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/settings" >
+    <PreferenceCategory android:title="@string/clock_settings" >
         <ListPreference
-            android:key="clock_style"
-            android:title="@string/clock_style"
+            android:defaultValue="@string/default_clock_style"
+            android:dialogTitle="@string/clock_style"
             android:entries="@array/clock_style_entries"
             android:entryValues="@array/clock_style_values"
-            android:defaultValue="@string/default_clock_style"
-            android:dialogTitle="@string/clock_style" />
+            android:key="clock_style"
+            android:title="@string/clock_style" />
         <CheckBoxPreference
+            android:defaultValue="true"
             android:key="automatic_home_clock"
-            android:title="@string/automatic_home_clock"
             android:summary="@string/automatic_home_clock_summary"
-            android:defaultValue="true" />
+            android:title="@string/automatic_home_clock" />
         <ListPreference
-            android:key="home_time_zone"
+            android:dialogTitle="@string/home_time_zone_title"
             android:entries="@array/timezone_labels"
             android:entryValues="@array/timezone_values"
-            android:dialogTitle="@string/home_time_zone_title"
+            android:key="home_time_zone"
             android:title="@string/home_time_zone" />
     </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="@string/alarm_settings">
+    <PreferenceCategory android:title="@string/alarm_settings" >
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="show_status_bar_icon"
+            android:summary="@string/show_status_bar_icon_summary"
+            android:title="@string/show_status_bar_icon_title"
+            android:persistent="false" />
         <ListPreference
-            android:key="auto_silence"
-            android:title="@string/auto_silence_title"
+            android:defaultValue="10"
+            android:dialogTitle="@string/auto_silence_title"
             android:entries="@array/auto_silence_entries"
             android:entryValues="@array/auto_silence_values"
-            android:defaultValue="10"
-            android:dialogTitle="@string/auto_silence_title" />
-
-       <com.android.deskclock.SnoozeLengthDialog
-            android:key="snooze_duration"
-            android:title="@string/snooze_duration_title"
-            android:defaultValue="10"/>
-
-        <VolumePreference
-            android:key="volume_setting"
-            android:title="@string/alarm_volume_title"
-            android:dialogTitle="@string/alarm_volume_title"
-            android:streamType="alarm" />
-
+            android:key="auto_silence"
+            android:title="@string/auto_silence_title" />
         <ListPreference
-            android:key="volume_button_setting"
-            android:title="@string/volume_button_setting_title"
+            android:defaultValue="10"
+            android:dialogTitle="@string/snooze_duration_title"
+            android:entries="@array/snooze_duration_entries"
+            android:entryValues="@array/snooze_duration_values"
+            android:key="snooze_duration_new"
+            android:title="@string/snooze_duration_title" />
+        <ListPreference
+            android:defaultValue="0"
+            android:dialogTitle="@string/snooze_count_title"
+            android:entries="@array/snooze_count_entries"
+            android:entryValues="@array/snooze_count_values"
+            android:key="snooze_count"
+            android:title="@string/snooze_count_title" />
+        <ListPreference
+            android:defaultValue="5"
+            android:dialogTitle="@string/volume_increase_speed_title"
+            android:entries="@array/volume_increase_speed_entries"
+            android:entryValues="@array/volume_increase_speed_values"
+            android:key="volume_increase_speed"
+            android:title="@string/volume_increase_speed_title" />
+        <ListPreference
+            android:defaultValue="0"
             android:dialogTitle="@string/volume_button_setting_title"
             android:entries="@array/volume_button_setting_entries"
             android:entryValues="@array/volume_button_setting_values"
-            android:defaultValue="0" />
+            android:key="volume_button_setting"
+            android:title="@string/volume_button_setting_title" />
+        <ListPreference
+            android:defaultValue="0"
+            android:dialogTitle="@string/flip_action_dialog_title"
+            android:entries="@array/volume_button_setting_entries"
+            android:entryValues="@array/volume_button_setting_values"
+            android:key="flip_action_setting"
+            android:title="@string/flip_action_title" />
+        <ListPreference
+            android:defaultValue="0"
+            android:dialogTitle="@string/shake_action_dialog_title"
+            android:entries="@array/volume_button_setting_entries"
+            android:entryValues="@array/volume_button_setting_values"
+            android:key="shake_action_setting"
+            android:title="@string/shake_action_title" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="keep_screen_on"
+            android:summary="@string/keep_screen_on_summary"
+            android:title="@string/keep_screen_on_title" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pre_alarm_dismiss_all"
+            android:summary="@string/pre_alarm_dismiss_all_summary"
+            android:title="@string/pre_alarm_dismiss_all_title" />
     </PreferenceCategory>
 </PreferenceScreen>
