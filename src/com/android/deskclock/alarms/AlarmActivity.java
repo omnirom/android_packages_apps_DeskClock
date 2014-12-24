@@ -27,7 +27,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.content.res.Configuration;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -41,6 +45,7 @@ import android.view.ViewGroupOverlay;
 import android.view.WindowManager;
 import android.view.animation.Interpolator;
 import android.view.animation.PathInterpolator;
+import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.TextClock;
 import android.widget.TextView;
@@ -65,6 +70,8 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
      */
     public static final String ALARM_DISMISS_ACTION = "com.android.deskclock.ALARM_DISMISS";
 
+    public static final String ALARM_CHANGE_ACTION = "com.android.deskclock.ALARM_CHANGE";
+
     private static final String LOGTAG = AlarmActivity.class.getSimpleName();
 
     private static final Interpolator PULSE_INTERPOLATOR =
@@ -83,11 +90,18 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
     private static final int BUTTON_DRAWABLE_ALPHA_DEFAULT = 165;
 
     private final Handler mHandler = new Handler();
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private SensorManager mSensorManager;
+    private String mFlipAction;
+    private String mShakeAction;
+    private FlipSensorListener mFlipListener;
+    private ShakeSensorListener mShakeListener;
+    private boolean mPreAlarmMode;
+    private long mInstanceId;
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            LogUtils.v(LOGTAG, "Received broadcast: %s", action);
+            LogUtils.v(LOGTAG, "Received broadcast: " + action);
 
             if (!mAlarmHandled) {
                 switch (action) {
@@ -100,12 +114,15 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
                     case AlarmService.ALARM_DONE_ACTION:
                         finish();
                         break;
+                    case AlarmService.ALARM_CHANGE_ACTION:
+                        mAlarmInstance = AlarmInstance.getInstance(AlarmActivity.this.getContentResolver(), mInstanceId);
+                        mPreAlarmMode = mAlarmInstance.mAlarmState == AlarmInstance.PRE_ALARM_STATE;
+                        LogUtils.v(LOGTAG, "Pre-alarm mode: " + mPreAlarmMode);
+                        break;
                     default:
-                        LogUtils.i(LOGTAG, "Unknown broadcast: %s", action);
+                        LogUtils.v(LOGTAG, "Unknown broadcast: " + action);
                         break;
                 }
-            } else {
-                LogUtils.v(LOGTAG, "Ignored broadcast: %s", action);
             }
         }
     };
@@ -136,27 +153,59 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final long instanceId = AlarmInstance.getId(getIntent().getData());
-        mAlarmInstance = AlarmInstance.getInstance(getContentResolver(), instanceId);
+        mInstanceId = AlarmInstance.getId(getIntent().getData());
+        mAlarmInstance = AlarmInstance.getInstance(this.getContentResolver(), mInstanceId);
         if (mAlarmInstance != null) {
-            LogUtils.i(LOGTAG, "Displaying alarm for instance: %s", mAlarmInstance);
+            LogUtils.v(LOGTAG, "Displaying alarm for instance: " + mAlarmInstance);
         } else {
             // The alarm got deleted before the activity got created, so just finish()
-            LogUtils.e(LOGTAG, "Error displaying alarm for intent: %s", getIntent());
+            LogUtils.e(LOGTAG, "Error displaying alarm for intent:" + getIntent());
             finish();
             return;
         }
 
-        // Get the volume/camera button behavior setting
-        mVolumeBehavior = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(SettingsActivity.KEY_VOLUME_BEHAVIOR,
-                        SettingsActivity.DEFAULT_VOLUME_BEHAVIOR);
+        mPreAlarmMode = mAlarmInstance.mAlarmState == AlarmInstance.PRE_ALARM_STATE;
+        LogUtils.v(LOGTAG, "Pre-alarm mode: " + mPreAlarmMode);
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-                | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mFlipListener = new FlipSensorListener(new Runnable(){
+            @Override
+            public void run() {
+                handleAction(mFlipAction);
+            }
+        });
+
+        mShakeListener = new ShakeSensorListener(new Runnable(){
+            @Override
+            public void run() {
+                handleAction(mShakeAction);
+            }
+        });
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        // Get the volume/camera button behavior setting
+        mVolumeBehavior = prefs.getString(SettingsActivity.KEY_VOLUME_BEHAVIOR,
+                        SettingsActivity.DEFAULT_ALARM_ACTION);
+
+        mFlipAction = prefs.getString(SettingsActivity.KEY_FLIP_ACTION,
+                SettingsActivity.DEFAULT_ALARM_ACTION);
+
+        mShakeAction = prefs.getString(SettingsActivity.KEY_SHAKE_ACTION,
+                SettingsActivity.DEFAULT_ALARM_ACTION);
+
+        LogUtils.v(LOGTAG, "mVolumeBehavior: " + mVolumeBehavior + " mFlipAction " + mFlipAction  + " mShakeAction " + mShakeAction);
+
+        final boolean keepScreenOn = prefs.getBoolean(SettingsActivity.KEY_KEEP_SCREEN_ON, true);
+
+        final Window win = getWindow();
+        win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+
+        if (keepScreenOn){
+            win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
 
         // In order to allow tablets to freely rotate and phones to stick
         // with "nosensor" (use default device orientation) we have to have
@@ -217,11 +266,14 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
         filter.addAction(ALARM_SNOOZE_ACTION);
         filter.addAction(ALARM_DISMISS_ACTION);
         registerReceiver(mReceiver, filter);
+
+        attachListeners();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        detachListeners();
 
         // If the alarm instance is null the receiver was never registered and calling
         // unregisterReceiver will throw an exception.
@@ -233,29 +285,21 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
     @Override
     public boolean dispatchKeyEvent(@NonNull KeyEvent keyEvent) {
         // Do this in dispatch to intercept a few of the system keys.
-        LogUtils.v(LOGTAG, "dispatchKeyEvent: %s", keyEvent);
+        LogUtils.v(LOGTAG, "dispatchKeyEvent: " + keyEvent);
 
         switch (keyEvent.getKeyCode()) {
             // Volume keys and camera keys dismiss the alarm.
-            case KeyEvent.KEYCODE_POWER:
+            //case KeyEvent.KEYCODE_POWER:
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_DOWN:
-            case KeyEvent.KEYCODE_VOLUME_MUTE:
-            case KeyEvent.KEYCODE_CAMERA:
-            case KeyEvent.KEYCODE_FOCUS:
+            //case KeyEvent.KEYCODE_VOLUME_MUTE:
+            //case KeyEvent.KEYCODE_CAMERA:
+            //case KeyEvent.KEYCODE_FOCUS:
                 if (!mAlarmHandled && keyEvent.getAction() == KeyEvent.ACTION_UP) {
-                    switch (mVolumeBehavior) {
-                        case SettingsActivity.VOLUME_BEHAVIOR_SNOOZE:
-                            snooze();
-                            break;
-                        case SettingsActivity.VOLUME_BEHAVIOR_DISMISS:
-                            dismiss();
-                            break;
-                        default:
-                            break;
+                    if (handleAction(mVolumeBehavior)) {
+                        return true;
                     }
                 }
-                return true;
             default:
                 return super.dispatchKeyEvent(keyEvent);
         }
@@ -266,13 +310,41 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
         // Don't allow back to dismiss.
     }
 
+    private void attachListeners() {
+        if (!mFlipAction.equals(SettingsActivity.ALARM_NO_ACTION)) {
+            LogUtils.v(LOGTAG, "register mFlipListener");
+            mFlipListener.reset();
+            mSensorManager.registerListener(mFlipListener,
+                    mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                    SensorManager.SENSOR_DELAY_NORMAL);
+        }
+        if (!mShakeAction.equals(SettingsActivity.ALARM_NO_ACTION)) {
+            LogUtils.v(LOGTAG, "register mShakeListener");
+            mShakeListener.reset();
+            mSensorManager.registerListener(mShakeListener,
+                    mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                    SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+
+    private void detachListeners() {
+        if (!mFlipAction.equals(SettingsActivity.ALARM_NO_ACTION)) {
+             LogUtils.v(LOGTAG, "unregister mFlipListener");
+            mSensorManager.unregisterListener(mFlipListener);
+        }
+        if (!mShakeAction.equals(SettingsActivity.ALARM_NO_ACTION)) {
+            LogUtils.v(LOGTAG, "unregister mShakeListener");
+            mSensorManager.unregisterListener(mShakeListener);
+        }
+    }
+
     @Override
     public void onClick(View view) {
         if (mAlarmHandled) {
-            LogUtils.v(LOGTAG, "onClick ignored: %s", view);
+            LogUtils.v(LOGTAG, "onClick ignored: " + view);
             return;
         }
-        LogUtils.v(LOGTAG, "onClick: %s", view);
+        LogUtils.v(LOGTAG, "onClick: " + view);
 
         final int alarmLeft = mAlarmButton.getLeft() + mAlarmButton.getPaddingLeft();
         final int alarmRight = mAlarmButton.getRight() - mAlarmButton.getPaddingRight();
@@ -285,7 +357,7 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         if (mAlarmHandled) {
-            LogUtils.v(LOGTAG, "onTouch ignored: %s", motionEvent);
+            LogUtils.v(LOGTAG, "onTouch ignored: " + motionEvent);
             return false;
         }
 
@@ -310,13 +382,13 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
 
         switch (motionEvent.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                LogUtils.v(LOGTAG, "onTouch started: %s", motionEvent);
+                LogUtils.v(LOGTAG, "onTouch started: " + motionEvent);
 
                 // Stop the pulse, allowing the last pulse to finish.
                 mPulseAnimator.setRepeatCount(0);
                 break;
             case MotionEvent.ACTION_UP:
-                LogUtils.v(LOGTAG, "onTouch ended: %s", motionEvent);
+                LogUtils.v(LOGTAG, "onTouch ended: " + motionEvent);
 
                 if (snoozeFraction == 1.0f) {
                     snooze();
@@ -347,7 +419,7 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
 
     private void snooze() {
         mAlarmHandled = true;
-        LogUtils.v(LOGTAG, "Snoozed: %s", mAlarmInstance);
+        LogUtils.v(LOGTAG, "Snoozed: " + mAlarmInstance);
 
         final int alertColor = getResources().getColor(R.color.hot_pink);
         setAnimatedFractions(1.0f /* snoozeFraction */, 0.0f /* dismissFraction */);
@@ -358,7 +430,7 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
 
     private void dismiss() {
         mAlarmHandled = true;
-        LogUtils.v(LOGTAG, "Dismissed: %s", mAlarmInstance);
+        LogUtils.v(LOGTAG, "Dismissed: " + mAlarmInstance);
 
         setAnimatedFractions(0.0f /* snoozeFraction */, 1.0f /* dismissFraction */);
         getAlertAnimator(mDismissButton, R.string.alarm_alert_off_text, null /* infoText */,
@@ -481,5 +553,22 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
         });
 
         return alertAnimator;
+    }
+
+    private boolean handleAction(String action) {
+        LogUtils.v(LOGTAG, "handleAction: " + action);
+        switch (action) {
+            case SettingsActivity.ALARM_SNOOZE:
+                snooze();
+                return true;
+            case SettingsActivity.ALARM_DISMISS:
+                dismiss();
+                return true;
+            case SettingsActivity.ALARM_NO_ACTION:
+                break;
+            default:
+                break;
+        }
+        return false;
     }
 }
