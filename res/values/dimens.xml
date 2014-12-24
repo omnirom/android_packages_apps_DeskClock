@@ -16,9 +16,10 @@
 ** limitations under the License.
 */
 -->
-
-<!-- These resources are around just to allow their values to be customized
-     for different hardware and product builds. -->
+<!--
+     These resources are around just to allow their values to be customized
+     for different hardware and product builds.
+-->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <dimen name="label_text_size">14sp</dimen>
     <dimen name="time_text_size">120dip</dimen>
@@ -48,7 +49,6 @@
 
     <!-- Analog clock size in the the screen saver -->
     <dimen name="bottom_text_size">16sp</dimen>
-
     <dimen name="actionbar_tab_padding">0dip</dimen>
     <dimen name="actionbar_title_font_size">18sp</dimen>
 
@@ -72,6 +72,7 @@
     <dimen name="medium_font_size">56sp</dimen>
     <dimen name="small_font_size">32sp</dimen>
     <dimen name="label_font_size">16sp</dimen>
+
     <dimen name="widget_label_font_size">14sp</dimen>
     <dimen name="main_ampm_font_size">32sp</dimen>
     <dimen name="header_font_size">24sp</dimen>
@@ -84,25 +85,21 @@
     <dimen name="dialog_button_font_size">16sp</dimen>
 
     <dimen name="alarm_label_size">14sp</dimen>
-
     <dimen name="medium_font_padding">12dp</dimen>
-
     <dimen name="small_space">16dp</dimen>
     <dimen name="medium_space_top">22dp</dimen>
     <dimen name="medium_space_bottom">12dp</dimen>
     <dimen name="style_label_space">4dip</dimen>
     <dimen name="sw_item_space">16dip</dimen>
     <dimen name="main_clock_padding">34dp</dimen>
-
     <dimen name="label_margin_big">4dp</dimen>
     <dimen name="label_margin_small">2dp</dimen>
-
     <dimen name="dialpad_font_size">36sp</dimen>
-    <!--padding should be (in dip) ~ 60% dialpad_font_size -->
+    <!-- padding should be (in dip) ~ 60% dialpad_font_size -->
     <dimen name="dialpad_digit_padding">22dip</dimen>
     <dimen name="timer_setup_font_size">56sp</dimen>
     <dimen name="timer_setup_button_size">24sp</dimen>
-    <!--margin should be ~ half timer_setup_font_size -->
+    <!-- margin should be ~ half timer_setup_font_size -->
     <dimen name="timer_setup_delete_start_margin">28sp</dimen>
     <dimen name="timer_setup_delete_padding">12dip</dimen>
     <dimen name="timer_setup_label_size">18sp</dimen>
@@ -135,7 +132,6 @@
     <!-- Size of analog clock in world clock. -->
     <dimen name="world_clock_analog_size">100dip</dimen>
     <dimen name="world_clock_margin">32dp</dimen>
-
     <dimen name="toast_bar_bottom_margin_in_conversation">24dip</dimen>
 
     <!-- Height of the button footers. 56 height and 16 on top and bottom. -->
@@ -154,7 +150,6 @@
     <!-- Hour and minute spacing -->
     <dimen name="widget_big_time_margin_right">10dip</dimen>
     <dimen name="widget_medium_time_margin_right">5dip</dimen>
-
     <!-- width/height of layout/digital_widget_time -->
     <!-- height is sum of widget_big_font_size + label_font_size + margins -->
     <dimen name="min_digital_widget_width">206dp</dimen>
@@ -169,11 +164,11 @@
     <!-- top margin for digital_appwidget_listview -->
     <dimen name="digital_widget_list_margin_top">20dp</dimen>
     <dimen name="digital_widget_city_margin_bottom">10dp</dimen>
-
     <!-- Bottom margin for the expand area -->
     <dimen name="collapse_expand_height">72dip</dimen>
 
     <!-- Divider height -->
     <dimen name="hairline_height">1dip</dimen>
 
+    <dimen name="alert_dialog_padding_material">24dp</dimen>
 </resources>

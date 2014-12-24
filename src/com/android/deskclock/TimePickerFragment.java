@@ -45,7 +45,7 @@ public class TimePickerFragment extends DialogFragment {
             minute = mAlarm.minutes;
         }
 
-        return new TimePickerDialog(getActivity(), R.style.TimePickerTheme, mListener, hour, minute,
+        return new TimePickerDialog(getActivity(), R.style.DialogTheme, mListener, hour, minute,
                 DateFormat.is24HourFormat(getActivity()));
     }
 
