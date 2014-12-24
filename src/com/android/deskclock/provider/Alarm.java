@@ -24,6 +24,7 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.RingtoneManager;
+import android.media.Ringtone;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -57,7 +58,14 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
             VIBRATE,
             LABEL,
             RINGTONE,
-            DELETE_AFTER_USE
+            DELETE_AFTER_USE,
+            INCREASING_VOLUME,
+            PRE_ALARM,
+            ALARM_VOLUME,
+            PRE_ALARM_VOLUME,
+            PRE_ALARM_TIME,
+            PRE_ALARM_RINGTONE,
+            RANDOM_MODE
     };
 
     /**
@@ -73,8 +81,14 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
     private static final int LABEL_INDEX = 6;
     private static final int RINGTONE_INDEX = 7;
     private static final int DELETE_AFTER_USE_INDEX = 8;
-
-    private static final int COLUMN_COUNT = DELETE_AFTER_USE_INDEX + 1;
+    private static final int INCREASING_VOLUME_INDEX = 9;
+    private static final int PRE_ALARM_INDEX = 10;
+    private static final int ALARM_VOLUME_INDEX = 11;
+    private static final int PRE_ALARM_VOLUME_INDEX = 12;
+    private static final int PRE_ALARM_TIME_INDEX = 13;
+    private static final int PRE_ALARM_RINGTONE_INDEX = 14;
+    private static final int RANDOM_MODE_INDEX = 15;
+    private static final int COLUMN_COUNT = RANDOM_MODE_INDEX + 1;
 
     public static ContentValues createContentValues(Alarm alarm) {
         ContentValues values = new ContentValues(COLUMN_COUNT);
@@ -89,13 +103,25 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         values.put(VIBRATE, alarm.vibrate ? 1 : 0);
         values.put(LABEL, alarm.label);
         values.put(DELETE_AFTER_USE, alarm.deleteAfterUse);
+        values.put(INCREASING_VOLUME, alarm.increasingVolume);
+
         if (alarm.alert == null) {
             // We want to put null, so default alarm changes
             values.putNull(RINGTONE);
         } else {
             values.put(RINGTONE, alarm.alert.toString());
         }
-
+        values.put(PRE_ALARM, alarm.preAlarm ? 1 : 0);
+        values.put(ALARM_VOLUME, alarm.alarmVolume);
+        values.put(PRE_ALARM_VOLUME, alarm.preAlarmVolume);
+        values.put(PRE_ALARM_TIME, alarm.preAlarmTime);
+        if (alarm.preAlarmAlert == null) {
+            // We want to put null, so default alarm changes
+            values.putNull(PRE_ALARM_RINGTONE);
+        } else {
+            values.put(PRE_ALARM_RINGTONE, alarm.preAlarmAlert.toString());
+        }
+        values.put(RANDOM_MODE, alarm.randomMode);
         return values;
     }
 
@@ -226,6 +252,13 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
     public String label;
     public Uri alert;
     public boolean deleteAfterUse;
+    private int increasingVolume;
+    public boolean preAlarm;
+    public int alarmVolume;
+    public int preAlarmVolume;
+    public int preAlarmTime;
+    public Uri preAlarmAlert;
+    private int randomMode;
 
     // Creates a default alarm at the current time.
     public Alarm() {
@@ -239,8 +272,15 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         this.vibrate = true;
         this.daysOfWeek = new DaysOfWeek(0);
         this.label = "";
-        this.alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        this.alert = null;
         this.deleteAfterUse = false;
+        this.increasingVolume = 0;
+        this.preAlarm = false;
+        this.alarmVolume = -1;
+        this.preAlarmVolume = -1;
+        this.preAlarmTime = AlarmInstance.DEFAULT_PRE_ALARM_TIME;
+        this.preAlarmAlert = null;
+        this.randomMode = 0;
     }
 
     public Alarm(Cursor c) {
@@ -252,14 +292,20 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         vibrate = c.getInt(VIBRATE_INDEX) == 1;
         label = c.getString(LABEL_INDEX);
         deleteAfterUse = c.getInt(DELETE_AFTER_USE_INDEX) == 1;
-
-        if (c.isNull(RINGTONE_INDEX)) {
-            // Should we be saving this with the current ringtone or leave it null
-            // so it changes when user changes default ringtone?
-            alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        } else {
-            alert = Uri.parse(c.getString(RINGTONE_INDEX));
+        increasingVolume = c.getInt(INCREASING_VOLUME_INDEX);
+        if (!c.isNull(RINGTONE_INDEX)) {
+            String r = c.getString(RINGTONE_INDEX);
+            alert = Uri.parse(r);
         }
+        preAlarm = c.getInt(PRE_ALARM_INDEX) == 1;
+        alarmVolume = c.getInt(ALARM_VOLUME_INDEX);
+        preAlarmVolume = c.getInt(PRE_ALARM_VOLUME_INDEX);
+        preAlarmTime = c.getInt(PRE_ALARM_TIME_INDEX);
+        if (!c.isNull(PRE_ALARM_RINGTONE_INDEX)) {
+            String r = c.getString(PRE_ALARM_RINGTONE_INDEX);
+            preAlarmAlert = Uri.parse(r);
+        }
+        randomMode = c.getInt(RANDOM_MODE_INDEX);
     }
 
     Alarm(Parcel p) {
@@ -272,6 +318,13 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         label = p.readString();
         alert = (Uri) p.readParcelable(null);
         deleteAfterUse = p.readInt() == 1;
+        increasingVolume = p.readInt();
+        preAlarm = p.readInt() == 1;
+        alarmVolume = p.readInt();
+        preAlarmVolume = p.readInt();
+        preAlarmTime = p.readInt();
+        preAlarmAlert = (Uri) p.readParcelable(null);
+        randomMode = p.readInt();
     }
 
     public String getLabelOrDefault(Context context) {
@@ -291,6 +344,13 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         p.writeString(label);
         p.writeParcelable(alert, flags);
         p.writeInt(deleteAfterUse ? 1 : 0);
+        p.writeInt(increasingVolume);
+        p.writeInt(preAlarm ? 1 : 0);
+        p.writeInt(alarmVolume);
+        p.writeInt(preAlarmVolume);
+        p.writeInt(preAlarmTime);
+        p.writeParcelable(preAlarmAlert, flags);
+        p.writeInt(randomMode);
     }
 
     public int describeContents() {
@@ -322,6 +382,13 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         result.mVibrate = vibrate;
         result.mLabel = label;
         result.mRingtone = alert;
+        result.setIncreasingVolume(increasingVolume);
+        result.mPreAlarm = preAlarm;
+        result.mAlarmVolume = alarmVolume;
+        result.mPreAlarmVolume = preAlarmVolume;
+        result.mPreAlarmTime = preAlarmTime;
+        result.mPreAlarmRingtone = preAlarmAlert;
+        result.setRandomMode(randomMode);
         return result;
     }
 
@@ -349,6 +416,149 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
                 ", vibrate=" + vibrate +
                 ", label='" + label + '\'' +
                 ", deleteAfterUse=" + deleteAfterUse +
+                ", increasingVolume=" + increasingVolume +
+                ", preAlarm=" + preAlarm +
+                ", alarmVolume=" + alarmVolume +
+                ", preAlarmVolume=" + preAlarmVolume +
+                ", preAlarmTime=" + preAlarmTime +
+                ", preAlarmAlert=" + preAlarmAlert +
+                ", randomMode=" + randomMode +
                 '}';
+    }
+
+    public boolean getIncreasingVolume(boolean preAlarm) {
+        if (preAlarm) {
+            return increasingVolume == AlarmInstance.ALARM_OPTION_PREALARM_ONLY
+            || increasingVolume == AlarmInstance.ALARM_OPTION_BOTH;
+        } else {
+            return increasingVolume == AlarmInstance.ALARM_OPTION_MAIN_ONLY
+            || increasingVolume == AlarmInstance.ALARM_OPTION_BOTH;
+        }
+    }
+
+    public void setIncreasingVolume(int value) {
+        increasingVolume = value;
+    }
+
+    public void setIncreasingVolume(boolean preAlarm, boolean value) {
+        if (preAlarm) {
+            if (value) {
+                if (getIncreasingVolume(false)){
+                    increasingVolume = AlarmInstance.ALARM_OPTION_BOTH;
+                } else {
+                    increasingVolume = AlarmInstance.ALARM_OPTION_PREALARM_ONLY;
+                }
+            } else {
+                if (getIncreasingVolume(false)){
+                    increasingVolume = AlarmInstance.ALARM_OPTION_MAIN_ONLY;
+                } else {
+                    increasingVolume = AlarmInstance.ALARM_OPTION_OFF;
+                }
+            }
+        } else {
+            if (value) {
+                if (getIncreasingVolume(true)){
+                    increasingVolume = AlarmInstance.ALARM_OPTION_BOTH;
+                } else {
+                    increasingVolume = AlarmInstance.ALARM_OPTION_MAIN_ONLY;
+                }
+            } else {
+                if (getIncreasingVolume(true)){
+                    increasingVolume = AlarmInstance.ALARM_OPTION_PREALARM_ONLY;
+                } else {
+                    increasingVolume = AlarmInstance.ALARM_OPTION_OFF;
+                }
+            }
+        }
+    }
+
+    public boolean getRandomMode(boolean preAlarm) {
+        if (preAlarm) {
+            return randomMode == AlarmInstance.ALARM_OPTION_PREALARM_ONLY
+            || randomMode == AlarmInstance.ALARM_OPTION_BOTH;
+        } else {
+            return randomMode == AlarmInstance.ALARM_OPTION_MAIN_ONLY
+            || randomMode == AlarmInstance.ALARM_OPTION_BOTH;
+        }
+    }
+
+    public void setRandomMode(boolean preAlarm, boolean value) {
+        if (preAlarm) {
+            if (value) {
+                if (getRandomMode(false)){
+                    randomMode = AlarmInstance.ALARM_OPTION_BOTH;
+                } else {
+                    randomMode = AlarmInstance.ALARM_OPTION_PREALARM_ONLY;
+                }
+            } else {
+                if (getRandomMode(false)){
+                    randomMode = AlarmInstance.ALARM_OPTION_MAIN_ONLY;
+                } else {
+                    randomMode = AlarmInstance.ALARM_OPTION_OFF;
+                }
+            }
+        } else {
+            if (value) {
+                if (getRandomMode(true)){
+                    randomMode = AlarmInstance.ALARM_OPTION_BOTH;
+                } else {
+                    randomMode = AlarmInstance.ALARM_OPTION_MAIN_ONLY;
+                }
+            } else {
+                if (getRandomMode(true)){
+                    randomMode = AlarmInstance.ALARM_OPTION_PREALARM_ONLY;
+                } else {
+                    randomMode = AlarmInstance.ALARM_OPTION_OFF;
+                }
+            }
+        }
+    }
+
+    public boolean isSilentAlarm() {
+        boolean silentAlarm = alert != null && Alarm.NO_RINGTONE_URI.equals(alert);
+        return silentAlarm;
+    }
+
+    public void setSilentAlarm() {
+        alert = Alarm.NO_RINGTONE_URI;
+        alarmVolume = -1;
+    }
+
+    public void setDefaultAlarm(Context context) {
+        alert = getDefaultAlarmUri(context);
+    }
+
+    public void setDefaultPreAlarm(Context context) {
+        preAlarmAlert = getDefaultAlarmUri(context);
+        preAlarm = true;
+    }
+
+    public void disablePreAlarm() {
+        preAlarmAlert = Alarm.NO_RINGTONE_URI;
+        preAlarmVolume = -1;
+        preAlarm = false;
+    }
+
+    private Uri getDefaultAlarmUri(Context context) {
+        Uri alert = RingtoneManager.getActualDefaultRingtoneUri(context,
+                    RingtoneManager.TYPE_ALARM);
+        if (alert == null) {
+            alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        }
+        return alert;
+    }
+
+    private String getRingToneTitle(Context context, boolean preAlarm) {
+        Ringtone ringTone = RingtoneManager.getRingtone(context, preAlarm ? preAlarmAlert : alert);
+        if (ringTone != null) {
+            return ringTone.getTitle(context);
+        }
+        return null;
+    }
+
+    public boolean isFallbackRingtone(Context context, boolean preAlarm) {
+        String unknownRingToneStr = context.getString(R.string.ringtone_unknown);
+        String title = getRingToneTitle(context, preAlarm);
+        return title == null || title.contains(unknownRingToneStr);
     }
 }

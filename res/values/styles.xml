@@ -27,6 +27,8 @@
         <item name="android:colorControlNormal">@color/white</item>
         <item name="android:popupMenuStyle">?android:attr/actionOverflowMenuStyle</item>
         <item name="android:buttonStyle">?android:attr/borderlessButtonStyle</item>
+        <item name="android:dialogTheme">@style/DialogTheme</item>
+        <item name="android:alertDialogTheme">@style/DialogTheme</item>
     </style>
 
     <style name="AlarmSwitchTheme">
@@ -47,6 +49,9 @@
         <item name="android:numbersBackgroundColor">@color/time_picker_gray</item>
         <item name="android:numbersTextColor">@color/white</item>
         <item name="android:amPmTextColor">@color/white</item>
+    </style>
+
+    <style name="DialogTheme" parent="@style/TimePickerTheme">
     </style>
 
     <style name="TimeLabelTextAppearance" parent="@android:style/TextAppearance.Material">
@@ -101,6 +106,9 @@
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textColor">@color/white_69p</item>
         <item name="android:textSize">@dimen/label_text_size</item>
+        <item name="android:background">@color/time_picker_gray</item>
+        <item name="android:textColorPrimaryInverse">@color/hot_pink</item>
+        <item name="android:colorAccent">@color/hot_pink</item>
     </style>
 
     <style name="CitiesTheme" parent="@style/DeskClockParentTheme">

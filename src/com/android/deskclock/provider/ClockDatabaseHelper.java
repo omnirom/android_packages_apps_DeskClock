@@ -52,11 +52,17 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
      */
     private static final int VERSION_7 = 7;
 
+    /**
+     * Added increasing alarm volume mode
+     */
+    private static final int VERSION_8 = 8;
+
+
     // This creates a default alarm at 8:30 for every Mon,Tue,Wed,Thu,Fri
-    private static final String DEFAULT_ALARM_1 = "(8, 30, 31, 0, 0, '', NULL, 0);";
+//    private static final String DEFAULT_ALARM_1 = "(8, 30, 31, 0, 0, '', 'content://settings/system/alarm_alert', 0, 0, 0, -1, -1, 2, NULL, 0);";
 
     // This creates a default alarm at 9:30 for every Sat,Sun
-    private static final String DEFAULT_ALARM_2 = "(9, 00, 96, 0, 0, '', NULL, 0);";
+//    private static final String DEFAULT_ALARM_2 = "(9, 00, 96, 0, 0, '', 'content://settings/system/alarm_alert', 0, 0, 0, -1, -1, 2, NULL, 0);";
 
     // Database and table names
     static final String DATABASE_NAME = "alarms.db";
@@ -75,7 +81,14 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
                 ClockContract.AlarmsColumns.VIBRATE + " INTEGER NOT NULL, " +
                 ClockContract.AlarmsColumns.LABEL + " TEXT NOT NULL, " +
                 ClockContract.AlarmsColumns.RINGTONE + " TEXT, " +
-                ClockContract.AlarmsColumns.DELETE_AFTER_USE + " INTEGER NOT NULL DEFAULT 0);");
+                ClockContract.AlarmsColumns.DELETE_AFTER_USE + " INTEGER NOT NULL DEFAULT 0, " +
+                ClockContract.AlarmsColumns.INCREASING_VOLUME + " INTEGER NOT NULL DEFAULT 0, " +
+                ClockContract.AlarmsColumns.PRE_ALARM + " INTEGER NOT NULL DEFAULT 0, " +
+                ClockContract.AlarmsColumns.ALARM_VOLUME + " INTEGER NOT NULL DEFAULT -1, " +
+                ClockContract.AlarmsColumns.PRE_ALARM_VOLUME + " INTEGER NOT NULL DEFAULT -1, " +
+                ClockContract.AlarmsColumns.PRE_ALARM_TIME + " INTEGER NOT NULL DEFAULT 5, " +
+                ClockContract.AlarmsColumns.PRE_ALARM_RINGTONE + " TEXT, " +
+                ClockContract.AlarmsColumns.RANDOM_MODE + " INTEGER NOT NULL DEFAULT 0);");
         LogUtils.i("Alarms Table created");
     }
 
@@ -93,8 +106,14 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
                 ClockContract.InstancesColumns.ALARM_STATE + " INTEGER NOT NULL, " +
                 ClockContract.InstancesColumns.ALARM_ID + " INTEGER REFERENCES " +
                     ALARMS_TABLE_NAME + "(" + ClockContract.AlarmsColumns._ID + ") " +
-                    "ON UPDATE CASCADE ON DELETE CASCADE" +
-                ");");
+                    "ON UPDATE CASCADE ON DELETE CASCADE, " +
+                ClockContract.InstancesColumns.INCREASING_VOLUME + " INTEGER NOT NULL DEFAULT 0, " +
+                ClockContract.InstancesColumns.PRE_ALARM + " INTEGER NOT NULL DEFAULT 0, " +
+                ClockContract.InstancesColumns.ALARM_VOLUME + " INTEGER NOT NULL DEFAULT -1, " +
+                ClockContract.InstancesColumns.PRE_ALARM_VOLUME + " INTEGER NOT NULL DEFAULT -1, " +
+                ClockContract.InstancesColumns.PRE_ALARM_TIME + " INTEGER NOT NULL DEFAULT 5, " +
+                ClockContract.InstancesColumns.PRE_ALARM_RINGTONE + " TEXT, " +
+                ClockContract.InstancesColumns.RANDOM_MODE + " INTEGER NOT NULL DEFAULT 0);");
         LogUtils.i("Instance table created");
     }
 
@@ -110,7 +129,7 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
     private Context mContext;
 
     public ClockDatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, VERSION_7);
+        super(context, DATABASE_NAME, null, VERSION_8);
         mContext = context;
     }
 
@@ -121,19 +140,25 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
         createCitiesTable(db);
 
         // insert default alarms
-        LogUtils.i("Inserting default alarms");
-        String cs = ", "; //comma and space
-        String insertMe = "INSERT INTO " + ALARMS_TABLE_NAME + " (" +
-                ClockContract.AlarmsColumns.HOUR + cs +
-                ClockContract.AlarmsColumns.MINUTES + cs +
-                ClockContract.AlarmsColumns.DAYS_OF_WEEK + cs +
-                ClockContract.AlarmsColumns.ENABLED + cs +
-                ClockContract.AlarmsColumns.VIBRATE + cs +
-                ClockContract.AlarmsColumns.LABEL + cs +
-                ClockContract.AlarmsColumns.RINGTONE + cs +
-                ClockContract.AlarmsColumns.DELETE_AFTER_USE + ") VALUES ";
-        db.execSQL(insertMe + DEFAULT_ALARM_1);
-        db.execSQL(insertMe + DEFAULT_ALARM_2);
+//        Log.i("Inserting default alarms");
+//        String cs = ", "; //comma and space
+//        String insertMe = "INSERT INTO " + ALARMS_TABLE_NAME + " (" +
+//                ClockContract.AlarmsColumns.HOUR + cs +
+//                ClockContract.AlarmsColumns.MINUTES + cs +
+//                ClockContract.AlarmsColumns.DAYS_OF_WEEK + cs +
+//                ClockContract.AlarmsColumns.ENABLED + cs +
+//                ClockContract.AlarmsColumns.VIBRATE + cs +
+//                ClockContract.AlarmsColumns.LABEL + cs +
+//                ClockContract.AlarmsColumns.RINGTONE + cs +
+//                ClockContract.AlarmsColumns.DELETE_AFTER_USE + cs +
+//                ClockContract.AlarmsColumns.INCREASING_VOLUME + cs +
+//                ClockContract.AlarmsColumns.PRE_ALARM + cs +
+//                ClockContract.AlarmsColumns.ALARM_VOLUME + cs +
+//                ClockContract.AlarmsColumns.PRE_ALARM_VOLUME + cs +
+//                ClockContract.AlarmsColumns.PRE_ALARM_TIME + cs +
+//                ClockContract.AlarmsColumns.PRE_ALARM_RINGTONE + ") VALUES ";
+//        db.execSQL(insertMe + DEFAULT_ALARM_1);
+//        db.execSQL(insertMe + DEFAULT_ALARM_2);
     }
 
     @Override
@@ -174,6 +199,7 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
                 alarm.enabled = cursor.getInt(4) == 1;
                 alarm.vibrate = cursor.getInt(5) == 1;
                 alarm.label = cursor.getString(6);
+                alarm.setIncreasingVolume(cursor.getInt(8));
 
                 String alertString = cursor.getString(7);
                 if ("silent".equals(alertString)) {
@@ -194,6 +220,49 @@ class ClockDatabaseHelper extends SQLiteOpenHelper {
 
             LogUtils.i("Dropping old alarm table");
             db.execSQL("DROP TABLE IF EXISTS " + OLD_ALARMS_TABLE_NAME + ";");
+        } else if (oldVersion < VERSION_8) {
+            db.execSQL("ALTER TABLE " + ALARMS_TABLE_NAME
+                    + " ADD COLUMN " + ClockContract.AlarmsColumns.INCREASING_VOLUME
+                    + " INTEGER NOT NULL DEFAULT 0;");
+            db.execSQL("ALTER TABLE " + INSTANCES_TABLE_NAME
+                    + " ADD COLUMN " + ClockContract.InstancesColumns.INCREASING_VOLUME
+                    + " INTEGER NOT NULL DEFAULT 0;");
+            db.execSQL("ALTER TABLE " + ALARMS_TABLE_NAME
+                    + " ADD COLUMN " + ClockContract.AlarmsColumns.PRE_ALARM
+                    + " INTEGER NOT NULL DEFAULT 0;");
+            db.execSQL("ALTER TABLE " + INSTANCES_TABLE_NAME
+                    + " ADD COLUMN " + ClockContract.InstancesColumns.PRE_ALARM
+                    + " INTEGER NOT NULL DEFAULT 0;");
+            db.execSQL("ALTER TABLE " + ALARMS_TABLE_NAME
+                    + " ADD COLUMN " + ClockContract.AlarmsColumns.ALARM_VOLUME
+                    + " INTEGER NOT NULL DEFAULT -1;");
+            db.execSQL("ALTER TABLE " + INSTANCES_TABLE_NAME
+                    + " ADD COLUMN " + ClockContract.InstancesColumns.ALARM_VOLUME
+                    + " INTEGER NOT NULL DEFAULT -1;");
+            db.execSQL("ALTER TABLE " + ALARMS_TABLE_NAME
+                    + " ADD COLUMN " + ClockContract.AlarmsColumns.PRE_ALARM_VOLUME
+                    + " INTEGER NOT NULL DEFAULT -1;");
+            db.execSQL("ALTER TABLE " + INSTANCES_TABLE_NAME
+                    + " ADD COLUMN " + ClockContract.InstancesColumns.PRE_ALARM_VOLUME
+                    + " INTEGER NOT NULL DEFAULT -1;");
+            db.execSQL("ALTER TABLE " + ALARMS_TABLE_NAME
+                    + " ADD COLUMN " + ClockContract.AlarmsColumns.PRE_ALARM_TIME
+                    + " INTEGER NOT NULL DEFAULT 5;");
+            db.execSQL("ALTER TABLE " + INSTANCES_TABLE_NAME
+                    + " ADD COLUMN " + ClockContract.InstancesColumns.PRE_ALARM_TIME
+                    + " INTEGER NOT NULL DEFAULT 5;");
+            db.execSQL("ALTER TABLE " + ALARMS_TABLE_NAME
+                    + " ADD COLUMN " + ClockContract.AlarmsColumns.PRE_ALARM_RINGTONE
+                    + " TEXT;");
+            db.execSQL("ALTER TABLE " + INSTANCES_TABLE_NAME
+                    + " ADD COLUMN " + ClockContract.InstancesColumns.PRE_ALARM_RINGTONE
+                    + " TEXT;");
+            db.execSQL("ALTER TABLE " + ALARMS_TABLE_NAME
+                    + " ADD COLUMN " + ClockContract.AlarmsColumns.RANDOM_MODE
+                    + " INTEGER NOT NULL DEFAULT 0;");
+            db.execSQL("ALTER TABLE " + INSTANCES_TABLE_NAME
+                    + " ADD COLUMN " + ClockContract.InstancesColumns.RANDOM_MODE
+                    + " INTEGER NOT NULL DEFAULT 0;");
         }
     }
 

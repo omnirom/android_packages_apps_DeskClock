@@ -19,6 +19,7 @@ package com.android.deskclock;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.content.ContentResolver;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -32,6 +33,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.android.deskclock.worldclock.Cities;
+import com.android.deskclock.alarms.AlarmStateManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,8 +51,10 @@ public class SettingsActivity extends PreferenceActivity
 
     public static final String KEY_ALARM_IN_SILENT_MODE =
             "alarm_in_silent_mode";
+    public static final String KEY_SHOW_STATUS_BAR_ICON =
+            "show_status_bar_icon";
     public static final String KEY_ALARM_SNOOZE =
-            "snooze_duration";
+            "snooze_duration_new";
     public static final String KEY_VOLUME_BEHAVIOR =
             "volume_button_setting";
     public static final String KEY_AUTO_SILENCE =
@@ -63,11 +67,26 @@ public class SettingsActivity extends PreferenceActivity
             "automatic_home_clock";
     public static final String KEY_VOLUME_BUTTONS =
             "volume_button_setting";
+    public static final String KEY_FLIP_ACTION =
+            "flip_action_setting";
+    public static final String KEY_ALARM_SNOOZE_COUNT =
+            "snooze_count";
+    public static final String KEY_SHAKE_ACTION =
+            "shake_action_setting";
+    public static final String KEY_KEEP_SCREEN_ON =
+            "keep_screen_on";
+    public static final String KEY_VOLUME_INCREASE_SPEED =
+            "volume_increase_speed";
+    public static final String KEY_PRE_ALARM_DISMISS_ALL =
+            "pre_alarm_dismiss_all";
 
-    public static final String DEFAULT_VOLUME_BEHAVIOR = "0";
-    public static final String VOLUME_BEHAVIOR_SNOOZE = "1";
-    public static final String VOLUME_BEHAVIOR_DISMISS = "2";
+    // default action for alarm action
+    public static final String DEFAULT_ALARM_ACTION = "0";
 
+    // constants for no action/snooze/dismiss
+    public static final String ALARM_NO_ACTION = "0";
+    public static final String ALARM_SNOOZE = "1";
+    public static final String ALARM_DISMISS = "2";
 
     private static CharSequence[][] mTimezones;
     private long mTime;
@@ -129,31 +148,6 @@ public class SettingsActivity extends PreferenceActivity
     }
 
     @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
-            Preference preference) {
-        if (KEY_ALARM_IN_SILENT_MODE.equals(preference.getKey())) {
-            CheckBoxPreference pref = (CheckBoxPreference) preference;
-            int ringerModeStreamTypes = Settings.System.getInt(
-                    getContentResolver(),
-                    Settings.System.MODE_RINGER_STREAMS_AFFECTED, 0);
-
-            if (pref.isChecked()) {
-                ringerModeStreamTypes &= ~ALARM_STREAM_TYPE_BIT;
-            } else {
-                ringerModeStreamTypes |= ALARM_STREAM_TYPE_BIT;
-            }
-
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.MODE_RINGER_STREAMS_AFFECTED,
-                    ringerModeStreamTypes);
-
-            return true;
-        }
-
-        return super.onPreferenceTreeClick(preferenceScreen, preference);
-    }
-
-    @Override
     public boolean onPreferenceChange(Preference pref, Object newValue) {
         if (KEY_AUTO_SILENCE.equals(pref.getKey())) {
             final ListPreference listPref = (ListPreference) pref;
@@ -177,6 +171,28 @@ public class SettingsActivity extends PreferenceActivity
             final ListPreference listPref = (ListPreference) pref;
             final int idx = listPref.findIndexOfValue((String) newValue);
             listPref.setSummary(listPref.getEntries()[idx]);
+        } else if (KEY_ALARM_SNOOZE.equals(pref.getKey())) {
+            final ListPreference listPref = (ListPreference) pref;
+            final int idx = listPref.findIndexOfValue((String) newValue);
+            listPref.setSummary(listPref.getEntries()[idx]);
+        } else if (KEY_ALARM_SNOOZE_COUNT.equals(pref.getKey())) {
+            final ListPreference listPref = (ListPreference) pref;
+            final int idx = listPref.findIndexOfValue((String) newValue);
+            listPref.setSummary(listPref.getEntries()[idx]);
+        } else if (KEY_SHAKE_ACTION.equals(pref.getKey())) {
+            final ListPreference listPref = (ListPreference) pref;
+            final int idx = listPref.findIndexOfValue((String) newValue);
+            listPref.setSummary(listPref.getEntries()[idx]);
+        } else if (KEY_VOLUME_INCREASE_SPEED.equals(pref.getKey())) {
+            final ListPreference listPref = (ListPreference) pref;
+            final int idx = listPref.findIndexOfValue((String) newValue);
+            listPref.setSummary(listPref.getEntries()[idx]);
+        } else if (KEY_SHOW_STATUS_BAR_ICON.equals(pref.getKey())) {
+            boolean state =(Boolean) newValue;
+            Settings.System.putInt(this.getContentResolver(),
+	                Settings.System.STATUSBAR_SHOW_ALARM_ICON, state ? 1 : 0);
+            // trigger recheck if statusbar icon should be shown now
+            AlarmStateManager.updateNextAlarm(this);
         }
         return true;
     }
@@ -225,8 +241,30 @@ public class SettingsActivity extends PreferenceActivity
         listPref.setSummary(listPref.getEntry());
         listPref.setOnPreferenceChangeListener(this);
 
-        SnoozeLengthDialog snoozePref = (SnoozeLengthDialog) findPreference(KEY_ALARM_SNOOZE);
-        snoozePref.setSummary();
+        listPref = (ListPreference) findPreference(KEY_FLIP_ACTION);
+        listPref.setSummary(listPref.getEntry());
+        listPref.setOnPreferenceChangeListener(this);
+
+        listPref = (ListPreference) findPreference(KEY_SHAKE_ACTION);
+        listPref.setSummary(listPref.getEntry());
+        listPref.setOnPreferenceChangeListener(this);
+
+        CheckBoxPreference hideStatusbarIcon = (CheckBoxPreference) findPreference(KEY_SHOW_STATUS_BAR_ICON);
+        hideStatusbarIcon.setChecked(Settings.System.getInt(this.getContentResolver(),
+	            Settings.System.STATUSBAR_SHOW_ALARM_ICON, 1) == 1);
+        hideStatusbarIcon.setOnPreferenceChangeListener(this);
+
+        listPref = (ListPreference) findPreference(KEY_ALARM_SNOOZE);
+        listPref.setSummary(listPref.getEntry());
+        listPref.setOnPreferenceChangeListener(this);
+
+        listPref = (ListPreference) findPreference(KEY_ALARM_SNOOZE_COUNT);
+        listPref.setSummary(listPref.getEntry());
+        listPref.setOnPreferenceChangeListener(this);
+
+        listPref = (ListPreference) findPreference(KEY_VOLUME_INCREASE_SPEED);
+        listPref.setSummary(listPref.getEntry());
+        listPref.setOnPreferenceChangeListener(this);
     }
 
     private class TimeZoneRow implements Comparable<TimeZoneRow> {
