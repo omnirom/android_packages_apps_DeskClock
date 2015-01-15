@@ -395,8 +395,10 @@
     <string name="sw_resume_button">Resume</string>
     <!-- Describes the purpose of the button to begin running a stopwatch -->
     <string name="sw_start_button">Start</string>
-    <!-- Describes the purpose of the button to pause a stopwatch. -->
+    <!-- Describes the purpose of the button to stop a stopwatch. -->
     <string name="sw_stop_button">Stop</string>
+    <!-- Describes the purpose of the button to pause a stopwatch. -->
+    <string name="sw_pause_button">Pause</string>
     <!-- Describes the purpose of the button to record current the stopwatch value into the4 collection of lap times. -->
     <string name="sw_lap_button">Lap</string>
     <!-- Describes the purpose of the button to return the stopwatch to zero and remove the lap times. -->
@@ -803,7 +805,7 @@
     <string name="collapse_alarm">Collapse alarm</string>
 
     <!-- Description of the button to undo change to alarm -->
-    <string name="alarm_undo">undo</string>
+    <string name="alarm_undo">UNDO</string>
     <!-- Toast content when an alarm was deleted  -->
     <string name="alarm_deleted">Alarm deleted.</string>
     <!-- slash between date and next alarm in the clock -->

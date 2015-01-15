@@ -1,5 +1,21 @@
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.android.deskclock.stopwatch;
 
+import android.animation.AnimatorSet;
 import android.animation.LayoutTransition;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -390,6 +406,7 @@ public class StopwatchFragment extends DeskClockFragment
 
     @Override
     public void onResume() {
+        super.onResume();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         prefs.registerOnSharedPreferenceChangeListener(this);
         readFromSharedPref(prefs);
@@ -398,6 +415,7 @@ public class StopwatchFragment extends DeskClockFragment
 
         setFabAppearance();
         setLeftRightButtonAppearance();
+
         mTimeText.setTime(mAccumulatedTime, true, true);
         if (mState == Stopwatches.STOPWATCH_RUNNING) {
             acquireWakeLock();
@@ -412,7 +430,6 @@ public class StopwatchFragment extends DeskClockFragment
         if (v != null) {
             v.setVisibility(View.VISIBLE);
         }
-        super.onResume();
     }
 
     @Override
@@ -442,7 +459,8 @@ public class StopwatchFragment extends DeskClockFragment
 
     @Override
     public void onPageChanged(int page) {
-        if (page == DeskClock.STOPWATCH_TAB_INDEX && mState == Stopwatches.STOPWATCH_RUNNING) {
+        final DeskClock activity = (DeskClock) getActivity();
+        if (activity.isStopwatchTab() && mState == Stopwatches.STOPWATCH_RUNNING) {
             acquireWakeLock();
         } else {
             releaseWakeLock();
@@ -800,7 +818,7 @@ public class StopwatchFragment extends DeskClockFragment
     @Override
     public void setFabAppearance() {
         final DeskClock activity = (DeskClock) getActivity();
-        if (mFab == null || activity.getSelectedTab() != DeskClock.STOPWATCH_TAB_INDEX) {
+        if (mFab == null || !activity.isStopwatchTab()) {
             return;
         }
         if (mState == Stopwatches.STOPWATCH_RUNNING) {
@@ -810,41 +828,53 @@ public class StopwatchFragment extends DeskClockFragment
             mFab.setImageResource(R.drawable.ic_fab_play);
             mFab.setContentDescription(getString(R.string.sw_start_button));
         }
-        mFab.setVisibility(View.VISIBLE);
+        final AnimatorSet animatorSet = getFabButtonTransition(true);
+        if (animatorSet != null) {
+            animatorSet.start();
+        }
     }
 
     @Override
     public void setLeftRightButtonAppearance() {
         final DeskClock activity = (DeskClock) getActivity();
         if (mLeftButton == null || mRightButton == null ||
-                activity.getSelectedTab() != DeskClock.STOPWATCH_TAB_INDEX) {
+                !activity.isStopwatchTab()) {
             return;
         }
-        mRightButton.setImageResource(R.drawable.ic_share);
-        mRightButton.setContentDescription(getString(R.string.sw_share_button));
 
+        boolean leftVisible = false;
+        boolean rightVisible = false;
         switch (mState) {
             case Stopwatches.STOPWATCH_RESET:
-                mLeftButton.setImageResource(R.drawable.ic_lap);
-                mLeftButton.setContentDescription(getString(R.string.sw_lap_button));
-                mLeftButton.setEnabled(false);
-                mLeftButton.setVisibility(View.INVISIBLE);
-                mRightButton.setVisibility(View.INVISIBLE);
+                leftVisible = false;
+                rightVisible = false;
                 break;
             case Stopwatches.STOPWATCH_RUNNING:
-                mLeftButton.setImageResource(R.drawable.ic_lap);
-                mLeftButton.setContentDescription(getString(R.string.sw_lap_button));
-                mLeftButton.setEnabled(!reachedMaxLaps());
-                mLeftButton.setVisibility(View.VISIBLE);
-                mRightButton.setVisibility(View.INVISIBLE);
+                leftVisible = true;
+                if (leftVisible) {
+                    mLeftButton.setImageResource(R.drawable.ic_lap);
+                    mLeftButton.setContentDescription(getString(R.string.sw_lap_button));
+                    mLeftButton.setEnabled(!reachedMaxLaps());
+                }
+                rightVisible = false;
                 break;
             case Stopwatches.STOPWATCH_STOPPED:
-                mLeftButton.setImageResource(R.drawable.ic_reset);
-                mLeftButton.setContentDescription(getString(R.string.sw_reset_button));
-                mLeftButton.setEnabled(true);
-                mLeftButton.setVisibility(View.VISIBLE);
-                mRightButton.setVisibility(View.VISIBLE);
+                leftVisible = true;
+                if (leftVisible) {
+                    mLeftButton.setImageResource(R.drawable.ic_reset);
+                    mLeftButton.setContentDescription(getString(R.string.sw_reset_button));
+                    mLeftButton.setEnabled(true);
+                }
+                rightVisible = true;
+                if (rightVisible) {
+                    mRightButton.setImageResource(R.drawable.ic_share);
+                    mRightButton.setContentDescription(getString(R.string.sw_share_button));
+                }
                 break;
+        }
+        final AnimatorSet animatorSet = getButtonTransition(leftVisible, rightVisible);
+        if (animatorSet != null) {
+            animatorSet.start();
         }
     }
 }

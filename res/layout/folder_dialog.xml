@@ -34,13 +34,13 @@
         android:paddingStart="?android:attr/listPreferredItemPaddingStart"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/clock_gray" />
+        android:textColor="@color/hot_blue" />
     <View
         android:id="@+id/hairline"
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_gravity="center"
-        android:background="#28ffffff" />
+        android:background="@color/hairline" />
     <ListView
         android:id="@+id/folders"
         android:layout_width="match_parent"

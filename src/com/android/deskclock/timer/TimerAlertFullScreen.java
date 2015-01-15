@@ -17,7 +17,9 @@ package com.android.deskclock.timer;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -28,6 +30,7 @@ import android.view.WindowManager;
 import com.android.deskclock.R;
 import com.android.deskclock.Utils;
 import com.android.deskclock.timer.TimerFullScreenFragment.OnEmptyListListener;
+import com.android.deskclock.SettingsActivity;
 
 /**
  * Timer alarm alert: pops visible indicator. This activity is the version which
@@ -47,15 +50,18 @@ public class TimerAlertFullScreen extends Activity implements OnEmptyListListene
         final View view = findViewById(R.id.fragment_container);
         view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
 
-        final Window win = getWindow();
-        win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-        // Turn on the screen unless we are being launched from the AlarmAlert
-        // subclass as a result of the screen turning off.
-        win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        final boolean keepScreenOn = prefs.getBoolean(SettingsActivity.KEY_KEEP_SCREEN_ON, true);
 
+        final Window win = getWindow();
+        win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
+            WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+
+        if (keepScreenOn){
+            win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
         // Don't create overlapping fragments.
         if (getFragment() == null) {
             TimerFullScreenFragment timerFragment = new TimerFullScreenFragment();

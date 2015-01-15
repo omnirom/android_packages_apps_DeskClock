@@ -32,21 +32,27 @@
 
     <color name="white">#ffffffff</color>
     <color name="white_69p">#B1FFFFFF</color>
+    <color name="white_54p">#8aFFFFFF</color>
 
     <color name="blackish_selected">#0cffffff</color>
     <color name="transparent">#00000000</color>
 
     <color name="hot_pink">#FF4081</color>
-    <color name="hairline">#28ffffff</color>
+    <color name="hot_blue">#2196f3</color>
+    <color name="hot_blue_dark">#1976d2</color>
+    <color name="hairline">#000000</color>
     <color name="bright_foreground_light_disabled">#80000000</color>
 
-    <color name="clock_white">#ffffff</color>
-    <color name="clock_gray">#B3ffffff</color>
+    <color name="clock_gray">#cccccc</color>
 
-    <!-- App icon color as default -->
     <color name="default_background">#5c6bc0</color>
     <color name="status_bar">#26000000</color>
 
-    <color name="time_picker_gray">#212121</color>
-
+    <color name="text_color_light">#333333</color>
+    <color name="window_background">#e5e5e5</color>
+    <color name="view_background">#ffffff</color>
+    <color name="icon_color_light">#333333</color>
+    <color name="analog_color_light">#de000000</color>
+    <color name="tab_indicator">#ffffff</color>
+    <color name="no_alarms_text_color">#aaaaaa</color>
 </resources>

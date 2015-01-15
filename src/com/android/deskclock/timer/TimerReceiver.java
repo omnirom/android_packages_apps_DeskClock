@@ -113,11 +113,14 @@ public class TimerReceiver extends BroadcastReceiver {
                 showInUseNotification(context);
             }
 
+            cancelTimesUpNotification(context, t);
+            showTimesUpNotification(context, t);
+
             // Start the TimerAlertFullScreen activity.
-            Intent timersAlert = new Intent(context, TimerAlertFullScreen.class);
-            timersAlert.setFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION);
-            context.startActivity(timersAlert);
+            //Intent timersAlert = new Intent(context, TimerAlertFullScreen.class);
+            //timersAlert.setFlags(
+            //        Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION);
+            //context.startActivity(timersAlert);
         } else if (Timers.TIMER_RESET.equals(actionType)
                 || Timers.DELETE_TIMER.equals(actionType)
                 || Timers.TIMER_DONE.equals(actionType)) {
@@ -186,11 +189,11 @@ public class TimerReceiver extends BroadcastReceiver {
             }
 
             // Refresh buzzing notification
-            if (t.mState == TimerObj.STATE_TIMESUP) {
+            /*if (t.mState == TimerObj.STATE_TIMESUP) {
                 // Must cancel the previous notification to get all updates displayed correctly
                 cancelTimesUpNotification(context, t);
                 showTimesUpNotification(context, t);
-            }
+            }*/
         }
         // Update the next "Times up" alarm
         updateNextTimesup(context);
@@ -423,6 +426,14 @@ public class TimerReceiver extends BroadcastReceiver {
                         Timers.TIMER_INTENT_EXTRA, timerObj.mTimerId),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
+        // Setup fullscreen intent - either heads up or fullscreen
+        PendingIntent fullScreenIntent = PendingIntent.getActivity(context, timerObj.mTimerId,
+                new Intent(context, TimerAlertFullScreen.class)
+                        .putExtra(Timers.TIMER_INTENT_EXTRA, timerObj.mTimerId)
+                        .setAction("fullscreen_activity")
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION),
+                 PendingIntent.FLAG_UPDATE_CURRENT);
+
         // Add one minute action button
         PendingIntent addOneMinuteAction = PendingIntent.getBroadcast(context, timerObj.mTimerId,
                 new Intent(Timers.NOTIF_TIMES_UP_PLUS_ONE)
@@ -438,13 +449,14 @@ public class TimerReceiver extends BroadcastReceiver {
         // Notification creation
         Notification notification = new Notification.Builder(context)
                 .setContentIntent(contentIntent)
+                .setFullScreenIntent(fullScreenIntent, true)
                 .addAction(R.drawable.ic_menu_add,
                         context.getResources().getString(R.string.timer_plus_1_min),
                         addOneMinuteAction)
                 .addAction(
                         timerObj.getDeleteAfterUse()
                                 ? android.R.drawable.ic_menu_close_clear_cancel
-                                : R.drawable.ic_notify_stop,
+                                : R.drawable.ic_cancel_black,
                         timerObj.getDeleteAfterUse()
                                 ? context.getResources().getString(R.string.timer_done)
                                 : context.getResources().getString(R.string.timer_stop),

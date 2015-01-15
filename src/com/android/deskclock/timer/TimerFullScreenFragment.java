@@ -406,10 +406,11 @@ public class TimerFullScreenFragment extends DeskClockFragment
 
                 // The blinking
                 if (toggle && t.mView != null) {
-                    if (t.mState == TimerObj.STATE_TIMESUP) {
+                    /*if (t.mState == TimerObj.STATE_TIMESUP) {
                         ((TimerListItem) (t.mView)).setCircleBlink(mVisible);
-                    }
-                    if (t.mState == TimerObj.STATE_STOPPED) {
+                    }*/
+                    if (t.mState == TimerObj.STATE_STOPPED ||
+                            t.mState == TimerObj.STATE_TIMESUP) {
                         ((TimerListItem) (t.mView)).setTextBlink(mVisible);
                     }
                 }
@@ -533,7 +534,7 @@ public class TimerFullScreenFragment extends DeskClockFragment
         mFab.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                revealAnimation(mFab, getActivity().getResources().getColor(R.color.clock_white));
+                revealAnimation(mFab, getActivity().getResources().getColor(R.color.white));
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -945,7 +946,7 @@ public class TimerFullScreenFragment extends DeskClockFragment
         }
     }
 
-    @Override
+    /*@Override
     public void onFabClick(View view) {
         if (mLastVisibleView != mTimersListPage) {
             // New timer create if timer length is not zero
@@ -968,5 +969,5 @@ public class TimerFullScreenFragment extends DeskClockFragment
             mTimerSetup.reset();
             gotoSetupView();
         }
-    }
+    }*/
 }
