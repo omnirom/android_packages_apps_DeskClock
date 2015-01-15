@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextClock;
 import android.widget.TextView;
+import android.widget.ImageButton;
 
 import com.android.deskclock.AnalogClock;
 import com.android.deskclock.R;
@@ -47,6 +48,7 @@ public class WorldClockAdapter extends BaseAdapter {
     private String mClockStyle;
     private final Collator mCollator = Collator.getInstance();
     protected HashMap<String, CityObj> mCitiesDb = new HashMap<String, CityObj>();
+    protected HashMap<String, CityObj> mCitiesMap = new HashMap<String, CityObj>();
     protected int mClocksPerRow;
 
     public WorldClockAdapter(Context context) {
@@ -67,7 +69,8 @@ public class WorldClockAdapter extends BaseAdapter {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         mClockStyle = prefs.getString(SettingsActivity.KEY_CLOCK_STYLE,
                 mContext.getResources().getString(R.string.default_clock_style));
-        mCitiesList = Cities.readCitiesFromSharedPrefs(prefs).values().toArray();
+        mCitiesMap = Cities.readCitiesFromSharedPrefs(prefs);
+        mCitiesList = mCitiesMap.values().toArray();
         sortList();
         mCitiesList = addHomeCity();
     }
@@ -221,6 +224,7 @@ public class WorldClockAdapter extends BaseAdapter {
         TextView dayOfWeek = (TextView)(nameLayout.findViewById(R.id.city_day));
         TextClock dclock = (TextClock)(clock.findViewById(R.id.digital_clock));
         AnalogClock aclock = (AnalogClock)(clock.findViewById(R.id.analog_clock));
+        ImageButton delete = (ImageButton)(clock.findViewById(R.id.delete));
 
         if (mClockStyle.equals("analog")) {
             dclock.setVisibility(View.GONE);
@@ -252,5 +256,11 @@ public class WorldClockAdapter extends BaseAdapter {
         } else {
             dayOfWeek.setVisibility(View.GONE);
         }
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Arrays.asList(mCitiesList).remove(cityObj);
+            }
+        });
     }
 }

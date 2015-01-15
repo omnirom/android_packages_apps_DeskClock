@@ -18,7 +18,10 @@
     android:id="@+id/main_clock_frame"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:paddingBottom="10dp"
+    android:elevation="@dimen/item_elevation"
+    android:background="@color/view_background"  >
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -32,9 +35,6 @@
             android:layout_marginRight="@dimen/analog_clock_margin"
             android:layout_marginEnd="@dimen/analog_clock_margin"
             android:layout_gravity="center_horizontal"
-            android:dial="@drawable/clock_analog_dial_mipmap"
-            android:hand_hour="@drawable/clock_analog_hour_mipmap"
-            android:hand_minute="@drawable/clock_analog_minute_mipmap"
             android:layout_marginBottom="@dimen/bottom_text_spacing_analog" />
         <TextClock
             android:id="@+id/digital_clock"
@@ -45,8 +45,7 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:ellipsize="none"
-            style="@style/big_thin"
-            android:textColor="@color/clock_white" />
+            style="@style/big_normal" />
 
     </FrameLayout>
     <LinearLayout
@@ -64,17 +63,11 @@
             android:layout_marginLeft="8dip"
             android:layout_marginStart="8dip"
             android:drawablePadding="2dip"
-            android:drawableLeft="@drawable/ic_alarm_small"
-            android:drawableStart="@drawable/ic_alarm_small"
+            android:drawableLeft="@drawable/ic_alarm_small_blue"
+            android:drawableStart="@drawable/ic_alarm_small_blue"
             android:gravity="center"
+            android:textColor="@color/hot_blue"
             android:textAppearance="@style/SecondaryLabelTextAppearance" />
     </LinearLayout>
-
-    <View
-        android:id="@+id/hairline"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/hairline_height"
-        android:layout_marginTop="24dip"
-        android:background="@color/hairline" />
 </LinearLayout>
 

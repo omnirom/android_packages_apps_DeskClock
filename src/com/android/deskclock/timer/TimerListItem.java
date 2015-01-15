@@ -34,6 +34,7 @@ public class TimerListItem extends LinearLayout {
     ImageView mResetAddButton;
 
     long mTimerLength;
+    private static final float TIMER_DEPTH = 30f;
 
     public TimerListItem(Context context) {
         this(context, null);
@@ -56,6 +57,7 @@ public class TimerListItem extends LinearLayout {
         mCircleView = (CircleTimerView) findViewById(R.id.timer_time);
         mResetAddButton = (ImageView) findViewById(R.id.reset_add);
         mCircleView.setTimerMode(true);
+        mResetAddButton.setTranslationZ(TIMER_DEPTH);
     }
 
     public void set(long timerLength, long timeLeft, boolean drawRed) {
@@ -70,7 +72,7 @@ public class TimerListItem extends LinearLayout {
     }
 
     public void start() {
-        mResetAddButton.setImageResource(R.drawable.ic_plusone);
+        mResetAddButton.setImageResource(R.drawable.ic_plusone_black);
         mResetAddButton.setContentDescription(getResources().getString(R.string.timer_plus_one));
         mCircleView.startIntervalAnimation();
         mTimerText.setTimeStrTextColor(false, true);
@@ -79,7 +81,7 @@ public class TimerListItem extends LinearLayout {
     }
 
     public void pause() {
-        mResetAddButton.setImageResource(R.drawable.ic_reset);
+        mResetAddButton.setImageResource(R.drawable.ic_reset_black);
         mResetAddButton.setContentDescription(getResources().getString(R.string.timer_reset));
         mCircleView.pauseIntervalAnimation();
         mTimerText.setTimeStrTextColor(false, true);
@@ -96,7 +98,7 @@ public class TimerListItem extends LinearLayout {
 
     public void timesUp() {
         mCircleView.abortIntervalAnimation();
-        mTimerText.setTimeStrTextColor(true, true);
+        mTimerText.setTimeStrTextColor(false, true);
     }
 
     public void done() {
@@ -124,8 +126,8 @@ public class TimerListItem extends LinearLayout {
         if (mResetAddButton == null) {
             mResetAddButton = (ImageView) findViewById(R.id.reset_add);
         }
-        mResetAddButton.setImageResource(isRunning ? R.drawable.ic_plusone :
-                R.drawable.ic_reset);
+        mResetAddButton.setImageResource(isRunning ? R.drawable.ic_plusone_black :
+                R.drawable.ic_reset_black);
         mResetAddButton.setContentDescription(getResources().getString(
                 isRunning ? R.string.timer_plus_one : R.string.timer_reset));
         mResetAddButton.setOnClickListener(listener);

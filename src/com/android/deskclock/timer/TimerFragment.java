@@ -541,9 +541,9 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
         mRightButton.setEnabled(true);
         mLeftButton.setVisibility(mLastView != mTimerView ? View.GONE : View.VISIBLE);
         mRightButton.setVisibility(mLastView != mTimerView ? View.GONE : View.VISIBLE);
-        mLeftButton.setImageResource(R.drawable.ic_delete);
+        mLeftButton.setImageResource(R.drawable.ic_cancel_black);
         mLeftButton.setContentDescription(getString(R.string.timer_delete));
-        mRightButton.setImageResource(R.drawable.ic_add_timer);
+        mRightButton.setImageResource(R.drawable.ic_add_timer_black);
         mRightButton.setContentDescription(getString(R.string.timer_add_timer));
     }
 

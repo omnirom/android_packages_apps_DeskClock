@@ -81,6 +81,8 @@ public class CountingTimerView extends View {
     private boolean mVirtualButtonEnabled = false;
     private boolean mVirtualButtonPressedOn = false;
 
+    private static final float TIMER_DEPTH = 30f;
+
     Runnable mBlinkThread = new Runnable() {
         private boolean mVisible = true;
         @Override
@@ -267,10 +269,10 @@ public class CountingTimerView extends View {
         mAccessibilityManager =
                 (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
         Resources r = context.getResources();
-        mWhiteColor = r.getColor(R.color.clock_white);
+        mWhiteColor = r.getColor(R.color.text_color_light);
         mDefaultColor = mWhiteColor;
-        mPressedColor = r.getColor(R.color.hot_pink);
-        mAccentColor = r.getColor(R.color.hot_pink);
+        mPressedColor = r.getColor(R.color.hot_blue);
+        mAccentColor = r.getColor(R.color.hot_blue);
         mBigFontSize = r.getDimension(R.dimen.big_font_size);
         mSmallFontSize = r.getDimension(R.dimen.small_font_size);
 
@@ -299,6 +301,8 @@ public class CountingTimerView extends View {
         mMedHundredths = new Hundredths(mPaintMed, HUNDREDTHS_SPACING, allDigits);
 
         mRadiusOffset = Utils.calculateRadiusOffset(r);
+
+        setTranslationZ(TIMER_DEPTH);
     }
 
     protected void resetTextSize() {

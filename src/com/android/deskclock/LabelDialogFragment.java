@@ -91,7 +91,11 @@ public class LabelDialogFragment extends DialogFragment implements
         .setNegativeButton(android.R.string.cancel, null)
         .setView(createDialogView());
 
-        return builder.create();
+        Dialog d = builder.create();
+        d.getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
+        return d;
     }
 
     private View createDialogView() {
@@ -118,14 +122,14 @@ public class LabelDialogFragment extends DialogFragment implements
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setLabelBoxBackground(s == null || TextUtils.isEmpty(s));
+                //setLabelBoxBackground(s == null || TextUtils.isEmpty(s));
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
             }
         });
-        setLabelBoxBackground(TextUtils.isEmpty(mLabel));
+        //setLabelBoxBackground(TextUtils.isEmpty(mLabel));
         return view;
     }
 
