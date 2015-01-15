@@ -208,7 +208,6 @@ public final class AlarmNotifications {
         // Close dialogs and window shade, so this will display
         context.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
 
-
         Resources resources = context.getResources();
         Notification.Builder notification = new Notification.Builder(context)
                 .setContentTitle(AlarmUtils.getAlarmTitle(context, instance))

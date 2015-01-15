@@ -35,7 +35,6 @@ public class TimerView extends LinearLayout {
     private final Typeface mAndroidClockMonoThin;
     private Typeface mOriginalHoursTypeface;
     private Typeface mOriginalMinutesTypeface;
-    private final int mWhiteColor, mGrayColor;
 
     @SuppressWarnings("unused")
     public TimerView(Context context) {
@@ -49,8 +48,6 @@ public class TimerView extends LinearLayout {
                 Typeface.createFromAsset(context.getAssets(), "fonts/AndroidClockMono-Thin.ttf");
 
         Resources resources = context.getResources();
-        mWhiteColor = resources.getColor(R.color.clock_white);
-        mGrayColor = resources.getColor(R.color.clock_gray);
     }
 
     @Override
@@ -106,11 +103,9 @@ public class TimerView extends LinearLayout {
             if (hoursOnesDigit == -1) {
                 mHoursOnes.setText("-");
                 mHoursOnes.setTypeface(mAndroidClockMonoThin);
-                mHoursOnes.setTextColor(mGrayColor);
             } else {
                 mHoursOnes.setText(String.format("%d", hoursOnesDigit));
                 mHoursOnes.setTypeface(mOriginalHoursTypeface);
-                mHoursOnes.setTextColor(mWhiteColor);
             }
         }
 
@@ -118,22 +113,18 @@ public class TimerView extends LinearLayout {
             if (minutesTensDigit == -1) {
                 mMinutesTens.setText("-");
                 mMinutesTens.setTypeface(mAndroidClockMonoThin);
-                mMinutesTens.setTextColor(mGrayColor);
             } else {
                 mMinutesTens.setText(String.format("%d", minutesTensDigit));
                 mMinutesTens.setTypeface(mOriginalMinutesTypeface);
-                mMinutesTens.setTextColor(mWhiteColor);
             }
         }
         if (mMinutesOnes != null) {
             if (minutesOnesDigit == -1) {
                 mMinutesOnes.setText("-");
                 mMinutesOnes.setTypeface(mAndroidClockMonoThin);
-                mMinutesOnes.setTextColor(mGrayColor);
             } else {
                 mMinutesOnes.setText(String.format("%d", minutesOnesDigit));
                 mMinutesOnes.setTypeface(mOriginalMinutesTypeface);
-                mMinutesOnes.setTextColor(mWhiteColor);
             }
         }
 

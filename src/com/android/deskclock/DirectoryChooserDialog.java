@@ -153,7 +153,7 @@ public class DirectoryChooserDialog extends DialogFragment
                 if (f.isFile()) {
                     tv.setTextColor(getActivity().getResources().getColor(R.color.clock_gray));
                 } else {
-                    tv.setTextColor(getActivity().getResources().getColor(R.color.clock_white));
+                    tv.setTextColor(getActivity().getResources().getColor(R.color.black_87p));
                 }
                 return item;
             }

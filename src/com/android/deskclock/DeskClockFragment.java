@@ -20,16 +20,26 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.widget.PopupMenuCompat;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextThemeWrapper;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.content.Context;
 
 public class DeskClockFragment extends Fragment {
 
     protected ImageButton mFab;
     protected ImageButton mLeftButton;
     protected ImageButton mRightButton;
+
+    @Override
+    public void onCreate(Bundle savedState) {
+        super.onCreate(savedState);
+        setHasOptionsMenu(true);
+    }
 
     public void onPageChanged(int page) {
         // Do nothing here , only in derived classes
@@ -72,7 +82,8 @@ public class DeskClockFragment extends Fragment {
      * @param menuButton the fragment's fake overflow menu button
      */
     public void setupFakeOverflowMenuButton(View menuButton) {
-        final PopupMenu fakeOverflow = new PopupMenu(menuButton.getContext(), menuButton) {
+        final Context wrapper = new ContextThemeWrapper(menuButton.getContext(), R.style.PopupMenu);
+        final PopupMenu fakeOverflow = new PopupMenu(wrapper, menuButton) {
             @Override
             public void show() {
                 getActivity().onPrepareOptionsMenu(getMenu());
@@ -94,5 +105,15 @@ public class DeskClockFragment extends Fragment {
                 fakeOverflow.show();
             }
         });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.desk_clock_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return getActivity().onOptionsItemSelected(item);
     }
 }

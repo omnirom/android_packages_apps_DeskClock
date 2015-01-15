@@ -83,7 +83,7 @@
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/timer_plus_one"
             android:gravity="center"
-            android:src="@drawable/ic_plusone"/>
+            android:src="@drawable/ic_plusone_black"/>
 
     </com.android.deskclock.CircleButtonsLayout>
 
