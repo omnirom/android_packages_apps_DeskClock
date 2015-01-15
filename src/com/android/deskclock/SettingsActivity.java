@@ -79,6 +79,8 @@ public class SettingsActivity extends PreferenceActivity
             "volume_increase_speed";
     public static final String KEY_PRE_ALARM_DISMISS_ALL =
             "pre_alarm_dismiss_all";
+    public static final String KEY_FULLSCREEN_ALARM =
+            "fullscreen_alarm";
 
     // default action for alarm action
     public static final String DEFAULT_ALARM_ACTION = "0";
@@ -97,10 +99,7 @@ public class SettingsActivity extends PreferenceActivity
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings);
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
-        }
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         // We don't want to reconstruct the timezone list every single time
         // onResume() is called so we do it once in onCreate
@@ -120,7 +119,6 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     protected void onResume() {
         super.onResume();
-        getWindow().getDecorView().setBackgroundColor(Utils.getCurrentHourColor());
         refresh();
     }
 
@@ -134,17 +132,6 @@ public class SettingsActivity extends PreferenceActivity
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu (Menu menu) {
-        getMenuInflater().inflate(R.menu.settings_menu, menu);
-        MenuItem help = menu.findItem(R.id.menu_item_help);
-        if (help != null) {
-            Utils.prepareHelpMenuItem(this, help);
-        }
-        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -179,6 +166,10 @@ public class SettingsActivity extends PreferenceActivity
             final ListPreference listPref = (ListPreference) pref;
             final int idx = listPref.findIndexOfValue((String) newValue);
             listPref.setSummary(listPref.getEntries()[idx]);
+        } else if (KEY_FLIP_ACTION.equals(pref.getKey())) {
+            final ListPreference listPref = (ListPreference) pref;
+            final int idx = listPref.findIndexOfValue((String) newValue);
+            listPref.setSummary(listPref.getEntries()[idx]);
         } else if (KEY_SHAKE_ACTION.equals(pref.getKey())) {
             final ListPreference listPref = (ListPreference) pref;
             final int idx = listPref.findIndexOfValue((String) newValue);
@@ -193,6 +184,10 @@ public class SettingsActivity extends PreferenceActivity
 	                Settings.System.STATUSBAR_SHOW_ALARM_ICON, state ? 1 : 0);
             // trigger recheck if statusbar icon should be shown now
             AlarmStateManager.updateNextAlarm(this);
+        } else if (KEY_FULLSCREEN_ALARM.equals(pref.getKey())) {
+            boolean state =(Boolean) newValue;
+            Settings.System.putInt(this.getContentResolver(),
+	                Settings.System.SHOW_ALARM_FULLSCREEN, state ? 1 : 0);
         }
         return true;
     }
@@ -236,6 +231,7 @@ public class SettingsActivity extends PreferenceActivity
         listPref = (ListPreference)findPreference(KEY_HOME_TZ);
         listPref.setEnabled(state);
         listPref.setSummary(listPref.getEntry());
+        listPref.setOnPreferenceChangeListener(this);
 
         listPref = (ListPreference) findPreference(KEY_VOLUME_BUTTONS);
         listPref.setSummary(listPref.getEntry());
@@ -265,6 +261,11 @@ public class SettingsActivity extends PreferenceActivity
         listPref = (ListPreference) findPreference(KEY_VOLUME_INCREASE_SPEED);
         listPref.setSummary(listPref.getEntry());
         listPref.setOnPreferenceChangeListener(this);
+
+        CheckBoxPreference fullscreenAlarm = (CheckBoxPreference) findPreference(KEY_FULLSCREEN_ALARM);
+        fullscreenAlarm.setChecked(Settings.System.getInt(this.getContentResolver(),
+	            Settings.System.SHOW_ALARM_FULLSCREEN, 0) == 1);
+        fullscreenAlarm.setOnPreferenceChangeListener(this);
     }
 
     private class TimeZoneRow implements Comparable<TimeZoneRow> {

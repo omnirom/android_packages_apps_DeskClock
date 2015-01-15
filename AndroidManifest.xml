@@ -15,6 +15,13 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
     <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="com.android.deskclock.worldclock.permissions.WRITE_DATABASE" />
+
+    <uses-sdk android:minSdkVersion="17" android:targetSdkVersion="21" ></uses-sdk>
 
     <application android:label="@string/app_label"
                  android:icon="@mipmap/ic_launcher_alarmclock"
@@ -24,6 +31,11 @@
         <provider android:name=".provider.ClockProvider"
                 android:authorities="com.android.deskclock"
                 android:exported="false" />
+
+        <provider android:name="com.android.deskclock.worldclock.db.DbCityProvider"
+                android:authorities="com.android.deskclock.worldclock.db"
+                android:exported="true"
+                android:writePermission="com.android.deskclock.worldclock.permissions.WRITE_DATABASE" />
 
         <activity android:name="DeskClock"
                 android:label="@string/app_label"

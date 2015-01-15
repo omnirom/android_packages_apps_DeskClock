@@ -18,7 +18,9 @@
     android:id="@+id/main_clock_frame"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:background="@color/view_background"
+    android:elevation="@dimen/header_elevation" >
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -32,9 +34,6 @@
             android:layout_marginRight="@dimen/analog_clock_margin"
             android:layout_marginEnd="@dimen/analog_clock_margin"
             android:layout_gravity="center_horizontal"
-            android:dial="@drawable/clock_analog_dial_mipmap"
-            android:hand_hour="@drawable/clock_analog_hour_mipmap"
-            android:hand_minute="@drawable/clock_analog_minute_mipmap"
             android:layout_marginBottom="@dimen/bottom_text_spacing_analog" />
         <TextClock
             android:id="@+id/digital_clock"
@@ -45,19 +44,19 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:ellipsize="none"
-            style="@style/big_thin"
-            android:textColor="@color/clock_white" />
-
+            style="@style/big_light" />
     </FrameLayout>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center" >
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:background="@color/hot_blue" >
         <TextView android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textAppearance="@style/PrimaryLabelTextAppearance" />
+            android:textSize="16sp"
+            android:textColor="@color/white" />
         <TextView android:id="@+id/nextAlarm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -67,14 +66,8 @@
             android:drawableLeft="@drawable/ic_alarm_small"
             android:drawableStart="@drawable/ic_alarm_small"
             android:gravity="center"
-            android:textAppearance="@style/SecondaryLabelTextAppearance" />
+            android:textSize="16sp"
+            android:textColor="@color/white" />
     </LinearLayout>
-
-    <View
-        android:id="@+id/hairline"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/hairline_height"
-        android:layout_marginTop="24dip"
-        android:background="@color/hairline" />
 </LinearLayout>
 

@@ -65,6 +65,9 @@ public class AlarmInitReceiver extends BroadcastReceiver {
                         switchVolumeButtonDefault(prefs);
                     }
                 }
+                if (action.equals(Intent.ACTION_LOCALE_CHANGED)) {
+                    Utils.cleanShortWeekdays();
+                }
 
                 // Update all the alarm instances on time change event
                 AlarmStateManager.fixAlarmInstances(context);

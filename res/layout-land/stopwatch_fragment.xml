@@ -17,15 +17,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:paddingTop="32dip"
     android:baselineAligned="false">
 
     <Space
             android:id="@+id/start_space"
             android:visibility="gone"
             android:layout_weight="0.5"
-            android:layout_width="0dip"
-            android:layout_height="match_parent"/>
+            android:layout_width="match_parent"
+            android:layout_height="0dp"/>
 
     <com.android.deskclock.CircleButtonsLayout
         android:id="@+id/stopwatch_circle"
@@ -34,7 +33,9 @@
         android:layout_gravity="center"
         android:layout_marginLeft="32dip"
         android:layout_marginBottom="32dip"
-        android:layout_marginRight="32dip">
+        android:layout_marginRight="32dip"
+        android:elevation="@dimen/circle_elevation"
+        android:background="@drawable/bg_circle_view" >
 
         <com.android.deskclock.timer.CountingTimerView
             android:id="@+id/stopwatch_time_text"
@@ -63,7 +64,7 @@
             android:id="@+id/end_space"
             android:visibility="gone"
             android:layout_weight="0.5"
-            android:layout_width="0dip"
-            android:layout_height="match_parent"/>
+            android:layout_width="match_parent"
+            android:layout_height="0dp"/>
 
 </LinearLayout>

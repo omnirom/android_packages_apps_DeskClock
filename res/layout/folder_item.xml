@@ -31,5 +31,6 @@
         android:layout_weight="1"
         android:ellipsize="start"
         android:singleLine="true"
+        android:textColor="@color/text_color_light"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 </LinearLayout>
