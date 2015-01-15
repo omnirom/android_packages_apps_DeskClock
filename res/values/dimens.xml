@@ -60,7 +60,7 @@
     <dimen name="alarm_min_distance">2dp</dimen>
     <dimen name="alarm_undo_bar_horizontal_margin">8dp</dimen>
     <dimen name="circletimer_dot_size">12dip</dimen>
-    <dimen name="circletimer_circle_size">4dip</dimen>
+    <dimen name="circletimer_circle_size">3dip</dimen>
     <dimen name="circletimer_marker_size">16dip</dimen>
 
     <dimen name="alarm_lockscreen_alarm_horizontal_padding">16dp</dimen>
@@ -73,7 +73,7 @@
     <dimen name="small_font_size">32sp</dimen>
     <dimen name="label_font_size">16sp</dimen>
 
-    <dimen name="widget_label_font_size">14sp</dimen>
+    <dimen name="widget_label_font_size">13sp</dimen>
     <dimen name="main_ampm_font_size">32sp</dimen>
     <dimen name="header_font_size">24sp</dimen>
     <dimen name="body_font_size">18sp</dimen>
@@ -99,8 +99,8 @@
     <dimen name="dialpad_digit_padding">22dip</dimen>
     <dimen name="timer_setup_font_size">56sp</dimen>
     <dimen name="timer_setup_button_size">24sp</dimen>
-    <!-- margin should be ~ half timer_setup_font_size -->
-    <dimen name="timer_setup_delete_start_margin">28sp</dimen>
+    <!-- margin should be ~ third timer_setup_font_size -->
+    <dimen name="timer_setup_delete_start_margin">19sp</dimen>
     <dimen name="timer_setup_delete_padding">12dip</dimen>
     <dimen name="timer_setup_label_size">18sp</dimen>
 
@@ -171,4 +171,6 @@
     <dimen name="hairline_height">1dip</dimen>
 
     <dimen name="alert_dialog_padding_material">24dp</dimen>
+    <dimen name="item_elevation">3dp</dimen>
+    <dimen name="circle_elevation">5dp</dimen>
 </resources>

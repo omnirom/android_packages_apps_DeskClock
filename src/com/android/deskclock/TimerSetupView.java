@@ -35,7 +35,7 @@ import com.android.deskclock.timer.TimerView;
 public class TimerSetupView extends LinearLayout implements Button.OnClickListener,
         Button.OnLongClickListener{
 
-    protected int mInputSize = 5;
+    protected int mInputSize = 6;
 
     protected final Button mNumbers [] = new Button [10];
     protected int mInput [] = new int [mInputSize];
@@ -114,7 +114,6 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
         for (int i = 0; i < 10; i++) {
             mNumbers[i].setOnClickListener(this);
             mNumbers[i].setText(String.format("%d", i));
-            mNumbers[i].setTextColor(Color.WHITE);
             mNumbers[i].setTag(R.id.numbers_key, new Integer(i));
         }
         updateTime();
@@ -139,7 +138,7 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
         final boolean enabled = isInputHasValue();
         if (mDelete != null) {
             mDelete.setEnabled(enabled);
-            mDivider.setBackgroundResource(enabled ? R.color.hot_pink : R.color.dialog_gray);
+            mDivider.setBackgroundResource(enabled ? R.color.hot_blue : R.color.dialog_gray);
         }
     }
 
@@ -213,7 +212,7 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
     }
 
     protected void updateTime() {
-        mEnteredTime.setTime(mInput[4], mInput[3], mInput[2],
+        mEnteredTime.setTime(mInput[5], mInput[4], mInput[3], mInput[2],
                 mInput[1] * 10 + mInput[0]);
     }
 
@@ -226,7 +225,7 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
     }
 
     public int getTime() {
-        return mInput[4] * 3600 + mInput[3] * 600 + mInput[2] * 60 + mInput[1] * 10 + mInput[0];
+        return mInput[5] * 36000 + mInput[4] * 3600 + mInput[3] * 600 + mInput[2] * 60 + mInput[1] * 10 + mInput[0];
     }
 
     public void saveEntryState(Bundle outState, String key) {

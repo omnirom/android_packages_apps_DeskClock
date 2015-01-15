@@ -18,8 +18,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="?android:attr/actionBarSize" >
+    android:layout_height="match_parent" >
 
     <LinearLayout
         android:id="@+id/alarm_layout"
@@ -33,27 +32,16 @@
             android:layout_width="0dip"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:paddingBottom="@dimen/button_footer_height"
-            android:clipToPadding="false"
-            android:descendantFocusability="beforeDescendants"
+            android:layout_marginLeft="8dip"
+            android:layout_marginStart="8dip"
+            android:layout_marginRight="8dip"
+            android:layout_marginEnd="8dip"
             android:divider="@null"
-            android:dividerHeight="0dip" />
+            android:scrollbars="none"
+            android:dividerHeight="10dip" />
 
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/alarms_footer_view"
-        android:layout_width="@dimen/footer_button_size"
-        android:layout_height="@dimen/footer_button_size"
-        android:layout_gravity="bottom|end" >
-        <ImageButton
-            android:id="@+id/menu_button"
-            android:contentDescription="@string/button_menu"
-            style="?android:attr/actionOverflowButtonStyle"
-            android:layout_gravity="end|center_vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </FrameLayout>
     <TextView
             android:id="@+id/alarms_empty_view"
             style="@style/no_alarms"
@@ -61,7 +49,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:contentDescription="@string/no_alarms"
-            android:drawableTop="@drawable/ic_noalarms"
+            android:drawableTop="@drawable/ic_noalarms_black"
             android:text="@string/no_alarms"
             android:textColor="#4cffffff"
             android:paddingBottom="88dp" />

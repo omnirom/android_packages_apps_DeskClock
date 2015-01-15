@@ -25,12 +25,12 @@
     <dimen name="date_text_size">15sp</dimen>
     <dimen name="next_alarm_text_size">15sp</dimen>
     <dimen name="time_margin_top">24dip</dimen>
-    <dimen name="timer_list_padding_bottom">64dip</dimen>
+    <dimen name="timer_list_padding_bottom">48dip</dimen>
 
     <dimen name="dialpad_font_size">24sp</dimen>
     <dimen name="dialpad_digit_padding">14dip</dimen>
     <dimen name="timer_setup_font_size">48sp</dimen>
-    <dimen name="timer_setup_delete_start_margin">24sp</dimen>
+    <dimen name="timer_setup_delete_start_margin">16sp</dimen>
     <dimen name="timer_setup_label_size">16sp</dimen>
 
     <dimen name="actionbar_tab_padding">32dip</dimen>

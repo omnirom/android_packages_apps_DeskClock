@@ -1,7 +1,10 @@
 package com.android.deskclock;
 
 import android.content.Context;
+import android.graphics.Outline;
 import android.util.AttributeSet;
+import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -48,6 +51,20 @@ public class CircleButtonsLayout extends FrameLayout {
                 mContext.getResources().getDimension(R.dimen.circletimer_marker_size);
         mStrokeSize = mContext.getResources().getDimension(R.dimen.circletimer_circle_size);
         mDiamOffset = Utils.calculateRadiusOffset(mStrokeSize, dotStrokeSize, markerStrokeSize) * 2;
+
+        setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                /*float strokeSize = mContext.getResources().getDimension(R.dimen.circletimer_circle_size) - 4f;
+                float radiusOffset = Utils.calculateRadiusOffset(mContext.getResources());*/
+                float circeSize = mContext.getResources().getDimension(R.dimen.circle_size);
+                /*outline.setOval((int)(radiusOffset - strokeSize), (int)(radiusOffset - strokeSize),
+                    (int)(circeSize - radiusOffset + strokeSize), (int)(circeSize - radiusOffset + strokeSize));*/
+                outline.setOval(0, 0, (int)circeSize, (int)circeSize);
+
+            }
+        });
+
     }
 
     @Override
