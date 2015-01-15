@@ -16,26 +16,23 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="?android:attr/actionBarSize" >
-    <ListView
-        android:id="@+id/cities"
-        android:clickable="false"
+    android:layout_height="match_parent" >
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="@dimen/clock_side_padding"
-        android:paddingEnd="@dimen/clock_side_padding_reduced" />
-    <FrameLayout
-        android:layout_width="@dimen/footer_button_size"
-        android:layout_height="@dimen/footer_button_size"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/footer_button_layout_margin" >
-        <ImageButton
-            android:id="@+id/menu_button"
-            android:contentDescription="@string/button_menu"
-            style="?android:attr/actionOverflowButtonStyle"
-            android:layout_gravity="end|center_vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </FrameLayout>
+        android:orientation="vertical" >
+        <include layout="@layout/main_clock_frame"
+            android:id="@+id/main_clock_left_pane"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top" />
+        <ListView
+            android:id="@+id/cities"
+            android:clickable="false"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:dividerHeight="8dip"
+            android:clipToPadding="false" />
+    </LinearLayout>
 </FrameLayout>

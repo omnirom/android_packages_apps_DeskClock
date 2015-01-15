@@ -19,13 +19,20 @@
        android:layout_height="match_parent">
 
     <TextView
+            android:id="@+id/hours_tens"
+            android:singleLine="true"
+            android:ellipsize="none"
+            style="@style/timer_setup_digit"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
+    <TextView
             android:id="@+id/hours_ones"
             android:singleLine="true"
             android:ellipsize="none"
             style="@style/timer_setup_digit"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:textColor="@color/clock_white"/>
+            android:layout_width="wrap_content"/>
 
     <TextView
             android:id="@+id/hours_label"
@@ -36,8 +43,7 @@
             android:contentDescription="@string/hours_label_description"
             android:text="@string/hours_label"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:textColor="@color/clock_white"/>
+            android:layout_width="wrap_content"/>
 
     <TextView
             android:id="@+id/minutes_tens"
@@ -45,8 +51,7 @@
             android:ellipsize="none"
             style="@style/timer_setup_digit"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:textColor="@color/clock_white"/>
+            android:layout_width="wrap_content"/>
 
     <TextView
             android:id="@+id/minutes_ones"
@@ -54,8 +59,7 @@
             android:ellipsize="none"
             style="@style/timer_setup_digit"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:textColor="@color/clock_white"/>
+            android:layout_width="wrap_content" />
 
     <TextView
             android:id="@+id/minutes_label"
@@ -66,8 +70,7 @@
             android:contentDescription="@string/minutes_label_description"
             android:text="@string/minutes_label"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:textColor="@color/clock_white"/>
+            android:layout_width="wrap_content"/>
 
     <TextView
             android:id="@+id/seconds"
@@ -76,8 +79,7 @@
             style="@style/timer_setup_digit"
             android:layout_gravity="bottom"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:textColor="@color/clock_white"/>
+            android:layout_width="wrap_content"/>
 
     <TextView
             android:id="@+id/seconds_label"
@@ -88,7 +90,6 @@
             android:contentDescription="@string/seconds_label_description"
             android:text="@string/seconds_label"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:textColor="@color/clock_white"/>
+            android:layout_width="wrap_content"/>
 
 </merge>

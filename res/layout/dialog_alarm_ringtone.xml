@@ -31,7 +31,6 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:text="@string/alarm_type_select_title"
-            android:textColor="@color/clock_white"
             android:textSize="16sp" />
         <Spinner
             android:id="@+id/alarm_type_select"
@@ -46,12 +45,11 @@
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:drawablePadding="5dp"
-        android:drawableStart="@drawable/ic_ringtone"
+        android:drawableStart="@drawable/ic_ringtone_black"
         android:ellipsize="start"
         android:gravity="center_vertical"
         android:padding="2dp"
         android:singleLine="true"
-        android:textColor="@color/clock_white"
         android:textSize="16sp" />
     <LinearLayout
         android:id="@+id/pre_alarm_time_section"
@@ -75,7 +73,6 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:text="@string/prealarm_time_select"
-                android:textColor="@color/clock_white"
                 android:textSize="16sp" />
             <Spinner
                 android:id="@+id/pre_alarm_time_select"
@@ -99,6 +96,7 @@
         android:textSize="16sp"
         android:text="@string/alarm_volume_enable_title" />
     <LinearLayout
+        android:id="@+id/alarm_volume_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -124,13 +122,6 @@
             android:layout_gravity="center_vertical"
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_gravity="center"
-        android:layout_marginBottom="4dp"
-        android:layout_marginTop="4dp"
-        android:background="#28ffffff" />
     <CheckBox
         android:id="@+id/increasing_volume_onoff"
         android:layout_width="match_parent"
