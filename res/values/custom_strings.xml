@@ -76,4 +76,6 @@
     <string name="entry_fifteen_minute">15 minutes</string>
     <string name="entry_thirty_minute">30 minutes</string>
     <string name="prealarm_default_label">Pre-alarm</string>
+    <string name="alarm_handle_settings">Screen off alarms</string>
+    <string name="alarm_handle_settings_summary">Note: these settings only apply when the screen is off</string>
 </resources>

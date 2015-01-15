@@ -820,26 +820,26 @@ public class StopwatchFragment extends DeskClockFragment
                 activity.getSelectedTab() != DeskClock.STOPWATCH_TAB_INDEX) {
             return;
         }
-        mRightButton.setImageResource(R.drawable.ic_share);
+        mRightButton.setImageResource(R.drawable.ic_share_black);
         mRightButton.setContentDescription(getString(R.string.sw_share_button));
 
         switch (mState) {
             case Stopwatches.STOPWATCH_RESET:
-                mLeftButton.setImageResource(R.drawable.ic_lap);
+                mLeftButton.setImageResource(R.drawable.ic_lap_black);
                 mLeftButton.setContentDescription(getString(R.string.sw_lap_button));
                 mLeftButton.setEnabled(false);
                 mLeftButton.setVisibility(View.INVISIBLE);
                 mRightButton.setVisibility(View.INVISIBLE);
                 break;
             case Stopwatches.STOPWATCH_RUNNING:
-                mLeftButton.setImageResource(R.drawable.ic_lap);
+                mLeftButton.setImageResource(R.drawable.ic_lap_black);
                 mLeftButton.setContentDescription(getString(R.string.sw_lap_button));
                 mLeftButton.setEnabled(!reachedMaxLaps());
                 mLeftButton.setVisibility(View.VISIBLE);
                 mRightButton.setVisibility(View.INVISIBLE);
                 break;
             case Stopwatches.STOPWATCH_STOPPED:
-                mLeftButton.setImageResource(R.drawable.ic_reset);
+                mLeftButton.setImageResource(R.drawable.ic_reset_black);
                 mLeftButton.setContentDescription(getString(R.string.sw_reset_button));
                 mLeftButton.setEnabled(true);
                 mLeftButton.setVisibility(View.VISIBLE);

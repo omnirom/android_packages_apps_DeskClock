@@ -17,8 +17,7 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="@dimen/medium_space_top">
+    android:layout_height="match_parent">
 
     <com.android.deskclock.widget.EllipsizeLayout
         android:id="@+id/city_name_layout"
@@ -42,7 +41,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/medium_light"
-            android:textColor="@color/clock_white"
             android:baselineAligned="true"
             android:layout_gravity="center"
             android:gravity="center" />

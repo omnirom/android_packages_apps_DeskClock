@@ -49,7 +49,7 @@ public class TimerView extends LinearLayout {
                 Typeface.createFromAsset(context.getAssets(), "fonts/AndroidClockMono-Thin.ttf");
 
         Resources resources = context.getResources();
-        mWhiteColor = resources.getColor(R.color.clock_white);
+        mWhiteColor = resources.getColor(R.color.black_87p);
         mGrayColor = resources.getColor(R.color.clock_gray);
     }
 
