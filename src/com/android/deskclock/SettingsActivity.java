@@ -120,7 +120,7 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     protected void onResume() {
         super.onResume();
-        getWindow().getDecorView().setBackgroundColor(Utils.getCurrentHourColor());
+        //getWindow().getDecorView().setBackgroundColor(Utils.getCurrentHourColor());
         refresh();
     }
 
@@ -176,6 +176,10 @@ public class SettingsActivity extends PreferenceActivity
             final int idx = listPref.findIndexOfValue((String) newValue);
             listPref.setSummary(listPref.getEntries()[idx]);
         } else if (KEY_ALARM_SNOOZE_COUNT.equals(pref.getKey())) {
+            final ListPreference listPref = (ListPreference) pref;
+            final int idx = listPref.findIndexOfValue((String) newValue);
+            listPref.setSummary(listPref.getEntries()[idx]);
+        } else if (KEY_FLIP_ACTION.equals(pref.getKey())) {
             final ListPreference listPref = (ListPreference) pref;
             final int idx = listPref.findIndexOfValue((String) newValue);
             listPref.setSummary(listPref.getEntries()[idx]);
@@ -236,6 +240,7 @@ public class SettingsActivity extends PreferenceActivity
         listPref = (ListPreference)findPreference(KEY_HOME_TZ);
         listPref.setEnabled(state);
         listPref.setSummary(listPref.getEntry());
+        listPref.setOnPreferenceChangeListener(this);
 
         listPref = (ListPreference) findPreference(KEY_VOLUME_BUTTONS);
         listPref.setSummary(listPref.getEntry());

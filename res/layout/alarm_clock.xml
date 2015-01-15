@@ -18,19 +18,19 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="?android:attr/actionBarSize" >
+    android:layout_height="match_parent" >
 
     <ListView
         android:id="@+id/alarms_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="@dimen/button_footer_height"
-        android:clipToPadding="false"
-        android:descendantFocusability="beforeDescendants"
-        android:divider="@null"
-        android:dividerHeight="0dip"
-        />
+        android:layout_marginLeft="8dip"
+        android:layout_marginStart="8dip"
+        android:layout_marginRight="8dip"
+        android:layout_marginEnd="8dip"
+        android:dividerHeight="10dip"
+        android:scrollbars="none"
+        android:divider="@null" />
 
     <TextView
         android:id="@+id/alarms_empty_view"
@@ -39,9 +39,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:contentDescription="@string/no_alarms"
-        android:drawableTop="@drawable/ic_noalarms"
+        android:drawableTop="@drawable/ic_noalarms_black"
         android:text="@string/no_alarms"
-        android:textColor="#4cffffff"
+        android:textColor="@color/black_87p"
         android:paddingBottom="88dp" />
 
     <FrameLayout android:id="@+id/undo_frame"
@@ -59,20 +59,5 @@
             android:layout_marginRight="@dimen/alarm_undo_bar_horizontal_margin"
             android:layout_marginEnd="@dimen/alarm_undo_bar_horizontal_margin"
             style="@style/ToastBarStyle" />
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/alarms_footer_view"
-        android:layout_width="@dimen/footer_button_size"
-        android:layout_height="@dimen/footer_button_size"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/footer_button_layout_margin" >
-        <ImageButton
-            android:id="@+id/menu_button"
-            android:contentDescription="@string/button_menu"
-            style="?android:attr/actionOverflowButtonStyle"
-            android:layout_gravity="end|center_vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
     </FrameLayout>
 </FrameLayout>
