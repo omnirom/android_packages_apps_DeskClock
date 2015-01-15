@@ -439,7 +439,7 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
         mAlarmHandled = true;
         LogUtils.v(LOGTAG, "Snoozed: " + mAlarmInstance);
 
-        final int alertColor = getResources().getColor(R.color.hot_pink);
+        final int alertColor = getResources().getColor(R.color.hot_blue);
         setAnimatedFractions(1.0f /* snoozeFraction */, 0.0f /* dismissFraction */);
         getAlertAnimator(mSnoozeButton, R.string.alarm_alert_snoozed_text,
                 AlarmStateManager.getSnoozedMinutes(this), alertColor, alertColor).start();
@@ -451,8 +451,9 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
         LogUtils.v(LOGTAG, "Dismissed: " + mAlarmInstance);
 
         setAnimatedFractions(0.0f /* snoozeFraction */, 1.0f /* dismissFraction */);
+        final int revealColor = getResources().getColor(R.color.white);
         getAlertAnimator(mDismissButton, R.string.alarm_alert_off_text, null /* infoText */,
-                Color.WHITE, mCurrentHourColor).start();
+                revealColor, mCurrentHourColor).start();
         AlarmStateManager.setDismissState(this, mAlarmInstance);
     }
 

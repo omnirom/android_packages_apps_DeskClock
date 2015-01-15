@@ -6,8 +6,10 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.Outline;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 
 import com.android.deskclock.stopwatch.Stopwatches;
 
@@ -35,7 +37,7 @@ public class CircleTimerView extends View {
     private final Paint mPaint = new Paint();
     private final Paint mFill = new Paint();
     private final RectF mArcRect = new RectF();
-    private float mRadiusOffset;   // amount to remove from radius to account for markers on circle
+    private float mRadiusOffset;   // amount to remove from mRadius to account for markers on circle
     private float mScreenDensity;
 
     // Stopwatch mode is the default.
@@ -112,7 +114,7 @@ public class CircleTimerView extends View {
 
     private void init(Context c) {
 
-        Resources resources = c.getResources();
+        final Resources resources = c.getResources();
         mStrokeSize = resources.getDimension(R.dimen.circletimer_circle_size);
         float dotDiameter = resources.getDimension(R.dimen.circletimer_dot_size);
         mMarkerStrokeSize = resources.getDimension(R.dimen.circletimer_marker_size);
@@ -120,12 +122,14 @@ public class CircleTimerView extends View {
                 mStrokeSize, dotDiameter, mMarkerStrokeSize);
         mPaint.setAntiAlias(true);
         mPaint.setStyle(Paint.Style.STROKE);
-        mWhiteColor = resources.getColor(R.color.clock_white);
-        mAccentColor = resources.getColor(R.color.hot_pink);
+        mWhiteColor = resources.getColor(R.color.text_color_light);
+        mAccentColor = resources.getColor(R.color.hot_blue);
         mScreenDensity = resources.getDisplayMetrics().density;
+
         mFill.setAntiAlias(true);
         mFill.setStyle(Paint.Style.FILL);
         mFill.setColor(mAccentColor);
+
         mDotRadius = dotDiameter / 2f;
     }
 
@@ -139,20 +143,17 @@ public class CircleTimerView extends View {
         int yCenter = getHeight() / 2;
 
         mPaint.setStrokeWidth(mStrokeSize);
+        mPaint.setColor(mAccentColor);
+
         float radius = Math.min(xCenter, yCenter) - mRadiusOffset;
 
         if (mIntervalStartTime == -1) {
-            // just draw a complete white circle, no red arc needed
-            mPaint.setColor(mWhiteColor);
             canvas.drawCircle (xCenter, yCenter, radius, mPaint);
-            if (mTimerMode) {
-                drawRedDot(canvas, 0f, xCenter, yCenter, radius);
-            }
         } else {
             if (mAnimate) {
                 mCurrentIntervalTime = Utils.getTimeNow() - mIntervalStartTime + mAccumulatedTime;
             }
-            //draw a combination of red and white arcs to create a circle
+            //draw a combination of arcs to create a circle
             mArcRect.top = yCenter - radius;
             mArcRect.bottom = yCenter + radius;
             mArcRect.left =  xCenter - radius;
@@ -162,17 +163,12 @@ public class CircleTimerView extends View {
             redPercent = (redPercent > 1 && mTimerMode) ? 1 : redPercent;
 
             float whitePercent = 1 - (redPercent > 1 ? 1 : redPercent);
-            // draw red arc here
-            mPaint.setColor(mAccentColor);
-            if (mTimerMode){
-                canvas.drawArc (mArcRect, 270, - redPercent * 360 , false, mPaint);
-            } else {
+            mPaint.setColor(mWhiteColor);
+            if (!mTimerMode){
                 canvas.drawArc (mArcRect, 270, + redPercent * 360 , false, mPaint);
             }
 
-            // draw white arc here
-            mPaint.setStrokeWidth(mStrokeSize);
-            mPaint.setColor(mWhiteColor);
+            mPaint.setColor(mAccentColor);
             if (mTimerMode) {
                 canvas.drawArc(mArcRect, 270, + whitePercent * 360, false, mPaint);
             } else {
@@ -182,6 +178,7 @@ public class CircleTimerView extends View {
 
             if (mMarkerTime != -1 && radius > 0 && mIntervalTime != 0) {
                 mPaint.setStrokeWidth(mMarkerStrokeSize);
+                mPaint.setColor(mWhiteColor);
                 float angle = (float)(mMarkerTime % mIntervalTime) / (float)mIntervalTime * 360;
                 // draw 2dips thick marker
                 // the formula to draw the marker 1 unit thick is:
@@ -190,27 +187,11 @@ public class CircleTimerView extends View {
                 canvas.drawArc (mArcRect, 270 + angle, mScreenDensity *
                         (float) (360 / (radius * Math.PI)) , false, mPaint);
             }
-            drawRedDot(canvas, redPercent, xCenter, yCenter, radius);
         }
         if (mAnimate) {
             invalidate();
         }
    }
-
-    protected void drawRedDot(
-            Canvas canvas, float degrees, int xCenter, int yCenter, float radius) {
-        mPaint.setColor(mAccentColor);
-        float dotPercent;
-        if (mTimerMode) {
-            dotPercent = 270 - degrees * 360;
-        } else {
-            dotPercent = 270 + degrees * 360;
-        }
-
-        final double dotRadians = Math.toRadians(dotPercent);
-        canvas.drawCircle(xCenter + (float) (radius * Math.cos(dotRadians)),
-                yCenter + (float) (radius * Math.sin(dotRadians)), mDotRadius, mFill);
-    }
 
     public static final String PREF_CTV_PAUSED  = "_ctv_paused";
     public static final String PREF_CTV_INTERVAL  = "_ctv_interval";

@@ -69,6 +69,25 @@
             android:entryValues="@array/volume_increase_speed_values"
             android:key="volume_increase_speed"
             android:title="@string/volume_increase_speed_title" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pre_alarm_dismiss_all"
+            android:summary="@string/pre_alarm_dismiss_all_summary"
+            android:title="@string/pre_alarm_dismiss_all_title" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/notification_settings">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="fullscreen_alarm"
+            android:summary="@string/fullscreen_alarm_summary"
+            android:title="@string/fullscreen_alarm_title" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/fullscreen_alarm_settings">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="keep_screen_on"
+            android:summary="@string/keep_screen_on_summary"
+            android:title="@string/keep_screen_on_title" />
         <ListPreference
             android:defaultValue="0"
             android:dialogTitle="@string/volume_button_setting_title"
@@ -90,15 +109,5 @@
             android:entryValues="@array/volume_button_setting_values"
             android:key="shake_action_setting"
             android:title="@string/shake_action_title" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="keep_screen_on"
-            android:summary="@string/keep_screen_on_summary"
-            android:title="@string/keep_screen_on_title" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pre_alarm_dismiss_all"
-            android:summary="@string/pre_alarm_dismiss_all_summary"
-            android:title="@string/pre_alarm_dismiss_all_title" />
     </PreferenceCategory>
 </PreferenceScreen>

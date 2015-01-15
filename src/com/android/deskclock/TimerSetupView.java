@@ -30,12 +30,13 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import com.android.deskclock.timer.TimerView;
+import com.android.deskclock.LogUtils;
 
 
 public class TimerSetupView extends LinearLayout implements Button.OnClickListener,
         Button.OnLongClickListener{
 
-    protected int mInputSize = 5;
+    protected int mInputSize = 6;
 
     protected final Button mNumbers [] = new Button [10];
     protected int mInput [] = new int [mInputSize];
@@ -53,7 +54,7 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
             if (mStart != null) {
                 mStart.setScaleX(1.0f);
                 mStart.setScaleY(1.0f);
-                mStart.setVisibility(View.INVISIBLE);
+                mStart.setVisibility(View.GONE);
             }
         }
     };
@@ -114,7 +115,6 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
         for (int i = 0; i < 10; i++) {
             mNumbers[i].setOnClickListener(this);
             mNumbers[i].setText(String.format("%d", i));
-            mNumbers[i].setTextColor(Color.WHITE);
             mNumbers[i].setTag(R.id.numbers_key, new Integer(i));
         }
         updateTime();
@@ -127,7 +127,8 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
 
     private void initializeStartButtonVisibility() {
         if (mStart != null) {
-            mStart.setVisibility(isInputHasValue() ? View.VISIBLE : View.INVISIBLE);
+            updateStartButton();
+            //mStart.setVisibility(isInputHasValue() ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -139,7 +140,7 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
         final boolean enabled = isInputHasValue();
         if (mDelete != null) {
             mDelete.setEnabled(enabled);
-            mDivider.setBackgroundResource(enabled ? R.color.hot_pink : R.color.dialog_gray);
+            mDivider.setBackgroundResource(enabled ? R.color.hot_blue : R.color.clock_gray);
         }
     }
 
@@ -148,7 +149,7 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
     }
 
     private void setFabButtonVisibility(boolean show) {
-        final int finalVisibility = show ? View.VISIBLE : View.INVISIBLE;
+        final int finalVisibility = show ? View.VISIBLE : View.GONE;
         if (mStart == null || mStart.getVisibility() == finalVisibility) {
             // Fab is not initialized yet or already shown/hidden
             return;
@@ -213,7 +214,7 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
     }
 
     protected void updateTime() {
-        mEnteredTime.setTime(mInput[4], mInput[3], mInput[2],
+        mEnteredTime.setTime(mInput[5], mInput[4], mInput[3], mInput[2],
                 mInput[1] * 10 + mInput[0]);
     }
 
@@ -226,7 +227,7 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
     }
 
     public int getTime() {
-        return mInput[4] * 3600 + mInput[3] * 600 + mInput[2] * 60 + mInput[1] * 10 + mInput[0];
+        return mInput[5] * 36000 + mInput[4] * 3600 + mInput[3] * 600 + mInput[2] * 60 + mInput[1] * 10 + mInput[0];
     }
 
     public void saveEntryState(Bundle outState, String key) {

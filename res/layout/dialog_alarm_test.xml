@@ -29,6 +29,5 @@
         android:layout_marginTop="16dip"
         android:gravity="center"
         android:text="@string/alarm_test_dialog_content"
-        android:textColor="@color/clock_white"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 </LinearLayout>

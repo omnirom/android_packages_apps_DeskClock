@@ -41,17 +41,22 @@ import com.android.deskclock.Utils;
  */
 public class CountingTimerView extends View {
     private static final String TWO_DIGITS = "%02d";
+    private static final String TWO_DIGITS_COLON = "%02d:";
+    private static final String TWO_DIGITS_POINT = ".%02d";
     private static final String ONE_DIGIT = "%01d";
+    private static final String ONE_DIGIT_COLON = "%01d:";
     private static final String NEG_TWO_DIGITS = "-%02d";
+    private static final String NEG_TWO_DIGITS_COLON = "-%02d:";
     private static final String NEG_ONE_DIGIT = "-%01d";
+    private static final String NEG_ONE_DIGIT_COLON = "-%01d:";
     private static final float TEXT_SIZE_TO_WIDTH_RATIO = 0.85f;
     // This is the ratio of the font height needed to vertically offset the font for alignment
     // from the center.
     private static final float FONT_VERTICAL_OFFSET = 0.14f;
     // Ratio of the space trailing the Hours and Minutes
-    private static final float HOURS_MINUTES_SPACING = 0.4f;
+    private static final float HOURS_MINUTES_SPACING = 0.0f;
     // Ratio of the space leading the Hundredths
-    private static final float HUNDREDTHS_SPACING = 0.5f;
+    private static final float HUNDREDTHS_SPACING = 0.0f;
     // Radial offset of the enclosing circle
     private final float mRadiusOffset;
 
@@ -267,22 +272,23 @@ public class CountingTimerView extends View {
         mAccessibilityManager =
                 (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
         Resources r = context.getResources();
-        mWhiteColor = r.getColor(R.color.clock_white);
+        mWhiteColor = r.getColor(R.color.text_color_light);
         mDefaultColor = mWhiteColor;
-        mPressedColor = r.getColor(R.color.hot_pink);
-        mAccentColor = r.getColor(R.color.hot_pink);
+        mPressedColor = r.getColor(R.color.hot_blue);
+        mAccentColor = r.getColor(R.color.hot_blue);
         mBigFontSize = r.getDimension(R.dimen.big_font_size);
         mSmallFontSize = r.getDimension(R.dimen.small_font_size);
 
         Typeface androidClockMonoThin = Typeface.
                 createFromAsset(context.getAssets(), "fonts/AndroidClockMono-Thin.ttf");
+        Typeface androidClockMonoLight = Typeface.
+                createFromAsset(context.getAssets(), "fonts/AndroidClockMono-Light.ttf");
+
         mPaintBigThin.setAntiAlias(true);
         mPaintBigThin.setStyle(Paint.Style.STROKE);
         mPaintBigThin.setTextAlign(Paint.Align.CENTER);
-        mPaintBigThin.setTypeface(androidClockMonoThin);
+        mPaintBigThin.setTypeface(androidClockMonoLight);
 
-        Typeface androidClockMonoLight = Typeface.
-                createFromAsset(context.getAssets(), "fonts/AndroidClockMono-Light.ttf");
         mPaintMed.setAntiAlias(true);
         mPaintMed.setStyle(Paint.Style.STROKE);
         mPaintMed.setTextAlign(Paint.Align.CENTER);
@@ -368,10 +374,10 @@ public class CountingTimerView extends View {
 
         // Hours may be empty
         if (hours >= 10) {
-            format = showNeg ? NEG_TWO_DIGITS : TWO_DIGITS;
+            format = showNeg ? NEG_TWO_DIGITS_COLON : TWO_DIGITS_COLON;
             mHours = String.format(format, hours);
         } else if (hours > 0) {
-            format = showNeg ? NEG_ONE_DIGIT : ONE_DIGIT;
+            format = showNeg ? NEG_ONE_DIGIT_COLON : ONE_DIGIT_COLON;
             mHours = String.format(format, hours);
         } else {
             mHours = null;
@@ -379,10 +385,10 @@ public class CountingTimerView extends View {
 
         // Minutes are never empty and when hours are non-empty, must be two digits
         if (minutes >= 10 || hours > 0) {
-            format = (showNeg && hours == 0) ? NEG_TWO_DIGITS : TWO_DIGITS;
+            format = (showNeg && hours == 0) ? NEG_TWO_DIGITS_COLON : TWO_DIGITS_COLON;
             mMinutes = String.format(format, minutes);
         } else {
-            format = (showNeg && hours == 0) ? NEG_ONE_DIGIT : ONE_DIGIT;
+            format = (showNeg && hours == 0) ? NEG_ONE_DIGIT_COLON : ONE_DIGIT_COLON;
             mMinutes = String.format(format, minutes);
         }
 
@@ -391,7 +397,7 @@ public class CountingTimerView extends View {
 
         // Hundredths are optional and then two digits
         if (showHundredths) {
-            mHundredths = String.format(TWO_DIGITS, hundreds);
+            mHundredths = String.format(TWO_DIGITS_POINT, hundreds);
         } else {
             mHundredths = null;
         }

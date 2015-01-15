@@ -38,11 +38,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.graphics.Outline;
 
 import com.android.deskclock.AnimatorUtils;
 import com.android.deskclock.DeskClock;
@@ -51,6 +53,7 @@ import com.android.deskclock.R;
 import com.android.deskclock.TimerSetupView;
 import com.android.deskclock.Utils;
 import com.android.deskclock.VerticalViewPager;
+import com.android.deskclock.LogUtils;
 
 public class TimerFragment extends DeskClockFragment implements OnSharedPreferenceChangeListener {
     public static final long ANIMATION_TIME_MILLIS = DateUtils.SECOND_IN_MILLIS / 3;
@@ -67,7 +70,6 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
     private TimerSetupView mSetupView;
     private VerticalViewPager mViewPager;
     private TimerFragmentAdapter mAdapter;
-    private ImageButton mCancel;
     private ViewGroup mContentView;
     private View mTimerView;
     private View mLastView;
@@ -76,6 +78,7 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
     private SharedPreferences mPrefs;
     private Bundle mViewState = null;
     private NotificationManager mNotificationManager;
+    private boolean mLeftButtonSticky = false;
 
     private final ViewPager.OnPageChangeListener mOnPageChangeListener =
             new ViewPager.SimpleOnPageChangeListener() {
@@ -135,6 +138,13 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
         }
     };
 
+    private static final ViewOutlineProvider OVAL_OUTLINE_PROVIDER = new ViewOutlineProvider() {
+        @Override
+        public void getOutline(View view, Outline outline) {
+            outline.setOval(0, 0, view.getWidth(), view.getHeight());
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,23 +163,6 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
         mPageIndicators[1] = (ImageView) view.findViewById(R.id.page_indicator1);
         mPageIndicators[2] = (ImageView) view.findViewById(R.id.page_indicator2);
         mPageIndicators[3] = (ImageView) view.findViewById(R.id.page_indicator3);
-        mCancel = (ImageButton) view.findViewById(R.id.timer_cancel);
-        mCancel.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mAdapter.getCount() != 0) {
-                    final AnimatorListenerAdapter adapter = new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            mSetupView.reset(); // Make sure the setup is cleared for next time
-                            mSetupView.setScaleX(1.0f); // Reset the scale for setup view
-                            goToPagerView();
-                        }
-                    };
-                    createRotateAnimator(adapter, false).start();
-                }
-            }
-        });
         mDeleteTransition = new AutoTransition();
         mDeleteTransition.setDuration(ANIMATION_TIME_MILLIS / 2);
         mDeleteTransition.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -189,10 +182,9 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
     @Override
     public void onResume() {
         super.onResume();
-        if (getActivity() instanceof DeskClock) {
-            DeskClock activity = (DeskClock) getActivity();
-            activity.registerPageChangedListener(this);
-        }
+
+        final DeskClock activity = (DeskClock) getActivity();
+        activity.registerPageChangedListener(this);
 
         if (mAdapter == null) {
             mAdapter = new TimerFragmentAdapter(getChildFragmentManager(), mPrefs);
@@ -213,11 +205,9 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
         }
         editor.apply();
 
-        mCancel.setVisibility(mAdapter.getCount() == 0 ? View.INVISIBLE : View.VISIBLE);
-
         boolean goToSetUpView;
         // Process extras that were sent to the app and were intended for the timer fragment
-        final Intent newIntent = getActivity().getIntent();
+        final Intent newIntent = activity.getIntent();
         if (newIntent != null && newIntent.getBooleanExtra(
                 TimerFullScreenFragment.GOTO_SETUP_VIEW, false)) {
             goToSetUpView = true;
@@ -228,7 +218,9 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
                 highlightPageIndicator(currPage);
                 final boolean hasPreviousInput = mViewState.getBoolean(KEY_SETUP_SELECTED, false);
                 goToSetUpView = hasPreviousInput || mAdapter.getCount() == 0;
-                mSetupView.restoreEntryState(mViewState, KEY_ENTRY_STATE);
+                if (goToSetUpView && activity.isTimerTab()) {
+                    mSetupView.restoreEntryState(mViewState, KEY_ENTRY_STATE);
+                }
             } else {
                 highlightPageIndicator(0);
                 // If user was not previously using the setup, determine which view to go by count
@@ -265,7 +257,9 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
             outState.putBoolean(KEY_SETUP_SELECTED, mSetupView.getVisibility() == View.VISIBLE);
             mSetupView.saveEntryState(outState, KEY_ENTRY_STATE);
         }
-        outState.putInt(CURR_PAGE, mViewPager.getCurrentItem());
+        if (mViewPager != null) {
+            outState.putInt(CURR_PAGE, mViewPager.getCurrentItem());
+        }
         mViewState = outState;
     }
 
@@ -306,15 +300,9 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
     }
 
     private void goToSetUpView() {
-        if (mAdapter.getCount() == 0) {
-            mCancel.setVisibility(View.INVISIBLE);
-        } else {
-            mCancel.setVisibility(View.VISIBLE);
-        }
         mTimerView.setVisibility(View.GONE);
         mSetupView.setVisibility(View.VISIBLE);
         mSetupView.updateDeleteButtonAndDivider();
-        mSetupView.registerStartButton(mFab);
         mLastView = mSetupView;
         setLeftRightButtonAppearance();
         setFabAppearance();
@@ -358,12 +346,12 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
                 mFab.setImageResource(R.drawable.ic_fab_play);
                 break;
             case TimerObj.STATE_DONE: // time-up then stopped
-                mFab.setVisibility(View.INVISIBLE);
+                mFab.setVisibility(View.GONE);
                 break;
             case TimerObj.STATE_TIMESUP: // time-up but didn't stopped, continue negative ticking
                 mFab.setVisibility(View.VISIBLE);
                 mFab.setContentDescription(r.getString(R.string.timer_stop));
-                mFab.setImageResource(R.drawable.ic_fab_stop);
+                mFab.setImageResource(R.drawable.ic_cancel);
                 break;
             default:
         }
@@ -383,45 +371,12 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
         return animator;
     }
 
-    private Animator getScaleFooterButtonsAnimator(final boolean show) {
-        final AnimatorSet animatorSet = new AnimatorSet();
-        final Animator leftButtonAnimator = AnimatorUtils.getScaleAnimator(
-                mLeftButton, show ? 0.0f : 1.0f, show ? 1.0f : 0.0f);
-        final Animator rightButtonAnimator = AnimatorUtils.getScaleAnimator(
-                mRightButton, show ? 0.0f : 1.0f, show ? 1.0f : 0.0f);
-        final float fabStartScale = (show && mFab.getVisibility() == View.INVISIBLE) ? 0.0f : 1.0f;
-        final Animator fabAnimator = AnimatorUtils.getScaleAnimator(
-                mFab, fabStartScale, show ? 1.0f : 0.0f);
-        animatorSet.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mLeftButton.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
-                mRightButton.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
-                restoreScale(mLeftButton);
-                restoreScale(mRightButton);
-                restoreScale(mFab);
-            }
-        });
-        // If not show, means transiting from timer view to setup view,
-        // when the setup view starts to rotate, the footer buttons are already invisible,
-        // so the scaling has to finish before the setup view starts rotating
-        animatorSet.setDuration(show ? ROTATE_ANIM_DURATION_MILIS * 2 : ROTATE_ANIM_DURATION_MILIS);
-        animatorSet.play(leftButtonAnimator).with(rightButtonAnimator).with(fabAnimator);
-        return animatorSet;
-    }
-
-    private void restoreScale(View view) {
-        view.setScaleX(1.0f);
-        view.setScaleY(1.0f);
-    }
-
     private Animator createRotateAnimator(AnimatorListenerAdapter adapter, boolean toSetup) {
         final AnimatorSet animatorSet = new AnimatorSet();
         final Animator rotateFrom = getRotateFromAnimator(toSetup ? mTimerView : mSetupView);
         rotateFrom.addListener(adapter);
         final Animator rotateTo = getRotateToAnimator(toSetup ? mSetupView : mTimerView);
-        final Animator expandFooterButton = getScaleFooterButtonsAnimator(!toSetup);
-        animatorSet.play(rotateFrom).before(rotateTo).with(expandFooterButton);
+        animatorSet.play(rotateFrom).before(rotateTo);
         return animatorSet;
     }
 
@@ -511,12 +466,7 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
     @Override
     public void setFabAppearance() {
         final DeskClock activity = (DeskClock) getActivity();
-        if (mFab == null) {
-            return;
-        }
-
-        if (activity.getSelectedTab() != DeskClock.TIMER_TAB_INDEX) {
-            mFab.setVisibility(View.VISIBLE);
+        if (mFab == null || !activity.isTimerTab()) {
             return;
         }
 
@@ -533,29 +483,49 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
     public void setLeftRightButtonAppearance() {
         final DeskClock activity = (DeskClock) getActivity();
         if (mLeftButton == null || mRightButton == null ||
-                activity.getSelectedTab() != DeskClock.TIMER_TAB_INDEX) {
+                !activity.isTimerTab()) {
             return;
         }
 
         mLeftButton.setEnabled(true);
         mRightButton.setEnabled(true);
-        mLeftButton.setVisibility(mLastView != mTimerView ? View.GONE : View.VISIBLE);
-        mRightButton.setVisibility(mLastView != mTimerView ? View.GONE : View.VISIBLE);
-        mLeftButton.setImageResource(R.drawable.ic_delete);
-        mLeftButton.setContentDescription(getString(R.string.timer_delete));
-        mRightButton.setImageResource(R.drawable.ic_add_timer);
-        mRightButton.setContentDescription(getString(R.string.timer_add_timer));
+
+        boolean leftVisible = false;
+        if (mLeftButtonSticky) {
+            leftVisible = true;
+        } else if (mLastView == mSetupView) {
+            leftVisible = mAdapter.getCount() != 0;
+        } else {
+            leftVisible = true;
+        }
+        boolean rightVisible = mLastView == mTimerView;
+
+        if (leftVisible) {
+            mLeftButton.setImageResource(R.drawable.ic_cancel);
+            mLeftButton.setContentDescription(getString(R.string.timer_delete));
+        }
+        if (rightVisible) {
+            mRightButton.setImageResource(R.drawable.ic_add_timer);
+            mRightButton.setContentDescription(getString(R.string.timer_add_timer));
+        }
+
+        final AnimatorSet animatorSet = getButtonTransition(leftVisible, rightVisible);
+        if (animatorSet != null) {
+            animatorSet.start();
+        }
     }
 
     @Override
     public void onRightButtonClick(View view) {
         // Respond to add another timer
+        mLeftButtonSticky = true;
         final AnimatorListenerAdapter adapter = new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mSetupView.reset();
                 mTimerView.setScaleX(1.0f); // Reset the scale for timer view
                 goToSetUpView();
+                mLeftButtonSticky = false;
             }
         };
         createRotateAnimator(adapter, true).start();
@@ -563,6 +533,23 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
 
     @Override
     public void onLeftButtonClick(View view) {
+        if (mLastView == mSetupView) {
+            if (mAdapter.getCount() != 0) {
+                mLeftButtonSticky = true;
+                final AnimatorListenerAdapter adapter = new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mSetupView.reset(); // Make sure the setup is cleared for next time
+                            mSetupView.setScaleX(1.0f); // Reset the scale for setup view
+                            goToPagerView();
+                            mLeftButtonSticky = false;
+                        }
+                };
+                createRotateAnimator(adapter, false).start();
+            }
+            return;
+        }
+
         // Respond to delete timer
         final TimerObj timer = getCurrentTimer();
         if (timer == null) {

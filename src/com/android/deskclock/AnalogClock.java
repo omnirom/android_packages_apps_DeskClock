@@ -42,10 +42,10 @@ import java.util.TimeZone;
 public class AnalogClock extends View {
     private Time mCalendar;
 
-    private final Drawable mHourHand;
-    private final Drawable mMinuteHand;
-    private final Drawable mSecondHand;
-    private final Drawable mDial;
+    private Drawable mHourHand;
+    private Drawable mMinuteHand;
+    private Drawable mSecondHand;
+    private Drawable mDial;
 
     private final int mDialWidth;
     private final int mDialHeight;
@@ -79,9 +79,9 @@ public class AnalogClock extends View {
         mContext = context;
         Resources r = mContext.getResources();
 
-        mDial = r.getDrawable(R.drawable.clock_analog_dial_mipmap);
-        mHourHand = r.getDrawable(R.drawable.clock_analog_hour_mipmap);
-        mMinuteHand = r.getDrawable(R.drawable.clock_analog_minute_mipmap);
+        mDial = r.getDrawable(R.drawable.clock_analog_dial_mipmap_black);
+        mHourHand = r.getDrawable(R.drawable.clock_analog_hour_mipmap_black);
+        mMinuteHand = r.getDrawable(R.drawable.clock_analog_minute_mipmap_black);
         mSecondHand = r.getDrawable(R.drawable.clock_analog_second_mipmap);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AnalogClock);
@@ -289,5 +289,11 @@ public class AnalogClock extends View {
         mNoSeconds = !enable;
     }
 
+    public void setBlackWhiteMode(boolean black) {
+        Resources r = mContext.getResources();
+        mDial = r.getDrawable(black ? R.drawable.clock_analog_dial_mipmap_black : R.drawable.clock_analog_dial_mipmap);
+        mHourHand = r.getDrawable(black ? R.drawable.clock_analog_hour_mipmap_black : R.drawable.clock_analog_hour_mipmap);
+        mMinuteHand = r.getDrawable(black ? R.drawable.clock_analog_minute_mipmap_black : R.drawable.clock_analog_minute_mipmap);
+    }
 }
 

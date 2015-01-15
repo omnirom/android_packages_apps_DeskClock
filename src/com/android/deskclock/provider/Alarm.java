@@ -561,4 +561,18 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         String title = getRingToneTitle(context, preAlarm);
         return title == null || title.contains(unknownRingToneStr);
     }
+
+    public boolean isUsingRingtoneUri(Uri uri) {
+        if (alert != null) {
+            if (alert.equals(uri)) {
+                return true;
+            }
+        }
+        if (preAlarmAlert != null) {
+            if (preAlarmAlert.equals(uri)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

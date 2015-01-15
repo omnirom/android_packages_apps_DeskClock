@@ -17,8 +17,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
-             android:orientation="vertical"
-             android:paddingTop="?android:attr/actionBarSize">
+             android:orientation="vertical" >
 
     <FrameLayout
         android:id="@+id/timers_list_page"
@@ -41,7 +40,7 @@
             android:layout_gravity="center_horizontal|bottom"
             android:layout_margin="@dimen/footer_button_layout_margin"
             android:background="@drawable/floating_action_button"
-            android:src="@drawable/ic_fab_stop"
+            android:src="@drawable/ic_cancel"
             android:contentDescription="@string/timer_stop" />
     </FrameLayout>
 

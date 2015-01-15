@@ -183,14 +183,14 @@ public class StopwatchService extends Service {
 
             // Right button: stop clock
             remoteViewsExpanded.setTextViewText(
-                    R.id.swn_right_button, getResources().getText(R.string.sw_stop_button));
+                    R.id.swn_right_button, getResources().getText(R.string.sw_pause_button));
             Intent rightButtonIntent = new Intent(context, StopwatchService.class);
             rightButtonIntent.setAction(Stopwatches.STOP_STOPWATCH);
             remoteViewsExpanded.setOnClickPendingIntent(R.id.swn_right_button,
                     PendingIntent.getService(context, 0, rightButtonIntent, 0));
             remoteViewsExpanded.
                     setTextViewCompoundDrawablesRelative(R.id.swn_right_button,
-                            R.drawable.ic_notify_stop, 0, 0, 0);
+                            R.drawable.ic_pause_black, 0, 0, 0);
 
             // Show the laps if applicable.
             if (numLaps > 0) {

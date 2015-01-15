@@ -43,6 +43,7 @@
 
     <dimen name="big_font_size">160sp</dimen>
     <dimen name="medium_font_size">96sp</dimen>
+    <dimen name="small_font_size">60sp</dimen>
     <dimen name="label_font_size">18sp</dimen>
     <dimen name="alarm_label_size">18sp</dimen>
     <dimen name="body_font_size">20sp</dimen>
@@ -65,7 +66,7 @@
     <dimen name="dialpad_digit_padding">34dip</dimen>
     <dimen name="timer_setup_font_size">86sp</dimen>
     <dimen name="timer_setup_button_size">36sp</dimen>
-    <dimen name="timer_setup_delete_start_margin">42sp</dimen>
+    <dimen name="timer_setup_delete_start_margin">29sp</dimen>
     <dimen name="timer_setup_label_size">28sp</dimen>
 
     <!-- Size of margin for circles. -->
@@ -86,7 +87,8 @@
     <!-- Digital Widget settings (keyguard|home_screen) -->
     <!-- Use larger fonts -->
     <dimen name="widget_big_font_size">130sp</dimen>
-    <dimen name="widget_medium_font_size">52sp</dimen>
+    <dimen name="widget_medium_font_size">80sp</dimen>
+
     <dimen name="widget_24_medium_font_size">65sp</dimen>
     <dimen name="widget_big_time_margin_right">12dip</dimen>
     <dimen name="widget_medium_time_margin_right">8dip</dimen>

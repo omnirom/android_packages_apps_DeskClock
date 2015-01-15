@@ -16,20 +16,31 @@
 
 package com.android.deskclock;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.widget.PopupMenuCompat;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextThemeWrapper;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.content.Context;
+
+import com.android.deskclock.AnimatorUtils;
+import com.android.deskclock.LogUtils;
 
 public class DeskClockFragment extends Fragment {
 
     protected ImageButton mFab;
     protected ImageButton mLeftButton;
     protected ImageButton mRightButton;
+
+    @Override
+    public void onCreate(Bundle savedState) {
+        super.onCreate(savedState);
+    }
 
     public void onPageChanged(int page) {
         // Do nothing here , only in derived classes
@@ -66,33 +77,94 @@ public class DeskClockFragment extends Fragment {
     public void onRightButtonClick(View view) {
         // Do nothing here , only in derived classes
     }
-    /**
-     * Installs click and touch listeners on a fake overflow menu button.
-     *
-     * @param menuButton the fragment's fake overflow menu button
-     */
-    public void setupFakeOverflowMenuButton(View menuButton) {
-        final PopupMenu fakeOverflow = new PopupMenu(menuButton.getContext(), menuButton) {
-            @Override
-            public void show() {
-                getActivity().onPrepareOptionsMenu(getMenu());
-                super.show();
-            }
-        };
-        fakeOverflow.inflate(R.menu.desk_clock_menu);
-        fakeOverflow.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener () {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                return getActivity().onOptionsItemSelected(item);
-            }
-        });
 
-        menuButton.setOnTouchListener(PopupMenuCompat.getDragToOpenListener(fakeOverflow));
-        menuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fakeOverflow.show();
+    protected Animator setButtonVisible(ImageButton button, boolean show) {
+        final Animator buttonAnimator = AnimatorUtils.getScaleAnimator(
+                button, show ? 0.0f : 1.0f, show ? 1.0f : 0.0f);
+
+        return buttonAnimator;
+    }
+
+    protected void restoreScale(View view) {
+        view.setScaleX(1.0f);
+        view.setScaleY(1.0f);
+    }
+
+    protected void setHiddenScale(View view) {
+        view.setScaleX(0.0f);
+        view.setScaleY(0.0f);
+    }
+
+    protected AnimatorSet getButtonTransition(final boolean leftVisible, final boolean rightVisible) {
+        Animator rightButtonAnimator = null;
+        Animator leftButtonAnimator = null;
+
+        if ((leftVisible && mLeftButton.getVisibility() != View.VISIBLE) ||
+            (!leftVisible && mLeftButton.getVisibility() != View.GONE)) {
+            if (leftVisible && mLeftButton.getVisibility() != View.VISIBLE) {
+                setHiddenScale(mLeftButton);
+                mLeftButton.setVisibility(View.VISIBLE);
             }
-        });
+            leftButtonAnimator = setButtonVisible(mLeftButton, leftVisible);
+        }
+        if ((rightVisible && mRightButton.getVisibility() != View.VISIBLE) ||
+            (!rightVisible && mRightButton.getVisibility() != View.GONE)) {
+            if (rightVisible && mRightButton.getVisibility() != View.VISIBLE) {
+                setHiddenScale(mRightButton);
+                mRightButton.setVisibility(View.VISIBLE);
+            }
+            rightButtonAnimator = setButtonVisible(mRightButton, rightVisible);
+        }
+
+        if (rightButtonAnimator != null || leftButtonAnimator != null) {
+            final AnimatorSet animatorSet = new AnimatorSet();
+            animatorSet.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mLeftButton.setVisibility(leftVisible ? View.VISIBLE : View.GONE);
+                    mRightButton.setVisibility(rightVisible ? View.VISIBLE : View.GONE);
+                    restoreScale(mLeftButton);
+                    restoreScale(mRightButton);
+                }
+            });
+            if (rightButtonAnimator != null && leftButtonAnimator != null) {
+                animatorSet.play(leftButtonAnimator).with(rightButtonAnimator);
+            } else if (leftButtonAnimator != null) {
+                animatorSet.play(leftButtonAnimator);
+            } else if (rightButtonAnimator != null) {
+                animatorSet.play(rightButtonAnimator);
+            }
+            return animatorSet;
+        }
+        return null;
+    }
+
+    protected AnimatorSet getFabButtonTransition(final boolean fabVisible) {
+        Animator fabButtonAnimator = null;
+
+        if ((fabVisible && mFab.getVisibility() != View.VISIBLE) ||
+            (!fabVisible && mFab.getVisibility() != View.GONE)) {
+            if (fabVisible && mFab.getVisibility() != View.VISIBLE) {
+                setHiddenScale(mFab);
+                mFab.setVisibility(View.VISIBLE);
+            }
+            fabButtonAnimator = setButtonVisible(mFab, fabVisible);
+        }
+
+        if (fabButtonAnimator != null) {
+            final AnimatorSet animatorSet = new AnimatorSet();
+            animatorSet.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mFab.setVisibility(fabVisible ? View.VISIBLE : View.GONE);
+                    restoreScale(mFab);
+                }
+            });
+            if (fabButtonAnimator != null) {
+                animatorSet.play(fabButtonAnimator);
+            }
+            return animatorSet;
+        }
+        return null;
     }
 }
