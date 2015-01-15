@@ -52,7 +52,7 @@
     <string name="notificationType">Notification</string>
     <string name="mediaType">Music file</string>
     <string name="folderType">Music folder</string>
-    <string name="mediaStartType">Media start</string>
+    <string name="playlistType">Playlist</string>
     <string name="alarm_type_select_title">Source:</string>
     <string name="alarm_test_button">Test</string>
     <string name="keep_screen_on_title">Keep screen on</string>
@@ -76,4 +76,7 @@
     <string name="entry_fifteen_minute">15 minutes</string>
     <string name="entry_thirty_minute">30 minutes</string>
     <string name="prealarm_default_label">Pre-alarm</string>
+    <string name="fullscreen_alarm_settings">Full screen alarms</string>
+    <string name="fullscreen_alarm_title">Full screen alarms</string>
+    <string name="fullscreen_alarm_summary">Use full screen alarms instead of heads up notification</string>
 </resources>
