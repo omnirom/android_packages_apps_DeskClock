@@ -58,7 +58,7 @@
             <View
                 android:id="@+id/divider"
                 android:layout_width="match_parent"
-                android:layout_height="1dip"
+                android:layout_height="2dip"
                 android:layout_marginBottom="8dip"
                 android:background="@color/dialog_gray" />
 
@@ -86,7 +86,5 @@
         </LinearLayout>
 
     </LinearLayout>
-
-    <include layout="@layout/timer_cancel_button" />
 
 </FrameLayout>

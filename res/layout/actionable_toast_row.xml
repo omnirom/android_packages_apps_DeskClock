@@ -47,16 +47,6 @@
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true" >
 
-        <View
-            android:id="@+id/separator"
-            android:layout_width="1dip"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="10dip"
-            android:layout_marginRight="12dip"
-            android:layout_marginEnd="12dip"
-            android:layout_marginTop="10dip"
-            android:background="#aaaaaa" />
-
         <ImageView
             android:id="@+id/action_icon"
             android:layout_width="wrap_content"
@@ -76,7 +66,8 @@
             android:layout_marginStart="4dip"
             android:gravity="center_vertical"
             android:paddingRight="16dip"
-            android:paddingEnd="16dip" />
+            android:paddingEnd="16dip"
+            android:textColor="#ffc107" />
     </LinearLayout>
 
 </merge>
