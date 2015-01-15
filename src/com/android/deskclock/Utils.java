@@ -52,6 +52,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.TextClock;
 import android.widget.TextView;
+import android.util.Log;
 
 import com.android.deskclock.stopwatch.Stopwatches;
 import com.android.deskclock.timer.Timers;
@@ -191,7 +192,7 @@ public class Utils {
      *   any effect on the button press states, and those must be changed separately.
     **/
     public static int getPressedColorId() {
-        return R.color.hot_pink;
+        return R.color.hot_blue;
     }
 
     /**  The un-pressed color used throughout the app. If this method is changed, it will not have
@@ -618,20 +619,29 @@ public class Utils {
     }
 
     /**
-     * To get an array of single-character day of week symbols {'S', 'M', 'T', 'W', 'T', 'F', 'S'}
+     * To get an array of single-character day of week symbols {'S', 'M', 'T', 'W', 'T', 'F', 'S'},
+     * indexed like DateFormatSymbols.getShortWeekdays()
      * @return the array of symbols
      */
     public static String[] getShortWeekdays() {
         if (sShortWeekdays == null) {
-            final String[] shortWeekdays = new String[7];
+            final String[] shortWeekdays = new String[Calendar.SATURDAY + 1];
             final SimpleDateFormat format = new SimpleDateFormat("EEEEE");
             // Create a date (2014/07/20) that is a Sunday
             long aSunday = new GregorianCalendar(2014, Calendar.JULY, 20).getTimeInMillis();
-            for (int day = 0; day < 7; day++) {
-                shortWeekdays[day] = format.format(new Date(aSunday + day * DateUtils.DAY_IN_MILLIS));
+            for (int day = Calendar.SUNDAY; day <= Calendar.SATURDAY; day++) {
+                long offset = (day - Calendar.SUNDAY) * DateUtils.DAY_IN_MILLIS;
+                shortWeekdays[day] = format.format(new Date(aSunday + offset));
             }
             sShortWeekdays = shortWeekdays;
         }
         return sShortWeekdays;
+    }
+
+    /**
+     * after locale change we need to recreate
+     */
+    public static void cleanShortWeekdays() {
+        sShortWeekdays = null;
     }
 }

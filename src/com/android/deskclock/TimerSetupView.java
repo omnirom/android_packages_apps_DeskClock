@@ -114,7 +114,6 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
         for (int i = 0; i < 10; i++) {
             mNumbers[i].setOnClickListener(this);
             mNumbers[i].setText(String.format("%d", i));
-            mNumbers[i].setTextColor(Color.WHITE);
             mNumbers[i].setTag(R.id.numbers_key, new Integer(i));
         }
         updateTime();
@@ -139,7 +138,7 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
         final boolean enabled = isInputHasValue();
         if (mDelete != null) {
             mDelete.setEnabled(enabled);
-            mDivider.setBackgroundResource(enabled ? R.color.hot_pink : R.color.dialog_gray);
+            mDivider.setBackgroundResource(enabled ? R.color.hot_blue : R.color.dialog_gray);
         }
     }
 

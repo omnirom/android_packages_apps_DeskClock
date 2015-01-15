@@ -171,4 +171,5 @@
     <dimen name="hairline_height">1dip</dimen>
 
     <dimen name="alert_dialog_padding_material">24dp</dimen>
+    <dimen name="item_elevation">2dp</dimen>
 </resources>
