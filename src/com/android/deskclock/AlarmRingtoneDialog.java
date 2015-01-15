@@ -38,6 +38,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -48,6 +49,8 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.LinearLayout;
+import android.widget.CursorAdapter;
+import android.widget.SimpleCursorAdapter;
 
 import com.android.deskclock.provider.Alarm;
 
@@ -63,6 +66,7 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     private static final int ALARM_TYPE_RINGTONE = 1;
     private static final int ALARM_TYPE_MUSIC = 2;
     private static final int ALARM_TYPE_FOLDER = 3;
+    private static final int ALARM_TYPE_PLAYLIST = 4;
 
     private static final String KEY_MEDIA_TYPE = "mediaType";
     private static final String KEY_VOLUME = "volume";
@@ -98,9 +102,11 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     private boolean mSpinnerInit;
     private Spinner mPreAlarmTimeSelect;
     private int mPreAlarmTime;
+    private AudioManager mAudioManager;
+    private LinearLayout mMaxVolumeContainer;
 
     public interface AlarmRingtoneDialogListener {
-        void onFinishOk(Alarm alarm);
+        void onFinishOk(Alarm alarm, boolean preAlarm, boolean alarmMedia);
     }
 
     public static AlarmRingtoneDialog newInstance(Alarm alarm, boolean preAlarm, String tag) {
@@ -194,7 +200,8 @@ public class AlarmRingtoneDialog extends DialogFragment implements
             saveChanges(mAlarm);
             Fragment frag = getFragmentManager().findFragmentByTag(mTag);
             if (frag instanceof AlarmClockFragment) {
-                ((AlarmClockFragment) frag).onFinishOk(mAlarm);
+                ((AlarmClockFragment) frag).onFinishOk(mAlarm, mPreAlarm,
+                        mCurrentMediaType == ALARM_TYPE_MUSIC);
             }
         }
     }
@@ -205,10 +212,11 @@ public class AlarmRingtoneDialog extends DialogFragment implements
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View view = inflater
                 .inflate(R.layout.dialog_alarm_ringtone, null);
-        final AudioManager audioManager = (AudioManager) getActivity().getApplicationContext()
+        mAudioManager = (AudioManager) getActivity().getApplicationContext()
                 .getSystemService(Context.AUDIO_SERVICE);
-        final int maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        final int maxVol = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 
+        mMaxVolumeContainer = (LinearLayout) view.findViewById(R.id.alarm_volume_container);
         mMinVolumeText = (TextView) view.findViewById(R.id.alarm_volume_min);
         // must not be 0 if enabled
         mMinVolumeText.setText(String.valueOf(1));
@@ -236,10 +244,12 @@ public class AlarmRingtoneDialog extends DialogFragment implements
             @Override
             public void onClick(View view) {
                 boolean value = mEnabledCheckbox.isChecked();
-                mMaxVolumeSeekBar.setEnabled(!value);
+                mMaxVolumeContainer.setVisibility(value ? View.GONE : View.VISIBLE);
                 if (value) {
                     mVolume = -1;
                 } else {
+                    // wemm enabling set default value to current alarm volume
+                    mMaxVolumeSeekBar.setProgress(calcMusicVolumeFromCurrentAlarm());
                     mVolume = mMaxVolumeSeekBar.getProgress() + 1;
                 }
             }
@@ -353,7 +363,8 @@ public class AlarmRingtoneDialog extends DialogFragment implements
         String[] mimetypes = {"audio/*", "application/ogg"};
         intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
         intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
         startActivityForResult(
                 Intent.createChooser(intent,
                         getResources().getString(R.string.pick_media)),
@@ -412,10 +423,9 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     }
 
     private String getRingToneTitle(Uri uri) {
-        Ringtone ringTone = RingtoneManager.getRingtone(getActivity()
-                .getApplicationContext(), uri);
+        Ringtone ringTone = RingtoneManager.getRingtone(getActivity(), uri);
         if (ringTone != null) {
-            return ringTone.getTitle(getActivity().getApplicationContext());
+            return ringTone.getTitle(getActivity());
         }
         return getResources().getString(R.string.fallback_ringtone);
     }
@@ -573,11 +583,12 @@ public class AlarmRingtoneDialog extends DialogFragment implements
 
         if (mVolume == -1) {
             mEnabledCheckbox.setChecked(true);
-            mMaxVolumeSeekBar.setEnabled(false);
+            mMaxVolumeContainer.setVisibility(View.GONE);
+
         } else {
             mEnabledCheckbox.setChecked(false);
             mMaxVolumeSeekBar.setProgress(mVolume - 1);
-            mMaxVolumeSeekBar.setEnabled(true);
+            mMaxVolumeContainer.setVisibility(View.VISIBLE);
         }
 
         mIncreasingVolume.setChecked(mIncreasingVolumeValue);
@@ -652,6 +663,8 @@ public class AlarmRingtoneDialog extends DialogFragment implements
             launchAlarmMediaPicker();
         } else if (mediaType == ALARM_TYPE_FOLDER) {
             launchFolderPicker();
+        } else if (mediaType == ALARM_TYPE_PLAYLIST) {
+            launchSinglePlaylistPicker();
         }
     }
 
@@ -710,5 +723,48 @@ public class AlarmRingtoneDialog extends DialogFragment implements
             }
         }
         return 0;
+    }
+
+    private int calcMusicVolumeFromCurrentAlarm() {
+        int maxMusicVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        int alarmVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_ALARM);
+        int maxAlarmVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM);
+
+        if (alarmVolume == 0) {
+            return 0;
+        }
+        return (int)(((float)alarmVolume / (float)maxAlarmVolume) * (float)maxMusicVolume);
+    }
+
+    private void launchSinglePlaylistPicker() {
+        final Context context = getActivity().getApplicationContext();
+
+        final String[] projection
+                = new String[]{MediaStore.Audio.Playlists._ID, MediaStore.Audio.Playlists.NAME};
+        Cursor c = context.getContentResolver().query(
+                MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
+                projection, null, null, null);
+
+        final CursorAdapter cursorAdapter
+                = new SimpleCursorAdapter(context, android.R.layout.simple_list_item_1, c,
+                new String[] {MediaStore.Audio.Playlists.NAME}, new int[]{android.R.id.text1}, 0);
+
+        new AlertDialog.Builder(getActivity()).setSingleChoiceItems(cursorAdapter, 0,
+
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Cursor c = (Cursor) cursorAdapter.getItem(which);
+                        if (c != null) {
+                            mRingtone = Uri.withAppendedPath(
+                                    MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
+                                    String.valueOf(c.getLong(0)));
+                        }
+                        dialog.dismiss();
+                        cursorAdapter.changeCursor(null);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 }

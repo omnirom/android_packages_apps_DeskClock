@@ -21,7 +21,7 @@
     android:paddingEnd="4dp"
     android:paddingTop="8dp"
     android:paddingBottom="8dp"
-    android:textColor="@color/clock_white"
-    android:textSize="16sp" >
+    android:textSize="16sp"
+    android:textColor="@color/text_color_light" >
 
 </TextView>

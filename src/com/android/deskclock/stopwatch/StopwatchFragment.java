@@ -828,15 +828,15 @@ public class StopwatchFragment extends DeskClockFragment
                 mLeftButton.setImageResource(R.drawable.ic_lap);
                 mLeftButton.setContentDescription(getString(R.string.sw_lap_button));
                 mLeftButton.setEnabled(false);
-                mLeftButton.setVisibility(View.INVISIBLE);
-                mRightButton.setVisibility(View.INVISIBLE);
+                mLeftButton.setVisibility(View.GONE);
+                mRightButton.setVisibility(View.GONE);
                 break;
             case Stopwatches.STOPWATCH_RUNNING:
                 mLeftButton.setImageResource(R.drawable.ic_lap);
                 mLeftButton.setContentDescription(getString(R.string.sw_lap_button));
                 mLeftButton.setEnabled(!reachedMaxLaps());
                 mLeftButton.setVisibility(View.VISIBLE);
-                mRightButton.setVisibility(View.INVISIBLE);
+                mRightButton.setVisibility(View.GONE);
                 break;
             case Stopwatches.STOPWATCH_STOPPED:
                 mLeftButton.setImageResource(R.drawable.ic_reset);

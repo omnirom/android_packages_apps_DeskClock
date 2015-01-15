@@ -75,8 +75,6 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
     // Check whether to change background every minute
     private static final long BACKGROUND_COLOR_CHECK_DELAY_MILLIS = DateUtils.MINUTE_IN_MILLIS;
     private static final int BACKGROUND_COLOR_INITIAL_ANIMATION_DURATION_MILLIS = 3000;
-    // The depth of fab, use it to create shadow
-    private static final float FAB_DEPTH = 20f;
     private static final int UNKNOWN_COLOR_ID = 0;
 
     private boolean mIsFirstLaunch = true;
@@ -94,13 +92,13 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
     private ImageButton mRightButton;
     private int mSelectedTab;
     private int mLastHourColor = UNKNOWN_COLOR_ID;
-    private final Runnable mBackgroundColorChanger = new Runnable() {
+    /*private final Runnable mBackgroundColorChanger = new Runnable() {
         @Override
         public void run() {
             setBackgroundColor();
             mHander.postDelayed(this, BACKGROUND_COLOR_CHECK_DELAY_MILLIS);
         }
-    };
+    };*/
 
     public static final int ALARM_TAB_INDEX = 0;
     public static final int CLOCK_TAB_INDEX = 1;
@@ -123,13 +121,13 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         if (mHander == null) {
             mHander = new Handler();
         }
-        mHander.postDelayed(mBackgroundColorChanger, BACKGROUND_COLOR_CHECK_DELAY_MILLIS);
+        //mHander.postDelayed(mBackgroundColorChanger, BACKGROUND_COLOR_CHECK_DELAY_MILLIS);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mHander.removeCallbacks(mBackgroundColorChanger);
+        //mHander.removeCallbacks(mBackgroundColorChanger);
     }
 
     @Override
@@ -161,9 +159,13 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         setContentView(R.layout.desk_clock);
         mFab = (ImageButton) findViewById(R.id.fab);
         mFab.setOutlineProvider(OVAL_OUTLINE_PROVIDER);
-        mFab.setTranslationZ(FAB_DEPTH);
+
         mLeftButton = (ImageButton) findViewById(R.id.left_button);
+        mLeftButton.setOutlineProvider(OVAL_OUTLINE_PROVIDER);
+
         mRightButton = (ImageButton) findViewById(R.id.right_button);
+        mRightButton.setOutlineProvider(OVAL_OUTLINE_PROVIDER);
+
         if (mTabsAdapter == null) {
             mViewPager = (ViewPager) findViewById(R.id.desk_clock_pager);
             // Keep all four tabs to minimize jank.
@@ -202,7 +204,6 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         mActionBar = getActionBar();
 
         if (mActionBar != null) {
-            mActionBar.setDisplayOptions(0);
             mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
             mAlarmTab = mActionBar.newTab();
@@ -235,16 +236,12 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         super.onCreate(icicle);
 
         mIsFirstLaunch = (icicle == null);
-        getWindow().setBackgroundDrawable(null);
+        //getWindow().setBackgroundDrawable(null);
 
         mIsFirstLaunch = true;
         mSelectedTab = CLOCK_TAB_INDEX;
         if (icicle != null) {
             mSelectedTab = icicle.getInt(KEY_SELECTED_TAB, CLOCK_TAB_INDEX);
-            mLastHourColor = icicle.getInt(KEY_LAST_HOUR_COLOR, UNKNOWN_COLOR_ID);
-            if (mLastHourColor != UNKNOWN_COLOR_ID) {
-                getWindow().getDecorView().setBackgroundColor(mLastHourColor);
-            }
         }
 
         // Timer receiver may ask the app to go to the timer fragment if a timer expired
@@ -256,6 +253,13 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
             }
         }
         initViews();
+
+        if (icicle != null) {
+            mLastHourColor = icicle.getInt(KEY_LAST_HOUR_COLOR, UNKNOWN_COLOR_ID);
+            if (mLastHourColor != UNKNOWN_COLOR_ID) {
+                //mViewPager.setBackgroundColor(mLastHourColor);
+            }
+        }
         setHomeTimeZone();
 
         // We need to update the system next alarm time on app startup because the
@@ -268,7 +272,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
     protected void onResume() {
         super.onResume();
 
-        setBackgroundColor();
+        //setBackgroundColor();
 
         // We only want to show notifications for stopwatch/timer when the app is closed so
         // that we don't have to worry about keeping the notifications in perfect sync with
@@ -419,7 +423,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         }
         final int currHourColor = Utils.getCurrentHourColor();
         if (mLastHourColor != currHourColor) {
-            final ObjectAnimator animator = ObjectAnimator.ofInt(getWindow().getDecorView(),
+            final ObjectAnimator animator = ObjectAnimator.ofInt(mViewPager,
                     "backgroundColor", mLastHourColor, currHourColor);
             animator.setDuration(duration);
             animator.setEvaluator(new ArgbEvaluator());

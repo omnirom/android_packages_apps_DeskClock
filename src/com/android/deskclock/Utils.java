@@ -52,15 +52,23 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.TextClock;
 import android.widget.TextView;
+import android.util.Log;
 
 import com.android.deskclock.stopwatch.Stopwatches;
 import com.android.deskclock.timer.Timers;
 import com.android.deskclock.worldclock.CityObj;
+import com.android.deskclock.worldclock.db.DbCities;
+import com.android.deskclock.worldclock.db.DbCity;
 
+import java.text.Collator;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -191,7 +199,7 @@ public class Utils {
      *   any effect on the button press states, and those must be changed separately.
     **/
     public static int getPressedColorId() {
-        return R.color.hot_pink;
+        return R.color.hot_blue;
     }
 
     /**  The un-pressed color used throughout the app. If this method is changed, it will not have
@@ -559,7 +567,10 @@ public class Utils {
     }
 
     public static CityObj[] loadCitiesFromXml(Context c) {
+        final Collator collator = Collator.getInstance();
         Resources r = c.getResources();
+
+        // Get list of cities defined by the app (App-defined has the prefix C)
         // Read strings array of name,timezone, id
         // make sure the list are the same length
         String[] cities = r.getStringArray(R.array.cities_names);
@@ -570,11 +581,22 @@ public class Utils {
             minLength = Math.min(cities.length, Math.min(timezones.length, ids.length));
             LogUtils.e("City lists sizes are not the same, truncating");
         }
-        CityObj[] tempList = new CityObj[minLength];
-        for (int i = 0; i < cities.length; i++) {
-            tempList[i] = new CityObj(cities[i], timezones[i], ids[i]);
+
+        List<CityObj> tempList = new ArrayList<CityObj>(minLength);
+        for (int i = 0; i < minLength; i++) {
+            tempList.add(new CityObj(cities[i], timezones[i], ids[i]));
         }
-        return tempList;
+
+        // Get the list of user-defined cities (User-defined has the prefix UD)
+        List<DbCity> dbcities = DbCities.getCities(c.getContentResolver());
+        for (int i = 0; i < dbcities.size(); i++) {
+            DbCity dbCity = dbcities.get(i);
+            CityObj city = new CityObj(dbCity.name, dbCity.tz, "UD" + dbCity.id);
+            city.mUserDefined = true;
+            tempList.add(city);
+        }
+
+        return tempList.toArray(new CityObj[tempList.size()]);
     }
 
     /**
@@ -618,20 +640,29 @@ public class Utils {
     }
 
     /**
-     * To get an array of single-character day of week symbols {'S', 'M', 'T', 'W', 'T', 'F', 'S'}
+     * To get an array of single-character day of week symbols {'S', 'M', 'T', 'W', 'T', 'F', 'S'},
+     * indexed like DateFormatSymbols.getShortWeekdays()
      * @return the array of symbols
      */
     public static String[] getShortWeekdays() {
         if (sShortWeekdays == null) {
-            final String[] shortWeekdays = new String[7];
+            final String[] shortWeekdays = new String[Calendar.SATURDAY + 1];
             final SimpleDateFormat format = new SimpleDateFormat("EEEEE");
             // Create a date (2014/07/20) that is a Sunday
             long aSunday = new GregorianCalendar(2014, Calendar.JULY, 20).getTimeInMillis();
-            for (int day = 0; day < 7; day++) {
-                shortWeekdays[day] = format.format(new Date(aSunday + day * DateUtils.DAY_IN_MILLIS));
+            for (int day = Calendar.SUNDAY; day <= Calendar.SATURDAY; day++) {
+                long offset = (day - Calendar.SUNDAY) * DateUtils.DAY_IN_MILLIS;
+                shortWeekdays[day] = format.format(new Date(aSunday + offset));
             }
             sShortWeekdays = shortWeekdays;
         }
         return sShortWeekdays;
+    }
+
+    /**
+     * after locale change we need to recreate
+     */
+    public static void cleanShortWeekdays() {
+        sShortWeekdays = null;
     }
 }

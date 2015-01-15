@@ -267,22 +267,23 @@ public class CountingTimerView extends View {
         mAccessibilityManager =
                 (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
         Resources r = context.getResources();
-        mWhiteColor = r.getColor(R.color.clock_white);
+        mWhiteColor = r.getColor(R.color.text_color_light);
         mDefaultColor = mWhiteColor;
-        mPressedColor = r.getColor(R.color.hot_pink);
-        mAccentColor = r.getColor(R.color.hot_pink);
+        mPressedColor = r.getColor(R.color.hot_blue);
+        mAccentColor = r.getColor(R.color.hot_blue);
         mBigFontSize = r.getDimension(R.dimen.big_font_size);
         mSmallFontSize = r.getDimension(R.dimen.small_font_size);
 
         Typeface androidClockMonoThin = Typeface.
                 createFromAsset(context.getAssets(), "fonts/AndroidClockMono-Thin.ttf");
+        Typeface androidClockMonoLight = Typeface.
+                createFromAsset(context.getAssets(), "fonts/AndroidClockMono-Light.ttf");
+
         mPaintBigThin.setAntiAlias(true);
         mPaintBigThin.setStyle(Paint.Style.STROKE);
         mPaintBigThin.setTextAlign(Paint.Align.CENTER);
-        mPaintBigThin.setTypeface(androidClockMonoThin);
+        mPaintBigThin.setTypeface(androidClockMonoLight);
 
-        Typeface androidClockMonoLight = Typeface.
-                createFromAsset(context.getAssets(), "fonts/AndroidClockMono-Light.ttf");
         mPaintMed.setAntiAlias(true);
         mPaintMed.setStyle(Paint.Style.STROKE);
         mPaintMed.setTextAlign(Paint.Align.CENTER);
