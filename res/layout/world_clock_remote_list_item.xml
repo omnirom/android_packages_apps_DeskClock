@@ -37,7 +37,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/widget_medium_thin"
-                android:textColor="@color/clock_white"
                 android:baselineAligned="true"
                 android:layout_gravity="center"
                 android:gravity="center" />
@@ -53,8 +52,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
-                    android:singleLine="true"
-                    android:textColor="@color/clock_white" />
+                    android:singleLine="true"/>
 
                 <TextView
                     android:id="@+id/city_day_left"
@@ -82,7 +80,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/widget_medium_thin"
-                android:textColor="@color/clock_white"
                 android:baselineAligned="true"
                 android:layout_gravity="center"
                 android:gravity="center" />
@@ -99,8 +96,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
-                    android:singleLine="true"
-                    android:textColor="@color/clock_white" />
+                    android:singleLine="true"/>
 
                 <TextView
                     android:id="@+id/city_day_right"

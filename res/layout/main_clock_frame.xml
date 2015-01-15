@@ -18,7 +18,10 @@
     android:id="@+id/main_clock_frame"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:paddingBottom="10dp"
+    android:elevation="@dimen/item_elevation"
+    android:background="@color/white"  >
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -45,8 +48,7 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:ellipsize="none"
-            style="@style/big_thin"
-            android:textColor="@color/clock_white" />
+            style="@style/big_normal" />
 
     </FrameLayout>
     <LinearLayout
@@ -64,17 +66,18 @@
             android:layout_marginLeft="8dip"
             android:layout_marginStart="8dip"
             android:drawablePadding="2dip"
-            android:drawableLeft="@drawable/ic_alarm_small"
-            android:drawableStart="@drawable/ic_alarm_small"
+            android:drawableLeft="@drawable/ic_alarm_small_blue"
+            android:drawableStart="@drawable/ic_alarm_small_blue"
             android:gravity="center"
+            android:textColor="@color/hot_blue"
             android:textAppearance="@style/SecondaryLabelTextAppearance" />
     </LinearLayout>
 
-    <View
+    <!--<View
         android:id="@+id/hairline"
         android:layout_width="match_parent"
         android:layout_height="@dimen/hairline_height"
         android:layout_marginTop="24dip"
-        android:background="@color/hairline" />
+        android:background="@color/hairline" />-->
 </LinearLayout>
 

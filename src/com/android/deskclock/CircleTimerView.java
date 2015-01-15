@@ -120,8 +120,8 @@ public class CircleTimerView extends View {
                 mStrokeSize, dotDiameter, mMarkerStrokeSize);
         mPaint.setAntiAlias(true);
         mPaint.setStyle(Paint.Style.STROKE);
-        mWhiteColor = resources.getColor(R.color.clock_white);
-        mAccentColor = resources.getColor(R.color.hot_pink);
+        mWhiteColor = resources.getColor(R.color.black_87p);
+        mAccentColor = resources.getColor(R.color.hot_blue);
         mScreenDensity = resources.getDisplayMetrics().density;
         mFill.setAntiAlias(true);
         mFill.setStyle(Paint.Style.FILL);

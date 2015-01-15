@@ -202,7 +202,6 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         mActionBar = getActionBar();
 
         if (mActionBar != null) {
-            mActionBar.setDisplayOptions(0);
             mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
             mAlarmTab = mActionBar.newTab();
@@ -235,16 +234,12 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         super.onCreate(icicle);
 
         mIsFirstLaunch = (icicle == null);
-        getWindow().setBackgroundDrawable(null);
+        //getWindow().setBackgroundDrawable(null);
 
         mIsFirstLaunch = true;
         mSelectedTab = CLOCK_TAB_INDEX;
         if (icicle != null) {
             mSelectedTab = icicle.getInt(KEY_SELECTED_TAB, CLOCK_TAB_INDEX);
-            mLastHourColor = icicle.getInt(KEY_LAST_HOUR_COLOR, UNKNOWN_COLOR_ID);
-            if (mLastHourColor != UNKNOWN_COLOR_ID) {
-                getWindow().getDecorView().setBackgroundColor(mLastHourColor);
-            }
         }
 
         // Timer receiver may ask the app to go to the timer fragment if a timer expired
@@ -256,6 +251,13 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
             }
         }
         initViews();
+
+        if (icicle != null) {
+            mLastHourColor = icicle.getInt(KEY_LAST_HOUR_COLOR, UNKNOWN_COLOR_ID);
+            if (mLastHourColor != UNKNOWN_COLOR_ID) {
+                //mViewPager.setBackgroundColor(mLastHourColor);
+            }
+        }
         setHomeTimeZone();
 
         // We need to update the system next alarm time on app startup because the
@@ -419,11 +421,11 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         }
         final int currHourColor = Utils.getCurrentHourColor();
         if (mLastHourColor != currHourColor) {
-            final ObjectAnimator animator = ObjectAnimator.ofInt(getWindow().getDecorView(),
+            /*final ObjectAnimator animator = ObjectAnimator.ofInt(mViewPager,
                     "backgroundColor", mLastHourColor, currHourColor);
             animator.setDuration(duration);
             animator.setEvaluator(new ArgbEvaluator());
-            animator.start();
+            animator.start();*/
             mLastHourColor = currHourColor;
         }
     }

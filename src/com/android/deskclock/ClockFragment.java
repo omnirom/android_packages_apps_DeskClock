@@ -50,7 +50,7 @@ public class ClockFragment extends DeskClockFragment implements OnSharedPreferen
     private final static String TAG = "ClockFragment";
 
     private boolean mButtonsHidden = false;
-    private View mDigitalClock, mAnalogClock, mClockFrame, mHairline;
+    private View mDigitalClock, mAnalogClock, mClockFrame/*, mHairline*/;
     private WorldClockAdapter mAdapter;
     private ListView mList;
     private SharedPreferences mPrefs;
@@ -124,7 +124,6 @@ public class ClockFragment extends DeskClockFragment implements OnSharedPreferen
             mButtonsHidden = icicle.getBoolean(BUTTONS_HIDDEN_KEY, false);
         }
         mList = (ListView) v.findViewById(R.id.cities);
-        mList.setDivider(null);
 
         OnTouchListener longPressNightMode = new OnTouchListener() {
             private float mMaxMovementAllowed = -1;
@@ -169,14 +168,14 @@ public class ClockFragment extends DeskClockFragment implements OnSharedPreferen
         // On tablet landscape, the clock frame will be a distinct view. Otherwise, it'll be added
         // on as a header to the main listview.
         mClockFrame = v.findViewById(R.id.main_clock_left_pane);
-        mHairline = v.findViewById(R.id.hairline);
+        //mHairline = v.findViewById(R.id.hairline);
         if (mClockFrame == null) {
             mClockFrame = inflater.inflate(R.layout.main_clock_frame, mList, false);
-            mHairline = mClockFrame.findViewById(R.id.hairline);
-            mHairline.setVisibility(View.VISIBLE);
+            //mHairline = mClockFrame.findViewById(R.id.hairline);
+            //mHairline.setVisibility(View.VISIBLE);
             mList.addHeaderView(mClockFrame, null, false);
         } else {
-            mHairline.setVisibility(View.GONE);
+            //mHairline.setVisibility(View.GONE);
             // The main clock frame needs its own touch listener for night mode now.
             v.setOnTouchListener(longPressNightMode);
         }
@@ -184,10 +183,10 @@ public class ClockFragment extends DeskClockFragment implements OnSharedPreferen
 
         // If the current layout has a fake overflow menu button, let the parent
         // activity set up its click and touch listeners.
-        View menuButton = v.findViewById(R.id.menu_button);
+        /*View menuButton = v.findViewById(R.id.menu_button);
         if (menuButton != null) {
             setupFakeOverflowMenuButton(menuButton);
-        }
+        }*/
 
         mDigitalClock = mClockFrame.findViewById(R.id.digital_clock);
         mAnalogClock = mClockFrame.findViewById(R.id.analog_clock);
@@ -197,12 +196,13 @@ public class ClockFragment extends DeskClockFragment implements OnSharedPreferen
         mList.addFooterView(footerView, null, false);
         mAdapter = new WorldClockAdapter(getActivity());
         if (mAdapter.getCount() == 0) {
-            mHairline.setVisibility(View.GONE);
+            //mHairline.setVisibility(View.GONE);
         }
         mList.setAdapter(mAdapter);
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mDefaultClockStyle = getActivity().getResources().getString(R.string.default_clock_style);
+
         return v;
     }
 
