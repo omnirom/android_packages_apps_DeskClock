@@ -16,6 +16,7 @@
 
 package com.android.deskclock.widget;
 
+import android.R;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -26,26 +27,18 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.android.deskclock.R;
-
 class SlidingTabStrip extends LinearLayout {
 
-    private static final int DEFAULT_BOTTOM_BORDER_THICKNESS_DIPS = 2;
-    private static final byte DEFAULT_BOTTOM_BORDER_COLOR_ALPHA = 0x26;
     private static final int SELECTED_INDICATOR_THICKNESS_DIPS = 2;
     private static final int DEFAULT_SELECTED_INDICATOR_COLOR = 0xFF33B5E5;
 
     private static final int DEFAULT_DIVIDER_THICKNESS_DIPS = 0;
-    private static final byte DEFAULT_DIVIDER_COLOR_ALPHA = 0x20;
+    private static final int DEFAULT_DIVIDER_COLOR_ALPHA = 0x20;
     private static final float DEFAULT_DIVIDER_HEIGHT = 0.5f;
-
-    private final int mBottomBorderThickness;
-    private final Paint mBottomBorderPaint;
+    private static final int DISABLED_TAB_TEXT_COLOR_ALPHA = 0x8A;
 
     private final int mSelectedIndicatorThickness;
     private final Paint mSelectedIndicatorPaint;
-
-    private final int mDefaultBottomBorderColor;
 
     private final Paint mDividerPaint;
     private final float mDividerHeight;
@@ -68,19 +61,24 @@ class SlidingTabStrip extends LinearLayout {
         setWillNotDraw(false);
 
         final float density = getResources().getDisplayMetrics().density;
-        final int themeForegroundColor = getResources().getColor(R.color.white);
 
-        mDefaultBottomBorderColor = setColorAlpha(themeForegroundColor,
-                DEFAULT_BOTTOM_BORDER_COLOR_ALPHA);
+        TypedValue outValue = new TypedValue();
+
+        context.getTheme().resolveAttribute(R.attr.colorPrimary, outValue, true);
+        final int themeBackgroundColor =  outValue.data;
+        setBackgroundColor(themeBackgroundColor);
+
+        context.getTheme().resolveAttribute(R.attr.textColorPrimary, outValue, true);
+        mTextPrimaryColor =  outValue.data;
+
+        mTextPrimaryColorDisabled = setColorAlpha(mTextPrimaryColor,
+                DISABLED_TAB_TEXT_COLOR_ALPHA);
 
         mDefaultTabColorizer = new SimpleTabColorizer();
         mDefaultTabColorizer.setIndicatorColors(DEFAULT_SELECTED_INDICATOR_COLOR);
-        mDefaultTabColorizer.setDividerColors(setColorAlpha(themeForegroundColor,
+        mDefaultTabColorizer.setDividerColors(setColorAlpha(mTextPrimaryColor,
                 DEFAULT_DIVIDER_COLOR_ALPHA));
-
-        mBottomBorderThickness = (int) (DEFAULT_BOTTOM_BORDER_THICKNESS_DIPS * density);
-        mBottomBorderPaint = new Paint();
-        mBottomBorderPaint.setColor(mDefaultBottomBorderColor);
+        setSelectedIndicatorColors(mTextPrimaryColor);
 
         mSelectedIndicatorThickness = (int) (SELECTED_INDICATOR_THICKNESS_DIPS * density);
         mSelectedIndicatorPaint = new Paint();
@@ -88,9 +86,10 @@ class SlidingTabStrip extends LinearLayout {
         mDividerHeight = DEFAULT_DIVIDER_HEIGHT;
         mDividerPaint = new Paint();
         mDividerPaint.setStrokeWidth((int) (DEFAULT_DIVIDER_THICKNESS_DIPS * density));
+    }
 
-        mTextPrimaryColor =  getResources().getColor(R.color.white);
-        mTextPrimaryColorDisabled =  getResources().getColor(R.color.white_54p);
+    int getTextColor() {
+        return mTextPrimaryColor;
     }
 
     void setCustomTabColorizer(SlidingTabLayout.TabColorizer customTabColorizer) {
@@ -155,9 +154,6 @@ class SlidingTabStrip extends LinearLayout {
                     height, mSelectedIndicatorPaint);
         }
 
-        // Thin underline along the entire bottom edge
-        //canvas.drawRect(0, height - mBottomBorderThickness, getWidth(), height, mBottomBorderPaint);
-
         // Vertical separators between the titles
         int separatorTop = (height - dividerHeightPx) / 2;
         for (int i = 0; i < childCount - 1; i++) {
@@ -171,7 +167,7 @@ class SlidingTabStrip extends LinearLayout {
     /**
      * Set the alpha value of the {@code color} to be the given {@code alpha} value.
      */
-    private static int setColorAlpha(int color, byte alpha) {
+    private static int setColorAlpha(int color, int alpha) {
         return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
     }
 

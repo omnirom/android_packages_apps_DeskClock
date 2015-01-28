@@ -23,7 +23,7 @@
     <dimen name="clock_side_padding">128dip</dimen>
     <dimen name="clock_side_padding_reduced">116dip</dimen>
 
-    <dimen name="big_font_size">152sp</dimen>
+    <dimen name="big_font_size">130sp</dimen>
     <dimen name="medium_font_size">80sp</dimen>
     <dimen name="small_font_size">60sp</dimen>
 
