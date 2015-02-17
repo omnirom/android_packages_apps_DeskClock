@@ -28,6 +28,7 @@
         <item name="android:alertDialogTheme">@style/DialogTheme</item>
         <item name="android:colorPrimary">@color/hot_blue</item>
         <item name="android:colorPrimaryDark">@color/hot_blue_dark</item>
+        <item name="android:navigationBarColor">@color/hot_blue_dark</item>
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:colorControlActivated">@color/hot_blue</item>
         <item name="android:textColor">@color/text_color_light</item>
