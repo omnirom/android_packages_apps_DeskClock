@@ -538,7 +538,7 @@ public class TimerFullScreenFragment extends DeskClockFragment
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        updateAllTimesUpTimers(false /* stop */);
+                        updateAllTimesUpTimers(true /* stop */);
                     }
                 }, TimerFragment.ANIMATION_TIME_MILLIS);
             }
@@ -785,6 +785,7 @@ public class TimerFullScreenFragment extends DeskClockFragment
                 updateTimersState(t, Timers.TIMER_UPDATE);
                 break;
             case TimerObj.STATE_TIMESUP:
+                cancelTimerNotification(t.mTimerId);
                 // +1 min when the time is up will restart the timer with 1 minute left.
                 t.mState = TimerObj.STATE_RUNNING;
                 t.mStartTime = Utils.getTimeNow();
@@ -792,7 +793,6 @@ public class TimerFullScreenFragment extends DeskClockFragment
                 updateTimersState(t, Timers.TIMER_RESET);
                 updateTimersState(t, Timers.START_TIMER);
                 updateTimesUpMode(t);
-                cancelTimerNotification(t.mTimerId);
                 break;
             case TimerObj.STATE_STOPPED:
             case TimerObj.STATE_DONE:
@@ -825,8 +825,8 @@ public class TimerFullScreenFragment extends DeskClockFragment
                 updateTimersState(t, Timers.START_TIMER);
                 break;
             case TimerObj.STATE_TIMESUP:
+                cancelTimerNotification(t.mTimerId);
                 if (t.mDeleteAfterUse) {
-                    cancelTimerNotification(t.mTimerId);
                     // Tell receiver the timer was deleted.
                     // It will stop all activity related to the
                     // timer
@@ -839,7 +839,6 @@ public class TimerFullScreenFragment extends DeskClockFragment
                         ((TimerListItem) t.mView).done();
                     }
                     updateTimersState(t, Timers.TIMER_DONE);
-                    cancelTimerNotification(t.mTimerId);
                     updateTimesUpMode(t);
                 }
                 break;
@@ -901,6 +900,9 @@ public class TimerFullScreenFragment extends DeskClockFragment
 
     private void cancelTimerNotification(int timerId) {
         mNotificationManager.cancel(timerId);
+        if (Timers.LOGGING) {
+            Log.v(TAG, "Canceling times-up notification for " + timerId);
+        }
     }
 
     private void updateTimesUpMode(TimerObj timerObj) {

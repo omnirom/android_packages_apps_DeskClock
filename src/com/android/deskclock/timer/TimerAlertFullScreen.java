@@ -84,15 +84,10 @@ public class TimerAlertFullScreen extends Activity implements OnEmptyListListene
         super.onResume();
 
         getWindow().getDecorView().setBackgroundColor(Utils.getCurrentHourColor());
-
-        // Only show notifications for times-up when this activity closed.
-        Utils.cancelTimesUpNotifications(this);
     }
 
     @Override
     public void onPause() {
-        Utils.showTimesUpNotifications(this);
-
         super.onPause();
     }
 
