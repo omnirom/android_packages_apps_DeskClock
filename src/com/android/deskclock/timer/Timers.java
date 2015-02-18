@@ -41,7 +41,6 @@ public class Timers {
     public static final String NOTIF_TIMES_UP_STOP = "notif_times_up_stop";
     public static final String NOTIF_TIMES_UP_PLUS_ONE = "notif_times_up_plus_one";
     public static final String NOTIF_TIMES_UP_SHOW = "notif_times_up_show";
-    public static final String NOTIF_TIMES_UP_CANCEL = "notif_times_up_cancel";
     public static final String FROM_ALERT = "from_alert";
 
     public static final String TIMESUP_MODE = "times_up";

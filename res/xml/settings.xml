@@ -110,4 +110,18 @@
             android:key="shake_action_setting"
             android:title="@string/shake_action_title" />
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/timer_settings" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="timer_alarm_custom"
+            android:summary="@string/timer_alarm_custom_summary"
+            android:title="@string/timer_alarm_custom_title" />
+        <RingtonePreference
+            android:key="timer_alarm"
+            android:title="@string/timer_alarm_title"
+            android:ringtoneType="alarm"
+            android:showSilent="false"
+            android:showDefault="true"
+            android:dependency="timer_alarm_custom" />
+    </PreferenceCategory>
 </PreferenceScreen>
