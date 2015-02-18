@@ -96,4 +96,8 @@
     <string name="cities_delete_city_title">Delete city</string>
     <string name="cities_delete_city_msg">Do you want to delete <xliff:g id="city">%s</xliff:g>?</string>
     <string name="cities_delete_city_failed">Can\'t delete the city</string>
+    <string name="timer_settings">Timer</string>
+    <string name="timer_alarm_title">Ringtone</string>
+    <string name="timer_alarm_custom_title">Custom timer ringtone</string>
+    <string name="timer_alarm_custom_summary"></string>
 </resources>

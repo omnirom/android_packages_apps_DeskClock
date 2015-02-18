@@ -70,9 +70,6 @@ public class TimerReceiver extends BroadcastReceiver {
         } else if (Timers.NOTIF_TIMES_UP_SHOW.equals(actionType)) {
             showTimesUpNotification(context);
             return;
-        } else if (Timers.NOTIF_TIMES_UP_CANCEL.equals(actionType)) {
-            cancelTimesUpNotification(context);
-            return;
         }
 
         // Remaining actions provide a timer Id
@@ -115,12 +112,6 @@ public class TimerReceiver extends BroadcastReceiver {
 
             cancelTimesUpNotification(context, t);
             showTimesUpNotification(context, t);
-
-            // Start the TimerAlertFullScreen activity.
-            //Intent timersAlert = new Intent(context, TimerAlertFullScreen.class);
-            //timersAlert.setFlags(
-            //        Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION);
-            //context.startActivity(timersAlert);
         } else if (Timers.TIMER_RESET.equals(actionType)
                 || Timers.DELETE_TIMER.equals(actionType)
                 || Timers.TIMER_DONE.equals(actionType)) {
@@ -189,11 +180,11 @@ public class TimerReceiver extends BroadcastReceiver {
             }
 
             // Refresh buzzing notification
-            /*if (t.mState == TimerObj.STATE_TIMESUP) {
+            if (t.mState == TimerObj.STATE_TIMESUP) {
                 // Must cancel the previous notification to get all updates displayed correctly
                 cancelTimesUpNotification(context, t);
                 showTimesUpNotification(context, t);
-            }*/
+            }
         }
         // Update the next "Times up" alarm
         updateNextTimesup(context);

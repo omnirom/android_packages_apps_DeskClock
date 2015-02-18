@@ -21,12 +21,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+
+import java.io.IOException;
 
 /**
  * Play the timer's ringtone. Will continue playing the same alarm until service is stopped.
@@ -127,9 +133,7 @@ public class TimerRingService extends Service implements AudioManager.OnAudioFoc
                 setDataSourceFromResource(getResources(), mMediaPlayer,
                         R.raw.in_call_alarm);
             } else {
-                AssetFileDescriptor afd = getAssets().openFd("sounds/Timer_Expire.ogg");
-                mMediaPlayer.setDataSource(
-                        afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+                setTimerAlarm();
             }
             startAlarm(mMediaPlayer);
         } catch (Exception ex) {
@@ -202,5 +206,26 @@ public class TimerRingService extends Service implements AudioManager.OnAudioFoc
     @Override
     public void onAudioFocusChange(int focusChange) {
         // Do nothing
+    }
+
+    private void setTimerAlarm() throws IOException  {
+        Uri alarmNoise = null;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        final boolean customAlarmNoise = prefs.getBoolean(SettingsActivity.KEY_TIMER_ALARM_CUSTOM, false);
+        if (customAlarmNoise) {
+            alarmNoise = RingtoneManager.getActualDefaultRingtoneUri(this,
+                    RingtoneManager.TYPE_ALARM);
+            String alarmNoiseStr = prefs.getString(SettingsActivity.KEY_TIMER_ALARM, null);
+            if (alarmNoiseStr != null) {
+                alarmNoise = Uri.parse(alarmNoiseStr);
+            }
+        }
+        if (alarmNoise == null) {
+            AssetFileDescriptor afd = getAssets().openFd("sounds/Timer_Expire.ogg");
+            mMediaPlayer.setDataSource(
+                afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+        } else {
+            mMediaPlayer.setDataSource(this, alarmNoise);
+        }
     }
 }

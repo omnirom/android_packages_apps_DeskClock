@@ -20,14 +20,21 @@ import android.app.ActionBar;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.content.ContentResolver;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.preference.RingtonePreference;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -81,6 +88,10 @@ public class SettingsActivity extends PreferenceActivity
             "pre_alarm_dismiss_all";
     public static final String KEY_FULLSCREEN_ALARM =
             "fullscreen_alarm";
+    public static final String KEY_TIMER_ALARM =
+            "timer_alarm";
+    public static final String KEY_TIMER_ALARM_CUSTOM =
+            "timer_alarm_custom";
 
     // default action for alarm action
     public static final String DEFAULT_ALARM_ACTION = "0";
@@ -92,7 +103,7 @@ public class SettingsActivity extends PreferenceActivity
 
     private static CharSequence[][] mTimezones;
     private long mTime;
-
+    private RingtonePreference mTimerAlarmPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +125,9 @@ public class SettingsActivity extends PreferenceActivity
         listPref.setEntries(mTimezones[1]);
         listPref.setSummary(listPref.getEntry());
         listPref.setOnPreferenceChangeListener(this);
+
+        mTimerAlarmPref = (RingtonePreference) findPreference(KEY_TIMER_ALARM);
+        mTimerAlarmPref.setOnPreferenceChangeListener(this);
     }
 
     @Override
@@ -188,6 +202,8 @@ public class SettingsActivity extends PreferenceActivity
             boolean state =(Boolean) newValue;
             Settings.System.putInt(this.getContentResolver(),
 	                Settings.System.SHOW_ALARM_FULLSCREEN, state ? 1 : 0);
+        }  else if (KEY_TIMER_ALARM.equals(pref.getKey())) {
+            setTimerAlarmSummary();
         }
         return true;
     }
@@ -266,6 +282,8 @@ public class SettingsActivity extends PreferenceActivity
         fullscreenAlarm.setChecked(Settings.System.getInt(this.getContentResolver(),
 	            Settings.System.SHOW_ALARM_FULLSCREEN, 0) == 1);
         fullscreenAlarm.setOnPreferenceChangeListener(this);
+
+        setTimerAlarmSummary();
     }
 
     private class TimeZoneRow implements Comparable<TimeZoneRow> {
@@ -345,4 +363,14 @@ public class SettingsActivity extends PreferenceActivity
         return timeZones;
     }
 
+    private void setTimerAlarmSummary() {
+        Uri defaultAlarmNoise = RingtoneManager.getActualDefaultRingtoneUri(this,
+                RingtoneManager.TYPE_ALARM);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String soundValue = prefs.getString(KEY_TIMER_ALARM, null);
+        Uri soundUri = TextUtils.isEmpty(soundValue) ? defaultAlarmNoise : Uri.parse(soundValue);
+        Ringtone tone = soundUri != null ? RingtoneManager.getRingtone(this, soundUri) : null;
+        mTimerAlarmPref.setSummary(tone != null ? tone.getTitle(this) : "");
+    }
 }
