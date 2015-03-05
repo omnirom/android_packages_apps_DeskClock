@@ -224,6 +224,7 @@ public class AlarmKlaxon {
             final AlarmInstance instance, final boolean inTelephoneCall, final Uri alarmNoise) {
 
         sMediaPlayer = new MediaPlayer();
+        sMediaPlayer.setAudioAttributes(VIBRATION_ATTRIBUTES);
         sMediaPlayer.setOnErrorListener(new OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
