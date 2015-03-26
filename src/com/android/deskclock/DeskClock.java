@@ -77,6 +77,11 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
     private static final int BACKGROUND_COLOR_INITIAL_ANIMATION_DURATION_MILLIS = 3000;
     private static final int UNKNOWN_COLOR_ID = 0;
 
+    private ActionBar mActionBar;
+    private Tab mAlarmTab;
+    private Tab mClockTab;
+    private Tab mTimerTab;
+    private Tab mStopwatchTab;
     private ViewPager mViewPager;
     private TabsAdapter mTabsAdapter;
     private Handler mHander;
@@ -90,7 +95,12 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
     public static final int CLOCK_TAB_INDEX = 1;
     public static final int TIMER_TAB_INDEX = 2;
     public static final int STOPWATCH_TAB_INDEX = 3;
-
+    // Tabs indices are switched for right-to-left since there is no
+    // native support for RTL in the ViewPager.
+    public static final int RTL_ALARM_TAB_INDEX = 3;
+    public static final int RTL_CLOCK_TAB_INDEX = 2;
+    public static final int RTL_TIMER_TAB_INDEX = 1;
+    public static final int RTL_STOPWATCH_TAB_INDEX = 0;
     public static final String SELECT_TAB_INTENT_EXTRA = "deskclock.select.tab";
 
     // TODO(rachelzhang): adding a broadcast receiver to adjust color when the timezone/time
@@ -121,7 +131,8 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         // Timer receiver may ask to go to the timers fragment if a timer expired.
         int tab = newIntent.getIntExtra(SELECT_TAB_INTENT_EXTRA, -1);
         if (tab != -1) {
-            mViewPager.setCurrentItem(tab);
+            if (mActionBar != null) {
+                mActionBar.setSelectedNavigationItem(tab);
         }
     }
 
@@ -154,14 +165,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
             getActionBar().setElevation(0);
             mViewPager = (ViewPager) findViewById(R.id.desk_clock_pager);
             mTabsAdapter = new TabsAdapter(this, mViewPager);
-            createTabs();
-
-            // Assiging the Sliding Tab Layout View
-            mSlidingTabs = (SlidingTabLayout) findViewById(R.id.desk_clock_tabs);
-
-            // Setting the ViewPager For the SlidingTabsLayout
-            mSlidingTabs.setViewPager(mViewPager);
-            mSlidingTabs.setOnPageChangeListener(mTabsAdapter);
+            createTabs(mSelectedTab);
         }
 
         mFab.setOnClickListener(new OnClickListener() {
@@ -182,18 +186,46 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
                 getSelectedFragment().onRightButtonClick(view);
             }
         });
+
+        mActionBar.setSelectedNavigationItem(mSelectedTab);
     }
 
     private DeskClockFragment getSelectedFragment() {
-        return (DeskClockFragment) mTabsAdapter.getItem(mSelectedTab);
+        return (DeskClockFragment) mTabsAdapter.getItem(getRtlPosition(mSelectedTab));
     }
 
-    private void createTabs() {
-        mTabsAdapter.addTab(AlarmClockFragment.class, getResources().getString(R.string.menu_alarm));
-        mTabsAdapter.addTab(ClockFragment.class, getResources().getString(R.string.menu_clock));
-        mTabsAdapter.addTab(TimerFragment.class, getResources().getString(R.string.menu_timer));
-        mTabsAdapter.addTab(StopwatchFragment.class, getResources().getString(R.string.menu_stopwatch));
+    private void createTabs(int selectedIndex) {
+        mActionBar = getActionBar();
+
+        if (mActionBar != null) {
+            mActionBar.setDisplayOptions(0);
+            mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+            mAlarmTab = mActionBar.newTab();
+            mAlarmTab.setIcon(R.drawable.ic_alarm_animation);
+            mAlarmTab.setContentDescription(R.string.menu_alarm);
+            mTabsAdapter.addTab(mAlarmTab, AlarmClockFragment.class, ALARM_TAB_INDEX);
+
+            mClockTab = mActionBar.newTab();
+            mClockTab.setIcon(R.drawable.ic_clock_animation);
+            mClockTab.setContentDescription(R.string.menu_clock);
+            mTabsAdapter.addTab(mClockTab, ClockFragment.class, CLOCK_TAB_INDEX);
+
+            mTimerTab = mActionBar.newTab();
+            mTimerTab.setIcon(R.drawable.ic_timer_animation);
+            mTimerTab.setContentDescription(R.string.menu_timer);
+            mTabsAdapter.addTab(mTimerTab, TimerFragment.class, TIMER_TAB_INDEX);
+
+            mStopwatchTab = mActionBar.newTab();
+            mStopwatchTab.setIcon(R.drawable.ic_stopwatch_animation);
+            mStopwatchTab.setContentDescription(R.string.menu_stopwatch);
+            mTabsAdapter.addTab(mStopwatchTab, StopwatchFragment.class, STOPWATCH_TAB_INDEX);
+
+            mActionBar.setSelectedNavigationItem(selectedIndex);
+            mTabsAdapter.notifySelectedPage(selectedIndex);
+        }
     }
+
 
     @Override
     protected void onCreate(Bundle icicle) {
@@ -520,23 +552,34 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         }
     }
 
-    public boolean isClockTab() {
-        return mSelectedTab == CLOCK_TAB_INDEX;
+    public int getSelectedTab() {
+        return mSelectedTab;
     }
 
-    public boolean isAlarmTab() {
-        return mSelectedTab == ALARM_TAB_INDEX;
+    private boolean isRtl() {
+        return TextUtils.getLayoutDirectionFromLocale(Locale.getDefault()) ==
+                View.LAYOUT_DIRECTION_RTL;
     }
 
-    public boolean isStopwatchTab() {
-        return mSelectedTab == STOPWATCH_TAB_INDEX;
+    private int getRtlPosition(int position) {
+        if (isRtl()) {
+            switch (position) {
+                case TIMER_TAB_INDEX:
+                    return RTL_TIMER_TAB_INDEX;
+                case CLOCK_TAB_INDEX:
+                    return RTL_CLOCK_TAB_INDEX;
+                case STOPWATCH_TAB_INDEX:
+                    return RTL_STOPWATCH_TAB_INDEX;
+                case ALARM_TAB_INDEX:
+                    return RTL_ALARM_TAB_INDEX;
+                default:
+                    break;
+            }
+        }
+        return position;
     }
 
-    public boolean isTimerTab() {
-        return mSelectedTab == TIMER_TAB_INDEX;
-    }
-
-    public ImageButton getFab() {
+        public ImageButton getFab() {
         return mFab;
     }
 
