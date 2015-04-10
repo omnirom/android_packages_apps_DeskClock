@@ -90,7 +90,6 @@ public class TestAlarmKlaxon {
         sRandomPlayback = instance.getRandomMode(preAlarm);
         if (sMaxVolume == -1){
             // calc from current alarm volume
-            int alarmVolume = sAudioManager.getStreamVolume(AudioManager.STREAM_ALARM);
             sMaxVolume = calcMusicVolumeFromCurrentAlarm();
         }
 

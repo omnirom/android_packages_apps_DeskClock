@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 
+import android.app.AppOpsManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -36,11 +37,14 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Process;
 import android.os.RemoteException;
+import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
+import com.android.internal.app.IAppOpsService;
 
 import com.android.deskclock.LogUtils;
 import com.android.deskclock.R;
@@ -55,11 +59,6 @@ public class AlarmKlaxon {
 
     // Volume suggested by media team for in-call alarms.
     private static final float IN_CALL_VOLUME = 0.125f;
-
-    private static final AudioAttributes VIBRATION_ATTRIBUTES = new AudioAttributes.Builder()
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .setUsage(AudioAttributes.USAGE_ALARM)
-            .build();
 
     private static final int INCREASING_VOLUME_START = 1;
     private static final int INCREASING_VOLUME_DELTA = 1;
@@ -158,7 +157,6 @@ public class AlarmKlaxon {
                 .getSystemService(Context.AUDIO_SERVICE);
         // save current value
         sSavedVolume = sAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        sMaxVolume = sSavedVolume;
         sIncreasingVolume = instance.getIncreasingVolume(sPreAlarmMode);
         sRandomPlayback = instance.getRandomMode(sPreAlarmMode);
         sFirstFile = true;
@@ -209,13 +207,25 @@ public class AlarmKlaxon {
             alarmNoise = null;
         }
 
-        if (alarmNoise != null) {
+        IAppOpsService appOps = IAppOpsService.Stub.asInterface(ServiceManager.getService(Context.APP_OPS_SERVICE));
+        int mode = AppOpsManager.MODE_ALLOWED;
+        try {
+            mode = appOps.checkAudioOperation(AppOpsManager.OP_PLAY_AUDIO, AudioAttributes.USAGE_ALARM, Process.myUid(), "com.android.deskclock");
+            LogUtils.d("appOps OP_PLAY_AUDIO = " + (mode == AppOpsManager.MODE_ALLOWED));
+        } catch (RemoteException e) {
+        }
+        if (alarmNoise != null && mode == AppOpsManager.MODE_ALLOWED) {
             playAlarm(context, instance, inTelephoneCall, alarmNoise);
         }
-
-        if (instance.mVibrate) {
+        mode = AppOpsManager.MODE_ALLOWED;
+        try {
+            mode = appOps.checkAudioOperation(AppOpsManager.OP_VIBRATE, AudioAttributes.USAGE_ALARM, Process.myUid(), "com.android.deskclock");
+            LogUtils.d("appOps OP_VIBRATE = " + (mode == AppOpsManager.MODE_ALLOWED));
+        } catch (RemoteException e) {
+        }
+        if (instance.mVibrate && mode == AppOpsManager.MODE_ALLOWED) {
             Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-            vibrator.vibrate(sVibratePattern, 0, VIBRATION_ATTRIBUTES);
+            vibrator.vibrate(sVibratePattern, 0);
         }
         sStarted = true;
     }
@@ -224,7 +234,6 @@ public class AlarmKlaxon {
             final AlarmInstance instance, final boolean inTelephoneCall, final Uri alarmNoise) {
 
         sMediaPlayer = new MediaPlayer();
-        sMediaPlayer.setAudioAttributes(VIBRATION_ATTRIBUTES);
         sMediaPlayer.setOnErrorListener(new OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
