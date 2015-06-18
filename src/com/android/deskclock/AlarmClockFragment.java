@@ -29,6 +29,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.content.UriPermission;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -43,6 +44,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.transition.AutoTransition;
 import android.transition.Fade;
 import android.transition.Transition;
@@ -279,6 +281,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
         setLeftRightButtonAppearance();
 
         if (mAdapter != null) {
+            mAdapter.updateDayOrder();
             mAdapter.notifyDataSetChanged();
         }
         // Check if another app asked us to create a blank new alarm.
@@ -571,14 +574,8 @@ public class AlarmClockFragment extends DeskClockFragment implements
             mShortWeekDayStrings = Utils.getShortWeekdays();
             mLongWeekDayStrings = dfs.getWeekdays();
 
-            int firstDayOfWeek = Calendar.getInstance(Locale.getDefault()).getFirstDayOfWeek();
-            int j = 0;
-            for (int i = firstDayOfWeek; i <= DAY_ORDER.length; i++, j++) {
-                DAY_ORDER[j] = i;
-            }
-            for (int i = Calendar.SUNDAY; i < firstDayOfWeek; i++, j++) {
-                DAY_ORDER[j] = i;
-            }
+            updateDayOrder();
+
             Resources res = mContext.getResources();
 
             mRobotoNormal = Typeface.create("sans-serif", Typeface.NORMAL);
@@ -598,6 +595,25 @@ public class AlarmClockFragment extends DeskClockFragment implements
                     .hasVibrator();
 
             mCollapseExpandHeight = (int) res.getDimension(R.dimen.collapse_expand_height);
+        }
+
+        public void updateDayOrder() {
+            int firstDayOfWeek = Calendar.getInstance(Locale.getDefault()).getFirstDayOfWeek();
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            final String customFirstDayStr = prefs.getString(SettingsActivity.KEY_WEEK_START, "0");
+            final int customFirstDay = Integer.valueOf(customFirstDayStr);
+            if (customFirstDay != 0) {
+                // 0 means locale default
+                firstDayOfWeek = customFirstDay;
+            }
+            int j = 0;
+            for (int i = firstDayOfWeek; i <= DAY_ORDER.length; i++, j++) {
+                DAY_ORDER[j] = i;
+            }
+            for (int i = Calendar.SUNDAY; i < firstDayOfWeek; i++, j++) {
+                DAY_ORDER[j] = i;
+            }
         }
 
         public void removeSelectedId(int id) {
@@ -664,16 +680,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
             holder.clickableLabel = (TextView) view.findViewById(R.id.edit_label);
             holder.repeatDays = (LinearLayout) view.findViewById(R.id.repeat_days);
             holder.collapseExpandArea = view.findViewById(R.id.collapse_expand);
-
-            // Build button for each day.
-            for (int i = 0; i < 7; i++) {
-                final Button dayButton = (Button) mFactory.inflate(
-                        R.layout.day_button, holder.repeatDays, false /* attachToRoot */);
-                dayButton.setText(mShortWeekDayStrings[DAY_ORDER[i]]);
-                dayButton.setContentDescription(mLongWeekDayStrings[DAY_ORDER[i]]);
-                holder.repeatDays.addView(dayButton);
-                holder.dayButtons[i] = dayButton;
-            }
             holder.vibrate = (CheckBox) view.findViewById(R.id.vibrate_onoff);
             holder.ringtone = (TextView) view.findViewById(R.id.choose_ringtone);
             holder.preAlarm = (CheckBox) view.findViewById(R.id.pre_alarm);
@@ -871,6 +877,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 }
             });
 
+            buildRepeatButtons(itemHolder);
             updateDaysOfWeekButtons(itemHolder, alarm.daysOfWeek);
             for (int i = 0; i < 7; i++) {
                 final int buttonIndex = i;
@@ -1084,6 +1091,19 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 } else {
                     turnOffDayOfWeek(holder, i);
                 }
+            }
+        }
+
+        private void buildRepeatButtons(ItemHolder holder) {
+            // Build button for each day.
+            holder.repeatDays.removeAllViews();
+            for (int i = 0; i < 7; i++) {
+                final Button dayButton = (Button) mFactory.inflate(
+                        R.layout.day_button, holder.repeatDays, false /* attachToRoot */);
+                dayButton.setText(mShortWeekDayStrings[DAY_ORDER[i]]);
+                dayButton.setContentDescription(mLongWeekDayStrings[DAY_ORDER[i]]);
+                holder.repeatDays.addView(dayButton);
+                holder.dayButtons[i] = dayButton;
             }
         }
 

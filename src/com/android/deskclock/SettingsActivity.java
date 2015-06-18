@@ -42,10 +42,12 @@ import android.view.MenuItem;
 import com.android.deskclock.worldclock.Cities;
 import com.android.deskclock.alarms.AlarmStateManager;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
+import java.text.DateFormatSymbols;
 
 /**
  * Settings for the Alarm Clock.
@@ -92,6 +94,8 @@ public class SettingsActivity extends PreferenceActivity
             "timer_alarm";
     public static final String KEY_TIMER_ALARM_CUSTOM =
             "timer_alarm_custom";
+    public static final String KEY_WEEK_START =
+            "week_start";
 
     // default action for alarm action
     public static final String DEFAULT_ALARM_ACTION = "0";
@@ -202,8 +206,12 @@ public class SettingsActivity extends PreferenceActivity
             boolean state =(Boolean) newValue;
             Settings.System.putInt(this.getContentResolver(),
 	                Settings.System.SHOW_ALARM_FULLSCREEN, state ? 1 : 0);
-        }  else if (KEY_TIMER_ALARM.equals(pref.getKey())) {
+        } else if (KEY_TIMER_ALARM.equals(pref.getKey())) {
             setTimerAlarmSummary();
+        } else if (KEY_WEEK_START.equals(pref.getKey())) {
+            final ListPreference listPref = (ListPreference) pref;
+            final int idx = listPref.findIndexOfValue((String) newValue);
+            listPref.setSummary(listPref.getEntries()[idx]);
         }
         return true;
     }
@@ -284,6 +292,11 @@ public class SettingsActivity extends PreferenceActivity
         fullscreenAlarm.setOnPreferenceChangeListener(this);
 
         setTimerAlarmSummary();
+
+        listPref = (ListPreference) findPreference(KEY_WEEK_START);
+        listPref.setEntries(getWeekdays());
+        listPref.setSummary(listPref.getEntry());
+        listPref.setOnPreferenceChangeListener(this);
     }
 
     private class TimeZoneRow implements Comparable<TimeZoneRow> {
@@ -372,5 +385,13 @@ public class SettingsActivity extends PreferenceActivity
         Uri soundUri = TextUtils.isEmpty(soundValue) ? defaultAlarmNoise : Uri.parse(soundValue);
         Ringtone tone = soundUri != null ? RingtoneManager.getRingtone(this, soundUri) : null;
         mTimerAlarmPref.setSummary(tone != null ? tone.getTitle(this) : "");
+    }
+
+    private String[] getWeekdays() {
+        DateFormatSymbols dfs = new DateFormatSymbols();
+        List<String> weekDayList = new ArrayList<String>();
+        weekDayList.addAll(Arrays.asList(dfs.getWeekdays()));
+        weekDayList.set(0, getResources().getString(R.string.default_week_start));
+        return weekDayList.toArray(new String[weekDayList.size()]);
     }
 }
