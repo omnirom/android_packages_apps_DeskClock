@@ -100,4 +100,6 @@
     <string name="timer_alarm_title">Ringtone</string>
     <string name="timer_alarm_custom_title">Custom timer ringtone</string>
     <string name="timer_alarm_custom_summary"></string>
+    <string name="week_start_title">Week starts on</string>
+    <string name="default_week_start">Locale default</string>
 </resources>

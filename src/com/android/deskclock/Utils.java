@@ -86,11 +86,6 @@ public class Utils {
      */
     private static String sCachedVersionCode = null;
 
-    /**
-     * Array of single-character day of week symbols {'S', 'M', 'T', 'W', 'T', 'F', 'S'}
-     */
-    private static String[] sShortWeekdays = null;
-
     /** Types that may be used for clock displays. **/
     public static final String CLOCK_TYPE_DIGITAL = "digital";
     public static final String CLOCK_TYPE_ANALOG = "analog";
@@ -628,32 +623,5 @@ public class Utils {
     public static int getNextHourColor() {
         final int currHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         return Color.parseColor(BACKGROUND_SPECTRUM[currHour < 24 ? currHour + 1 : 1]);
-    }
-
-    /**
-     * To get an array of single-character day of week symbols {'S', 'M', 'T', 'W', 'T', 'F', 'S'},
-     * indexed like DateFormatSymbols.getShortWeekdays()
-     * @return the array of symbols
-     */
-    public static String[] getShortWeekdays() {
-        if (sShortWeekdays == null) {
-            final String[] shortWeekdays = new String[Calendar.SATURDAY + 1];
-            final SimpleDateFormat format = new SimpleDateFormat("EEEEE");
-            // Create a date (2014/07/20) that is a Sunday
-            long aSunday = new GregorianCalendar(2014, Calendar.JULY, 20).getTimeInMillis();
-            for (int day = Calendar.SUNDAY; day <= Calendar.SATURDAY; day++) {
-                long offset = (day - Calendar.SUNDAY) * DateUtils.DAY_IN_MILLIS;
-                shortWeekdays[day] = format.format(new Date(aSunday + offset));
-            }
-            sShortWeekdays = shortWeekdays;
-        }
-        return sShortWeekdays;
-    }
-
-    /**
-     * after locale change we need to recreate
-     */
-    public static void cleanShortWeekdays() {
-        sShortWeekdays = null;
     }
 }

@@ -33,6 +33,12 @@
             android:entryValues="@array/timezone_values"
             android:key="home_time_zone"
             android:title="@string/home_time_zone" />
+        <ListPreference
+            android:dialogTitle="@string/week_start_title"
+            android:entryValues="@array/week_start_values"
+            android:key="week_start"
+            android:title="@string/week_start_title"
+            android:defaultValue="0"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/alarm_settings" >
         <CheckBoxPreference
