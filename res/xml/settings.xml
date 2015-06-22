@@ -88,7 +88,9 @@
             android:summary="@string/fullscreen_alarm_summary"
             android:title="@string/fullscreen_alarm_title" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/fullscreen_alarm_settings">
+    <PreferenceCategory
+        android:title="@string/fullscreen_alarm_settings"
+        android:key="fullscreen_alarm_settings">
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="keep_screen_on"

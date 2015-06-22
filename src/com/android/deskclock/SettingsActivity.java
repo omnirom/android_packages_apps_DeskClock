@@ -17,10 +17,13 @@
 package com.android.deskclock;
 
 import android.app.ActionBar;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.content.ContentResolver;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -30,6 +33,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
@@ -96,6 +100,8 @@ public class SettingsActivity extends PreferenceActivity
             "timer_alarm_custom";
     public static final String KEY_WEEK_START =
             "week_start";
+    public static final String KEY_FULLSCREEN_ALARM_SETTINGS =
+            "fullscreen_alarm_settings";
 
     // default action for alarm action
     public static final String DEFAULT_ALARM_ACTION = "0";
@@ -261,13 +267,27 @@ public class SettingsActivity extends PreferenceActivity
         listPref.setSummary(listPref.getEntry());
         listPref.setOnPreferenceChangeListener(this);
 
+        final SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        final boolean hasAccelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() >= 1;
+        final boolean hasOrientationSensor = sensorManager.getSensorList(Sensor.TYPE_ORIENTATION).size() >= 1;
+        final PreferenceCategory alarmCategory = (PreferenceCategory) findPreference(
+                        KEY_FULLSCREEN_ALARM_SETTINGS);
+
         listPref = (ListPreference) findPreference(KEY_FLIP_ACTION);
-        listPref.setSummary(listPref.getEntry());
-        listPref.setOnPreferenceChangeListener(this);
+        if (hasOrientationSensor) {
+            listPref.setSummary(listPref.getEntry());
+            listPref.setOnPreferenceChangeListener(this);
+        } else {
+            alarmCategory.removePreference(listPref);
+        }
 
         listPref = (ListPreference) findPreference(KEY_SHAKE_ACTION);
-        listPref.setSummary(listPref.getEntry());
-        listPref.setOnPreferenceChangeListener(this);
+        if (hasAccelSensor) {
+            listPref.setSummary(listPref.getEntry());
+            listPref.setOnPreferenceChangeListener(this);
+        } else {
+            alarmCategory.removePreference(listPref);
+        }
 
         CheckBoxPreference hideStatusbarIcon = (CheckBoxPreference) findPreference(KEY_SHOW_STATUS_BAR_ICON);
         hideStatusbarIcon.setChecked(Settings.System.getInt(this.getContentResolver(),
