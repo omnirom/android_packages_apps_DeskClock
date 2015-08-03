@@ -94,4 +94,6 @@
   <string name="timer_settings">Időzítő</string>
   <string name="timer_alarm_title">Csengőhang</string>
   <string name="timer_alarm_custom_title">Egyéni időzítő csengőhang</string>
+  <string name="week_start_title">Hét kezdőnapja:</string>
+  <string name="default_week_start">Alapértelmezett területi beállítás</string>
 </resources>

@@ -94,4 +94,6 @@
   <string name="timer_settings">Compte à rebours</string>
   <string name="timer_alarm_title">Sonnerie</string>
   <string name="timer_alarm_custom_title">Sonnerie du compte à rebours personnalisée</string>
+  <string name="week_start_title">La semaine commence le</string>
+  <string name="default_week_start">Paramètres régionaux par défaut</string>
 </resources>

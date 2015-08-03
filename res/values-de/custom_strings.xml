@@ -94,4 +94,6 @@
   <string name="timer_settings">Timer</string>
   <string name="timer_alarm_title">Klingelton</string>
   <string name="timer_alarm_custom_title">Benutzerdefinierter Timer Klingelton</string>
+  <string name="week_start_title">Woche beginnt am</string>
+  <string name="default_week_start">Gebietsschema-Standard</string>
 </resources>

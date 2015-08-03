@@ -94,4 +94,6 @@
   <string name="timer_settings">Časovač</string>
   <string name="timer_alarm_title">Vyzvánění</string>
   <string name="timer_alarm_custom_title">Vlastní časovač vyzvánění</string>
+  <string name="week_start_title">Začátek týdne</string>
+  <string name="default_week_start">Výchozí hodnota</string>
 </resources>
