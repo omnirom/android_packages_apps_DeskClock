@@ -28,7 +28,9 @@ import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -42,6 +44,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.util.Log;
 
 import com.android.deskclock.worldclock.Cities;
 import com.android.deskclock.alarms.AlarmStateManager;
@@ -114,6 +117,7 @@ public class SettingsActivity extends PreferenceActivity
     private static CharSequence[][] mTimezones;
     private long mTime;
     private RingtonePreference mTimerAlarmPref;
+    private final Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,12 +142,13 @@ public class SettingsActivity extends PreferenceActivity
 
         mTimerAlarmPref = (RingtonePreference) findPreference(KEY_TIMER_ALARM);
         mTimerAlarmPref.setOnPreferenceChangeListener(this);
+        addSettings();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        refresh();
+        lookupRingtoneNames();
     }
 
     @Override
@@ -212,8 +217,6 @@ public class SettingsActivity extends PreferenceActivity
             boolean state =(Boolean) newValue;
             Settings.System.putInt(this.getContentResolver(),
 	                Settings.System.SHOW_ALARM_FULLSCREEN, state ? 1 : 0);
-        } else if (KEY_TIMER_ALARM.equals(pref.getKey())) {
-            setTimerAlarmSummary();
         } else if (KEY_WEEK_START.equals(pref.getKey())) {
             final ListPreference listPref = (ListPreference) pref;
             final int idx = listPref.findIndexOfValue((String) newValue);
@@ -243,8 +246,7 @@ public class SettingsActivity extends PreferenceActivity
         sendBroadcast(i);
     }
 
-
-    private void refresh() {
+    private void addSettings() {
         ListPreference listPref = (ListPreference) findPreference(KEY_AUTO_SILENCE);
         String delay = listPref.getValue();
         updateAutoSnoozeSummary(listPref, delay);
@@ -311,8 +313,6 @@ public class SettingsActivity extends PreferenceActivity
 	            Settings.System.SHOW_ALARM_FULLSCREEN, 0) == 1);
         fullscreenAlarm.setOnPreferenceChangeListener(this);
 
-        setTimerAlarmSummary();
-
         listPref = (ListPreference) findPreference(KEY_WEEK_START);
         listPref.setEntries(getWeekdays());
         listPref.setSummary(listPref.getEntry());
@@ -363,7 +363,6 @@ public class SettingsActivity extends PreferenceActivity
         }
     }
 
-
     /**
      * Returns an array of ids/time zones. This returns a double indexed array
      * of ids and time zones for Calendar. It is an inefficient method and
@@ -403,8 +402,23 @@ public class SettingsActivity extends PreferenceActivity
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String soundValue = prefs.getString(KEY_TIMER_ALARM, null);
         Uri soundUri = TextUtils.isEmpty(soundValue) ? defaultAlarmNoise : Uri.parse(soundValue);
-        Ringtone tone = soundUri != null ? RingtoneManager.getRingtone(this, soundUri) : null;
-        mTimerAlarmPref.setSummary(tone != null ? tone.getTitle(this) : "");
+        final Ringtone tone = soundUri != null ? RingtoneManager.getRingtone(this, soundUri) : null;
+
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mTimerAlarmPref.setSummary(tone != null ? tone.getTitle(SettingsActivity.this) : "");
+            }
+        });
+    }
+
+    private void lookupRingtoneNames() {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                setTimerAlarmSummary();
+            }
+        });
     }
 
     private String[] getWeekdays() {
