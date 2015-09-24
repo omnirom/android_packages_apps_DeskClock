@@ -138,12 +138,8 @@ public class SettingsActivity extends PreferenceActivity
 
         mTimerAlarmPref = (RingtonePreference) findPreference(KEY_TIMER_ALARM);
         mTimerAlarmPref.setOnPreferenceChangeListener(this);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        refresh();
+        addSettings();
     }
 
     @Override
@@ -244,7 +240,7 @@ public class SettingsActivity extends PreferenceActivity
     }
 
 
-    private void refresh() {
+    private void addSettings() {
         ListPreference listPref = (ListPreference) findPreference(KEY_AUTO_SILENCE);
         String delay = listPref.getValue();
         updateAutoSnoozeSummary(listPref, delay);
