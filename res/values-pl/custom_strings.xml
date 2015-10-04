@@ -94,4 +94,6 @@
   <string name="timer_settings">Minutnik</string>
   <string name="timer_alarm_title">Dzwonek</string>
   <string name="timer_alarm_custom_title">Niestandardowy dzwonek minutnika</string>
+  <string name="week_start_title">Tydzień rozpoczyna się w</string>
+  <string name="default_week_start">Domyślne ustawienia regionalne</string>
 </resources>
