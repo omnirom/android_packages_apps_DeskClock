@@ -3,6 +3,8 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE_TAGS := optional
 
+LOCAL_JAVA_LIBRARIES := org.apache.http.legacy
+
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v13
 LOCAL_STATIC_JAVA_LIBRARIES += android-support-v4
 

@@ -21,12 +21,14 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="com.android.deskclock.worldclock.permissions.WRITE_DATABASE" />
 
-    <uses-sdk android:minSdkVersion="17" android:targetSdkVersion="21" ></uses-sdk>
+    <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="23" ></uses-sdk>
 
     <application android:label="@string/app_label"
                  android:icon="@mipmap/ic_launcher_alarmclock"
                  android:requiredForAllUsers="true"
                  android:supportsRtl="true">
+
+        <uses-library android:name="org.apache.http.legacy" android:required="false" />
 
         <provider android:name=".provider.ClockProvider"
                 android:authorities="com.android.deskclock"
