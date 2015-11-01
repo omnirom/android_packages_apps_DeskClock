@@ -41,12 +41,6 @@
             android:defaultValue="0"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/alarm_settings" >
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="show_status_bar_icon"
-            android:summary="@string/show_status_bar_icon_summary"
-            android:title="@string/show_status_bar_icon_title"
-            android:persistent="false" />
         <ListPreference
             android:defaultValue="10"
             android:dialogTitle="@string/auto_silence_title"

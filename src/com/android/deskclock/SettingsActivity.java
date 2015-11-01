@@ -67,8 +67,6 @@ public class SettingsActivity extends PreferenceActivity
 
     public static final String KEY_ALARM_IN_SILENT_MODE =
             "alarm_in_silent_mode";
-    public static final String KEY_SHOW_STATUS_BAR_ICON =
-            "show_status_bar_icon";
     public static final String KEY_ALARM_SNOOZE =
             "snooze_duration_new";
     public static final String KEY_VOLUME_BEHAVIOR =
@@ -207,12 +205,6 @@ public class SettingsActivity extends PreferenceActivity
             final ListPreference listPref = (ListPreference) pref;
             final int idx = listPref.findIndexOfValue((String) newValue);
             listPref.setSummary(listPref.getEntries()[idx]);
-        } else if (KEY_SHOW_STATUS_BAR_ICON.equals(pref.getKey())) {
-            boolean state =(Boolean) newValue;
-            Settings.System.putInt(this.getContentResolver(),
-	                Settings.System.STATUSBAR_SHOW_ALARM_ICON, state ? 1 : 0);
-            // trigger recheck if statusbar icon should be shown now
-            AlarmStateManager.updateNextAlarm(this);
         } else if (KEY_FULLSCREEN_ALARM.equals(pref.getKey())) {
             boolean state =(Boolean) newValue;
             Settings.System.putInt(this.getContentResolver(),
@@ -290,11 +282,6 @@ public class SettingsActivity extends PreferenceActivity
         } else {
             alarmCategory.removePreference(listPref);
         }
-
-        CheckBoxPreference hideStatusbarIcon = (CheckBoxPreference) findPreference(KEY_SHOW_STATUS_BAR_ICON);
-        hideStatusbarIcon.setChecked(Settings.System.getInt(this.getContentResolver(),
-	            Settings.System.STATUSBAR_SHOW_ALARM_ICON, 1) == 1);
-        hideStatusbarIcon.setOnPreferenceChangeListener(this);
 
         listPref = (ListPreference) findPreference(KEY_ALARM_SNOOZE);
         listPref.setSummary(listPref.getEntry());

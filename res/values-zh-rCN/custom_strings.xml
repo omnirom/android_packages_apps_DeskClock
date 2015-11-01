@@ -19,8 +19,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="show_status_bar_icon_title">显示图标</string>
-  <string name="show_status_bar_icon_summary">设定闹钟后在状态栏上显示一个图标</string>
   <string name="flip_action_title">翻转动作</string>
   <string name="flip_action_dialog_title">翻转动作</string>
   <string name="shake_action_title">摇晃动作</string>

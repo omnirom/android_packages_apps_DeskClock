@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -31,6 +32,7 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.Ringtone;
@@ -77,6 +79,8 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     private static final String KEY_ALARM = "alarm";
     private static final String KEY_TAG = "tag";
     private static final String KEY_PRE_ALARM_TIME = "preAlarmTime";
+
+    private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0;
 
     private String mTag;
     private Alarm mAlarm;
@@ -372,6 +376,16 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     }
 
     private void launchFolderPicker() {
+        if (getActivity().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
+                    PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+        } else {
+            launchFolderPickerWithPerm();
+        }
+   }
+
+    private void launchFolderPickerWithPerm() {
         final FragmentTransaction ft = getFragmentManager().beginTransaction();
         final Fragment prev = getFragmentManager().findFragmentByTag("choose_folder");
         if (prev != null) {
@@ -381,6 +395,20 @@ public class AlarmRingtoneDialog extends DialogFragment implements
 
         final DirectoryChooserDialog fragment = DirectoryChooserDialog.newInstance(getTag());
         fragment.show(getFragmentManager(), "choose_folder");
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    launchFolderPickerWithPerm();
+                }
+            }
+            return;
+        }
     }
 
     private boolean saveRingtoneUri(Intent intent) {

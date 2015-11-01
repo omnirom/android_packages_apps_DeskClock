@@ -19,8 +19,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="show_status_bar_icon_title">Pictogram weergeven</string>
-  <string name="show_status_bar_icon_summary">Pictogram tonen in de statusbalk als een alarm is ingesteld</string>
   <string name="flip_action_title">Omdraai-actie</string>
   <string name="flip_action_dialog_title">Omdraai-actie</string>
   <string name="shake_action_title">Schud actie</string>
