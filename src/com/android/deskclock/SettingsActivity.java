@@ -299,6 +299,7 @@ public class SettingsActivity extends PreferenceActivity
         fullscreenAlarm.setChecked(Settings.System.getInt(this.getContentResolver(),
 	            Settings.System.SHOW_ALARM_FULLSCREEN, 0) == 1);
         fullscreenAlarm.setOnPreferenceChangeListener(this);
+        fullscreenAlarm.setEnabled(hasWriteSettingsPerms());
 
         listPref = (ListPreference) findPreference(KEY_WEEK_START);
         listPref.setEntries(getWeekdays());
@@ -414,5 +415,18 @@ public class SettingsActivity extends PreferenceActivity
         weekDayList.addAll(Arrays.asList(dfs.getWeekdays()));
         weekDayList.set(0, getResources().getString(R.string.default_week_start));
         return weekDayList.toArray(new String[weekDayList.size()]);
+    }
+
+    private boolean hasWriteSettingsPerms() {
+        final int val = Settings.System.getInt(this.getContentResolver(),
+	            Settings.System.SHOW_ALARM_FULLSCREEN, 0);
+        try {
+            // Ugh!
+            Settings.System.putInt(this.getContentResolver(),
+	            Settings.System.SHOW_ALARM_FULLSCREEN, val + 1);
+        } catch(java.lang.SecurityException e) {
+            return false;
+        }
+        return true;
     }
 }
