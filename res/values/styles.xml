@@ -21,7 +21,7 @@
         <item name="android:layout_gravity">center_horizontal</item>
     </style>
 
-    <style name="DeskClockParentTheme" parent="@android:style/Theme.Material.Light">
+    <style name="DeskClockParentTheme" parent="@android:style/Theme.Material.DayNight.DarkActionBar">
         <item name="android:popupMenuStyle">@style/PopupMenu</item>
         <item name="android:buttonStyle">?android:attr/borderlessButtonStyle</item>
         <item name="android:dialogTheme">@style/DialogTheme</item>
@@ -32,7 +32,6 @@
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:colorControlActivated">@color/hot_blue</item>
         <item name="android:textColor">@color/text_color_light</item>
-        <item name="android:windowBackground">@color/window_background</item>
     </style>
 
     <style name="TimePickerTheme" parent="@android:style/Theme.Material.Light.Dialog">
@@ -45,7 +44,10 @@
         <item name="android:headerAmPmTextAppearance">@style/AmPmTextAppearance</item>
     </style>
 
-    <style name="DialogTheme" parent="@style/TimePickerTheme">
+    <style name="DialogTheme" parent="@android:style/Theme.Material.DayNight.Dialog">
+        <item name="android:colorAccent">@color/hot_blue</item>
+        <item name="android:colorPrimary">@color/hot_blue</item>
+        <item name="android:colorPrimaryDark">@color/hot_blue_dark</item>
     </style>
 
     <style name="TimeLabelTextAppearance" parent="@android:style/TextAppearance.Material">
@@ -64,16 +66,16 @@
     <style name="DeskClockDropDownListView"
            parent="@android:style/Widget.Material.Light.ListView.DropDown" />
 
-    <style name="SettingsTheme" parent="@android:style/Theme.Material.Settings">
+    <style name="SettingsTheme" parent="@android:style/Theme.Material.DayNight.DarkActionBar">
         <item name="android:colorAccent">@color/hot_blue</item>
         <item name="android:colorPrimary">@color/hot_blue</item>
         <item name="android:colorPrimaryDark">@color/hot_blue_dark</item>
     </style>
 
-    <style name="PopupMenu" parent="@android:style/Theme.Material.Light">
+    <style name="PopupMenu" parent="@android:style/Theme.Material.DayNight.DarkActionBar">
     </style>
 
-    <style name="CitiesTheme" parent="@android:style/Theme.Material.Light">
+    <style name="CitiesTheme" parent="@android:style/Theme.Material.DayNight.DarkActionBar">
         <item name="android:colorAccent">@color/hot_blue</item>
         <item name="android:colorPrimary">@color/hot_blue</item>
         <item name="android:colorPrimaryDark">@color/hot_blue_dark</item>
@@ -107,22 +109,6 @@
     <style name="alarm_list_left_column">
         <item name="android:layout_width">68dip</item>
         <item name="android:layout_height">68dip</item>
-    </style>
-
-    <style name="small_bold">
-        <item name="android:textSize">@dimen/small_font_size</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="small_thin">
-        <item name="android:textSize">@dimen/small_font_size</item>
-        <item name="android:fontFamily">sans-serif-thin</item>
-    </style>
-
-    <style name="small_light">
-        <item name="android:textSize">@dimen/small_font_size</item>
-        <item name="android:fontFamily">sans-serif-light</item>
-        <item name="android:textColor">@color/text_color_light</item>
     </style>
 
     <style name="no_alarms">

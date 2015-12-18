@@ -19,7 +19,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/view_background"
+    android:background="@drawable/view_background"
     android:elevation="@dimen/header_elevation" >
     <FrameLayout
         android:layout_width="match_parent"

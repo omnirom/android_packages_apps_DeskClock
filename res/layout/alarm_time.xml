@@ -22,7 +22,7 @@
     android:layout_height="wrap_content"
     android:gravity="center_horizontal|top"
     android:orientation="vertical"
-    android:background="@color/view_background"
+    android:background="@drawable/view_background"
     android:elevation="@dimen/item_elevation" >
     <!-- TODO~: flatten this layout using gridLayout which supports layout_weight as of 21 -->
 

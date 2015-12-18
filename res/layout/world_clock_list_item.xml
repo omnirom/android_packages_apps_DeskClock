@@ -22,7 +22,7 @@
     android:paddingStart="@dimen/world_clock_margin"
     android:orientation="horizontal"
     android:elevation="@dimen/item_elevation"
-    android:background="@color/view_background">
+    android:background="@drawable/view_background">
 
     <include layout="@layout/world_clock_item"
         android:id="@+id/city_left"
