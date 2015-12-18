@@ -290,8 +290,7 @@ public class AddCityDialog implements OnClickListener,
 
     private void setTimeZoneData(CityTimeZone[] data, int selected, boolean enabled) {
         ArrayAdapter<CityTimeZone> adapter = new ArrayAdapter<CityTimeZone>(mContext,
-                android.R.layout.simple_spinner_item, data);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.layout.spinner_item, data);
         mTimeZones.setAdapter(adapter);
         mTimeZones.setSelection(selected);
         mTimeZones.setEnabled(enabled);
