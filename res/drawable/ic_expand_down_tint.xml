@@ -15,6 +15,6 @@
 -->
 
 <bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:src="@drawable/ic_delete"
-    android:tint="@color/icon_color_light" />
+    android:src="@drawable/ic_expand_down"
+    android:tint="@color/text_color_light" />
 

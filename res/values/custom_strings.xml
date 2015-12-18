@@ -50,6 +50,7 @@
     <string name="folderType">Music folder</string>
     <string name="playlistType">Playlist</string>
     <string name="alarm_type_select_title">Source:</string>
+    <string name="alarm_ringtone_title">Sound:</string>
     <string name="alarm_test_button">Test</string>
     <string name="keep_screen_on_title">Keep screen on</string>
     <string name="keep_screen_on_summary">Screen will not be turned off when alarm is active</string>

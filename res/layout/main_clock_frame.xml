@@ -20,7 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/view_background"
-    android:elevation="@dimen/header_elevation" >
+    android:elevation="@dimen/item_elevation" >
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -55,8 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textSize="16sp"
-            android:textColor="@color/white" />
+            style="@style/TextAppearanceWhite" />
         <TextView android:id="@+id/nextAlarm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -66,8 +65,7 @@
             android:drawableLeft="@drawable/ic_alarm_small"
             android:drawableStart="@drawable/ic_alarm_small"
             android:gravity="center"
-            android:textSize="16sp"
-            android:textColor="@color/white" />
+            style="@style/TextAppearanceWhite" />
     </LinearLayout>
 </LinearLayout>
 
