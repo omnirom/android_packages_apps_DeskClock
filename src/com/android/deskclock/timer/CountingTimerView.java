@@ -23,6 +23,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityManager;
@@ -271,7 +272,10 @@ public class CountingTimerView extends View {
         mAccessibilityManager =
                 (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
         Resources r = context.getResources();
-        mWhiteColor = r.getColor(R.color.text_color_light);
+        TypedValue outValue = new TypedValue();
+        context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, outValue, true);
+        mWhiteColor = r.getColor(outValue.resourceId);
+
         mDefaultColor = mWhiteColor;
         mPressedColor = r.getColor(R.color.hot_blue);
         mAccentColor = r.getColor(R.color.hot_blue);

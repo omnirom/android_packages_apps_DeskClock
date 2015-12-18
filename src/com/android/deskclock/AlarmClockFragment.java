@@ -50,6 +50,7 @@ import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -213,13 +214,12 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 .addTransition(new Fade(Fade.IN))
                 .setDuration(ANIMATION_DURATION);
 
-        boolean isLandscape = getResources().getConfiguration().orientation
-                == Configuration.ORIENTATION_LANDSCAPE;
-
         mEmptyView = v.findViewById(R.id.alarms_empty_view);
 
         mMainLayout = (FrameLayout) v.findViewById(R.id.main);
         mAlarmsList = (ListView) v.findViewById(R.id.alarms_list);
+        mAlarmsList.setDivider(null);
+        mAlarmsList.setDividerHeight((int)getResources().getDimension(R.dimen.alarm_list_divider_height));
 
         mUndoBar = (ActionableToastBar) v.findViewById(R.id.undo_bar);
         mUndoFrame = v.findViewById(R.id.undo_frame);
@@ -258,6 +258,8 @@ public class AlarmClockFragment extends DeskClockFragment implements
         mAlarmsList.setAdapter(mAdapter);
         View footerView = inflater.inflate(R.layout.blank_footer_view, mAlarmsList, false);
         mAlarmsList.addFooterView(footerView, null, false);
+        View headerView = inflater.inflate(R.layout.empty_header_view, mAlarmsList, false);
+        mAlarmsList.addHeaderView(headerView, null, false);
 
         if (mUndoShowing) {
             showUndoBar();
@@ -385,12 +387,13 @@ public class AlarmClockFragment extends DeskClockFragment implements
             mAddedAlarm = a;
             asyncAddAlarm(a);
         } else {
-            mSelectedAlarm.hour = hourOfDay;
-            mSelectedAlarm.minutes = minute;
-            mSelectedAlarm.enabled = true;
-            mScrollToAlarmId = mSelectedAlarm.id;
-            asyncUpdateAlarm(mSelectedAlarm, true);
-            mSelectedAlarm = null;
+            // only change time but nothing else
+            if (mSelectedAlarm.hour != hourOfDay || mSelectedAlarm.minutes != minute) {
+                mSelectedAlarm.hour = hourOfDay;
+                mSelectedAlarm.minutes = minute;
+                asyncUpdateAlarm(mSelectedAlarm, true);
+                mSelectedAlarm = null;
+            }
         }
     }
 
@@ -503,7 +506,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
         private final Context mContext;
         private final LayoutInflater mFactory;
         private final String[] mLongWeekDayStrings;
-        private final Typeface mRobotoNormal;
         private final ListView mList;
 
         private long mExpandedId;
@@ -541,7 +543,8 @@ public class AlarmClockFragment extends DeskClockFragment implements
             CheckBox preAlarm;
             CheckBox alarmtone;
             TextView prealarmRingtone;
-
+            TextView ringtoneTitle;
+            TextView prealarmRingtoneTitle;
             // Other states
             Alarm alarm;
         }
@@ -575,8 +578,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
             updateDayOrder();
 
             Resources res = mContext.getResources();
-
-            mRobotoNormal = Typeface.create("sans-serif", Typeface.NORMAL);
 
             mExpandedId = expandedId;
             if (repeatCheckedIds != null) {
@@ -680,7 +681,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
             holder.tomorrowLabel = (TextView) view.findViewById(R.id.tomorrowLabel);
             holder.clock = (TextTime) view.findViewById(R.id.digital_clock);
             holder.onoff = (Switch) view.findViewById(R.id.onoff);
-            holder.onoff.setTypeface(mRobotoNormal);
             holder.daysOfWeek = (TextView) view.findViewById(R.id.daysOfWeek);
             holder.delete = (ImageButton) view.findViewById(R.id.delete);
             holder.summary = view.findViewById(R.id.summary);
@@ -695,7 +695,8 @@ public class AlarmClockFragment extends DeskClockFragment implements
             holder.preAlarm = (CheckBox) view.findViewById(R.id.pre_alarm);
             holder.alarmtone = (CheckBox) view.findViewById(R.id.alarm_select);
             holder.prealarmRingtone = (TextView) view.findViewById(R.id.prealarm_choose_ringtone);
-
+            holder.ringtoneTitle = (TextView) view.findViewById(R.id.choose_ringtone_title);
+            holder.prealarmRingtoneTitle = (TextView) view.findViewById(R.id.prealarm_choose_ringtone_title);
             view.setTag(holder);
         }
 
@@ -729,8 +730,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 public void onClick(View view) {
                     mSelectedAlarm = itemHolder.alarm;
                     AlarmUtils.showTimeEditDialog(AlarmClockFragment.this, alarm);
-                    expandAlarm(itemHolder, true);
-                    itemHolder.alarmItem.post(mScrollRunnable);
                 }
             });
 
@@ -768,11 +767,11 @@ public class AlarmClockFragment extends DeskClockFragment implements
 
             // Set the repeat text or leave it blank if it does not repeat.
             final String daysOfWeekStr =
-                    alarm.daysOfWeek.toString(AlarmClockFragment.this.getActivity(), false);
+                    alarm.daysOfWeek.toString(AlarmClockFragment.this.getActivity(), false, DAY_ORDER);
             if (daysOfWeekStr != null && daysOfWeekStr.length() != 0) {
                 itemHolder.daysOfWeek.setText(daysOfWeekStr);
                 itemHolder.daysOfWeek.setContentDescription(alarm.daysOfWeek.toAccessibilityString(
-                        AlarmClockFragment.this.getActivity()));
+                        AlarmClockFragment.this.getActivity(), DAY_ORDER));
                 itemHolder.daysOfWeek.setVisibility(View.VISIBLE);
             } else {
                 itemHolder.daysOfWeek.setVisibility(View.GONE);
@@ -820,14 +819,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
                     }
                 }
             });
-        }
-
-        private int getTintedBackgroundColor() {
-            final int c = Utils.getCurrentHourColor();
-            final int red = Color.red(c) + (int) (TINTED_LEVEL * (255 - Color.red(c)));
-            final int green = Color.green(c) + (int) (TINTED_LEVEL * (255 - Color.green(c)));
-            final int blue = Color.blue(c) + (int) (TINTED_LEVEL * (255 - Color.blue(c)));
-            return Color.rgb(red, green, blue);
         }
 
         private boolean isTomorrow(Alarm alarm) {
@@ -986,7 +977,12 @@ public class AlarmClockFragment extends DeskClockFragment implements
                     showAlarmRingtoneDialog(alarm, false);
                 }
             });
-
+            itemHolder.ringtoneTitle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showAlarmRingtoneDialog(alarm, false);
+                }
+            });
             itemHolder.preAlarm.setChecked(alarm.preAlarm);
             if (alarm.preAlarm) {
                 itemHolder.preAlarm.setText("");
@@ -1000,10 +996,12 @@ public class AlarmClockFragment extends DeskClockFragment implements
 
                     if (!checked) {
                         itemHolder.prealarmRingtone.setVisibility(View.GONE);
+                        itemHolder.prealarmRingtoneTitle.setVisibility(View.GONE);
                         alarm.disablePreAlarm();
                         itemHolder.preAlarm.setText(R.string.prealarm_title);
                     } else {
                         itemHolder.prealarmRingtone.setVisibility(View.VISIBLE);
+                        itemHolder.prealarmRingtoneTitle.setVisibility(View.VISIBLE);
                         alarm.setDefaultPreAlarm(mContext);
                         itemHolder.preAlarm.setText("");
                     }
@@ -1012,7 +1010,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 }
             });
             itemHolder.prealarmRingtone.setVisibility(alarm.preAlarm ? View.VISIBLE : View.GONE);
-
+            itemHolder.prealarmRingtoneTitle.setVisibility(alarm.preAlarm ? View.VISIBLE : View.GONE);
             itemHolder.alarmtone.setChecked(!alarm.isSilentAlarm());
             if (!alarm.isSilentAlarm()) {
                 itemHolder.alarmtone.setText("");
@@ -1026,10 +1024,12 @@ public class AlarmClockFragment extends DeskClockFragment implements
 
                     if (!checked) {
                         itemHolder.ringtone.setVisibility(View.GONE);
+                        itemHolder.ringtoneTitle.setVisibility(View.GONE);
                         alarm.setSilentAlarm();
                         itemHolder.alarmtone.setText(R.string.alarm_title);
                     } else {
                         itemHolder.ringtone.setVisibility(View.VISIBLE);
+                        itemHolder.ringtoneTitle.setVisibility(View.VISIBLE);
                         alarm.setDefaultAlarm(mContext);
                         itemHolder.alarmtone.setText("");
                     }
@@ -1038,7 +1038,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 }
             });
             itemHolder.ringtone.setVisibility(itemHolder.alarmtone.isChecked() ? View.VISIBLE : View.GONE);
-
+            itemHolder.ringtoneTitle.setVisibility(itemHolder.alarmtone.isChecked() ? View.VISIBLE : View.GONE);
             ringtone = mContext.getResources().getString(R.string.ringtone_disabled);
 
             mediaAlertEnabled = false;
@@ -1081,6 +1081,12 @@ public class AlarmClockFragment extends DeskClockFragment implements
                     showAlarmRingtoneDialog(alarm, true);
                 }
             });
+            itemHolder.prealarmRingtoneTitle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showAlarmRingtoneDialog(alarm, true);
+                }
+            });
         }
 
         // Sets the alpha of the digital time display. This gives a visual effect
@@ -1089,7 +1095,9 @@ public class AlarmClockFragment extends DeskClockFragment implements
             if (enabled) {
                 holder.clock.setTextColor(getResources().getColor(R.color.hot_blue));
             } else {
-                holder.clock.setTextColor(getResources().getColor(R.color.text_color_light));
+                TypedValue outValue = new TypedValue();
+                getActivity().getTheme().resolveAttribute(android.R.attr.textColorPrimary, outValue, true);
+                holder.clock.setTextColor(getResources().getColor(outValue.resourceId));
             }
         }
 

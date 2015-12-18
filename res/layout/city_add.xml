@@ -20,24 +20,19 @@
     android:layout_height="match_parent"
     android:paddingStart="@dimen/alert_dialog_padding_material"
     android:paddingEnd="@dimen/alert_dialog_padding_material"
-    android:paddingTop="@dimen/alert_dialog_padding_material"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:minWidth="300dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="10dp"
         android:orientation="horizontal" >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:text="@string/cities_add_city_city" />
 
         <ImageButton
             android:id="@+id/add_city_gps"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:contentDescription="@string/cities_add_city_gps_cd"
             android:src="@drawable/ic_gps"
             android:background="?android:attr/selectableItemBackground"
@@ -52,7 +47,7 @@
             android:selectAllOnFocus="true"
             android:gravity="center_vertical"
             android:inputType="textNoSuggestions"
-            android:textColor="@color/text_color_light" >
+            style="@style/TextAppearanceDayNight" >
             <requestFocus />
         </EditText>
     </LinearLayout>
@@ -60,13 +55,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="12dp"
+        android:paddingTop="4dp"
         android:orientation="horizontal" >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:text="@string/cities_add_city_timezone" />
 
         <Spinner
             android:id="@+id/add_city_tz"
