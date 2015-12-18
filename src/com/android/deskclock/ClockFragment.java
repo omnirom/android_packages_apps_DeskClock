@@ -209,15 +209,8 @@ public class ClockFragment extends DeskClockFragment implements OnSharedPreferen
 
         // On tablet landscape, the clock frame will be a distinct view. Otherwise, it'll be added
         // on as a header to the main listview.
-        mClockFrame = v.findViewById(R.id.main_clock_left_pane);
-        if (mClockFrame == null) {
-            mClockFrame = inflater.inflate(R.layout.main_clock_frame, mList, false);
-            mList.addHeaderView(mClockFrame, null, false);
-            mClockFrame.setOnTouchListener(longPressNightMode);
-        } else {
-            // The main clock frame needs its own touch listener for night mode now.
-            mClockFrame.setOnTouchListener(longPressNightMode);
-        }
+        mClockFrame = v.findViewById(R.id.main_clock);
+        mClockFrame.setOnTouchListener(longPressNightMode);
         mClockFrame.setOutlineProvider(MAIN_CLOCK_OUTLINE_PROVIDER);
         mList.setOnTouchListener(longPressEditCities);
 
@@ -269,8 +262,7 @@ public class ClockFragment extends DeskClockFragment implements OnSharedPreferen
         mClockStyle = (clockView == mDigitalClock ?
                 Utils.CLOCK_TYPE_DIGITAL : Utils.CLOCK_TYPE_ANALOG);
 
-        // Center the main clock frame if cities are empty.
-        if (getView().findViewById(R.id.main_clock_left_pane) != null && mAdapter.getCount() == 0) {
+        if (mAdapter.getCount() == 0) {
             mList.setVisibility(View.GONE);
         } else {
             mList.setVisibility(View.VISIBLE);

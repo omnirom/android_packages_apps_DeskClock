@@ -15,16 +15,14 @@
 -->
 
 <LinearLayout
-    android:id="@+id/alarm_item"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:dc="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/alarm_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_horizontal|top"
     android:orientation="vertical"
-    android:background="@color/view_background"
+    android:background="@drawable/view_background"
     android:elevation="@dimen/item_elevation" >
-    <!-- TODO~: flatten this layout using gridLayout which supports layout_weight as of 21 -->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -75,13 +73,12 @@
                 android:layout_height="28dip"
                 android:layout_gravity="center_vertical|start"
                 android:text="@string/alarm_repeat"
-                android:textSize="16sp"
                 android:paddingStart="12dip" />
 
             <LinearLayout
                 android:id="@+id/repeat_days"
                 android:layout_width="match_parent"
-                android:layout_height="48dip"
+                android:layout_height="@dimen/repeat_day_height"
                 android:layout_gravity="center_vertical"
                 android:orientation="horizontal"
                 android:visibility="gone">
@@ -100,8 +97,7 @@
                     android:layout_centerVertical="true"
                     android:includeFontPadding="false"
                     android:text="@string/alarm_title"
-                    android:paddingStart="12dip"
-                    android:textSize="16sp" />
+                    android:paddingStart="12dip" />
                 <TextView
                     android:id="@+id/choose_ringtone"
                     android:layout_width="match_parent"
@@ -111,12 +107,11 @@
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:drawablePadding="5dp"
-                    android:drawableStart="@drawable/ic_ringtone_black"
+                    android:drawableStart="@drawable/ic_alarm_icon"
                     android:ellipsize="start"
                     android:gravity="center_vertical"
                     android:padding="2dp"
-                    android:singleLine="true"
-                    android:textSize="16sp" />
+                    android:singleLine="true" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -130,8 +125,7 @@
                     android:layout_centerVertical="true"
                     android:includeFontPadding="false"
                     android:text="@string/prealarm_title"
-                    android:paddingStart="12dip"
-                    android:textSize="16sp" />
+                    android:paddingStart="12dip" />
                 <TextView
                     android:id="@+id/prealarm_choose_ringtone"
                     android:layout_width="match_parent"
@@ -141,12 +135,11 @@
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:drawablePadding="5dp"
-                    android:drawableStart="@drawable/ic_ringtone_black"
+                    android:drawableStart="@drawable/ic_alarm_icon"
                     android:ellipsize="start"
                     android:gravity="center_vertical"
                     android:padding="2dp"
-                    android:singleLine="true"
-                    android:textSize="16sp" />
+                    android:singleLine="true"/>
             </LinearLayout>
             <CheckBox
                 android:id="@+id/vibrate_onoff"
@@ -156,8 +149,7 @@
                 android:layout_centerVertical="true"
                 android:includeFontPadding="false"
                 android:text="@string/alarm_vibrate"
-                android:paddingStart="12dip"
-                android:textSize="16sp" />
+                android:paddingStart="12dip" />
 
         </LinearLayout>
 
@@ -196,9 +188,8 @@
                     android:ellipsize="end"
                     android:singleLine="true"
                     android:paddingEnd="8dip"
-                    android:textSize="16sp"
-                    android:textColor="@color/white"
-                    android:gravity="center_vertical|start" />
+                    android:gravity="center_vertical|start"
+                    style="@style/TextAppearanceWhite" />
 
                 <TextView
                     android:id="@+id/daysOfWeek"
@@ -206,9 +197,8 @@
                     android:layout_height="match_parent"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:textSize="16sp"
-                    android:textColor="@color/white"
-                    android:gravity="center_vertical" />
+                    android:gravity="center_vertical"
+                    style="@style/TextAppearanceWhite" />
 
                 <TextView
                     android:id="@+id/tomorrowLabel"
@@ -216,9 +206,8 @@
                     android:layout_height="match_parent"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:textSize="16sp"
-                    android:textColor="@color/white"
-                    android:gravity="center_vertical" />
+                    android:gravity="center_vertical"
+                    style="@style/TextAppearanceWhite" />
 
             </com.android.deskclock.widget.EllipsizeLayout>
 

@@ -151,9 +151,9 @@ public class DirectoryChooserDialog extends DialogFragment
                 File f = mSubDirs.get(position);
                 tv.setText(f.getName());
                 if (f.isFile()) {
-                    tv.setTextColor(getActivity().getResources().getColor(R.color.clock_gray));
+                    tv.setTextColor(getActivity().getResources().getColor(R.color.text_color_disabled));
                 } else {
-                    tv.setTextColor(getActivity().getResources().getColor(R.color.black_87p));
+                    tv.setTextColor(getActivity().getResources().getColor(R.color.text_color_light));
                 }
                 return item;
             }

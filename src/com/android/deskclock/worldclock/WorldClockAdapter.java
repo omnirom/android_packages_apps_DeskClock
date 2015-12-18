@@ -200,7 +200,7 @@ public class WorldClockAdapter extends BaseAdapter {
 
     @Override
     public boolean isEnabled(int p) {
-        return false;
+        return true;
     }
 
     @Override

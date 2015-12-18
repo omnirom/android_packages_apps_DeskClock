@@ -31,10 +31,9 @@
             android:id="@+id/alarms_list"
             android:layout_width="0dip"
             android:layout_height="match_parent"
+            android:clickable="false"
             android:layout_weight="1"
-            android:dividerHeight="10dip"
             android:scrollbars="none"
-            android:divider="@null"
             android:clipToPadding="false" />
     </LinearLayout>
 
