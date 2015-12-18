@@ -62,7 +62,7 @@
                 android:gravity="center"
                 android:singleLine="true"
                 android:text="@string/label_unlabeled"
-                android:textAppearance="@style/SecondaryLabelTextAppearance" />
+                android:textAppearance="@style/PrimaryLabelTextAppearance" />
 
             <TextView
                 android:id="@+id/timer_label_placeholder"
@@ -72,7 +72,7 @@
                 android:contentDescription="@string/label"
                 android:src="@drawable/ic_label"
                 android:text="@string/label"
-                android:textAppearance="@style/SecondaryLabelTextAppearance" />
+                android:textAppearance="@style/PrimaryLabelTextAppearance" />
         </FrameLayout>
 
         <ImageButton

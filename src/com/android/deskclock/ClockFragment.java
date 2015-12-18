@@ -32,13 +32,12 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextClock;
@@ -130,96 +129,22 @@ public class ClockFragment extends DeskClockFragment implements OnSharedPreferen
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.clock_fragment, container, false);
         mList = (ListView) v.findViewById(R.id.cities);
-
-        OnTouchListener longPressNightMode = new OnTouchListener() {
-            private float mMaxMovementAllowed = -1;
-            private int mLongPressTimeout = -1;
-            private float mLastTouchX, mLastTouchY;
-
+        mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (mMaxMovementAllowed == -1) {
-                    mMaxMovementAllowed = ViewConfiguration.get(getActivity()).getScaledTouchSlop();
-                    mLongPressTimeout = ViewConfiguration.getLongPressTimeout();
-                }
-
-                switch (event.getAction()) {
-                    case (MotionEvent.ACTION_DOWN):
-                        long time = Utils.getTimeNow();
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                startActivity(new Intent(getActivity(), ScreensaverActivity.class));
-                            }
-                        }, mLongPressTimeout);
-                        mLastTouchX = event.getX();
-                        mLastTouchY = event.getY();
-                        return true;
-                    case (MotionEvent.ACTION_MOVE):
-                        float xDiff = Math.abs(event.getX() - mLastTouchX);
-                        float yDiff = Math.abs(event.getY() - mLastTouchY);
-                        if (xDiff >= mMaxMovementAllowed || yDiff >= mMaxMovementAllowed) {
-                            mHandler.removeCallbacksAndMessages(null);
-                        }
-                        break;
-                    default:
-                        mHandler.removeCallbacksAndMessages(null);
-                }
-                return false;
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startActivity(new Intent(getActivity(), CitiesActivity.class));
             }
-        };
+        });
 
-        OnTouchListener longPressEditCities = new OnTouchListener() {
-            private float mMaxMovementAllowed = -1;
-            private int mLongPressTimeout = -1;
-            private float mLastTouchX, mLastTouchY;
-
+        mClockFrame = v.findViewById(R.id.main_clock);
+        mClockFrame.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (mMaxMovementAllowed == -1) {
-                    mMaxMovementAllowed = ViewConfiguration.get(getActivity()).getScaledTouchSlop();
-                    mLongPressTimeout = ViewConfiguration.getLongPressTimeout();
-                }
-
-                switch (event.getAction()) {
-                    case (MotionEvent.ACTION_DOWN):
-                        long time = Utils.getTimeNow();
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                startActivity(new Intent(getActivity(), CitiesActivity.class));
-                            }
-                        }, mLongPressTimeout);
-                        mLastTouchX = event.getX();
-                        mLastTouchY = event.getY();
-                        return true;
-                    case (MotionEvent.ACTION_MOVE):
-                        float xDiff = Math.abs(event.getX() - mLastTouchX);
-                        float yDiff = Math.abs(event.getY() - mLastTouchY);
-                        if (xDiff >= mMaxMovementAllowed || yDiff >= mMaxMovementAllowed) {
-                            mHandler.removeCallbacksAndMessages(null);
-                        }
-                        break;
-                    default:
-                        mHandler.removeCallbacksAndMessages(null);
-                }
-                return false;
+            public boolean onLongClick(View v) {
+                startActivity(new Intent(getActivity(), ScreensaverActivity.class));
+                return true;
             }
-        };
-
-        // On tablet landscape, the clock frame will be a distinct view. Otherwise, it'll be added
-        // on as a header to the main listview.
-        mClockFrame = v.findViewById(R.id.main_clock_left_pane);
-        if (mClockFrame == null) {
-            mClockFrame = inflater.inflate(R.layout.main_clock_frame, mList, false);
-            mList.addHeaderView(mClockFrame, null, false);
-            mClockFrame.setOnTouchListener(longPressNightMode);
-        } else {
-            // The main clock frame needs its own touch listener for night mode now.
-            mClockFrame.setOnTouchListener(longPressNightMode);
-        }
+        });
         mClockFrame.setOutlineProvider(MAIN_CLOCK_OUTLINE_PROVIDER);
-        mList.setOnTouchListener(longPressEditCities);
 
         mDigitalClock = mClockFrame.findViewById(R.id.digital_clock);
         mAnalogClock = mClockFrame.findViewById(R.id.analog_clock);
@@ -269,8 +194,7 @@ public class ClockFragment extends DeskClockFragment implements OnSharedPreferen
         mClockStyle = (clockView == mDigitalClock ?
                 Utils.CLOCK_TYPE_DIGITAL : Utils.CLOCK_TYPE_ANALOG);
 
-        // Center the main clock frame if cities are empty.
-        if (getView().findViewById(R.id.main_clock_left_pane) != null && mAdapter.getCount() == 0) {
+        if (mAdapter.getCount() == 0) {
             mList.setVisibility(View.GONE);
         } else {
             mList.setVisibility(View.VISIBLE);

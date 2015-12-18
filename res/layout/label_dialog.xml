@@ -20,12 +20,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingStart="@dimen/alert_dialog_padding_material"
-    android:paddingEnd="@dimen/alert_dialog_padding_material" >
+    android:paddingEnd="@dimen/alert_dialog_padding_material"
+    android:minWidth="300dp">
 
     <EditText
         android:id="@+id/labelBox"
-        android:layout_marginTop="16dip"
-        android:layout_marginBottom="24dip"
+        android:layout_marginTop="10dip"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_below="@id/title"
