@@ -24,7 +24,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center" >
         <include layout="@layout/main_clock_frame"
-            android:id="@+id/main_clock_left_pane"
+            android:id="@+id/main_clock"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="3"
@@ -37,6 +37,7 @@
             android:layout_gravity="center"
             android:scrollbars="none"
             android:dividerHeight="8dip"
+            android:divider="@null"
             android:clipToPadding="false"
             android:layout_weight="2" />
     </LinearLayout>

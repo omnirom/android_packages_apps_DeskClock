@@ -22,11 +22,12 @@
 
     <ListView
         android:id="@+id/alarms_list"
+        android:clickable="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:dividerHeight="10dip"
-        android:scrollbars="none"
+        android:dividerHeight="8dip"
         android:divider="@null"
+        android:scrollbars="none"
         android:clipToPadding="false" />
 
     <TextView

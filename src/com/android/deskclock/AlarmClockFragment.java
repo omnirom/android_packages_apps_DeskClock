@@ -503,7 +503,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
         private final Context mContext;
         private final LayoutInflater mFactory;
         private final String[] mLongWeekDayStrings;
-        private final Typeface mRobotoNormal;
         private final ListView mList;
 
         private long mExpandedId;
@@ -575,8 +574,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
             updateDayOrder();
 
             Resources res = mContext.getResources();
-
-            mRobotoNormal = Typeface.create("sans-serif", Typeface.NORMAL);
 
             mExpandedId = expandedId;
             if (repeatCheckedIds != null) {
@@ -680,7 +677,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
             holder.tomorrowLabel = (TextView) view.findViewById(R.id.tomorrowLabel);
             holder.clock = (TextTime) view.findViewById(R.id.digital_clock);
             holder.onoff = (Switch) view.findViewById(R.id.onoff);
-            holder.onoff.setTypeface(mRobotoNormal);
             holder.daysOfWeek = (TextView) view.findViewById(R.id.daysOfWeek);
             holder.delete = (ImageButton) view.findViewById(R.id.delete);
             holder.summary = view.findViewById(R.id.summary);
@@ -820,14 +816,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
                     }
                 }
             });
-        }
-
-        private int getTintedBackgroundColor() {
-            final int c = Utils.getCurrentHourColor();
-            final int red = Color.red(c) + (int) (TINTED_LEVEL * (255 - Color.red(c)));
-            final int green = Color.green(c) + (int) (TINTED_LEVEL * (255 - Color.green(c)));
-            final int blue = Color.blue(c) + (int) (TINTED_LEVEL * (255 - Color.blue(c)));
-            return Color.rgb(red, green, blue);
         }
 
         private boolean isTomorrow(Alarm alarm) {

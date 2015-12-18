@@ -28,7 +28,6 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:textStyle="bold"
-        android:textSize="14sp"
         android:textAppearance="@style/PrimaryLabelTextAppearance" />
     <CheckBox
         android:id="@+id/city_onoff"

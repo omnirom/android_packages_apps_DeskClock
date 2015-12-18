@@ -24,5 +24,4 @@
     android:paddingStart="20dip"
     android:gravity="center"
     android:textAppearance="@style/PrimaryLabelTextAppearance"
-    android:textSize="20sp"
     android:text="@string/selected_cities_label" />

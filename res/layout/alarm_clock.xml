@@ -24,9 +24,10 @@
         android:id="@+id/alarms_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:dividerHeight="10dip"
-        android:scrollbars="none"
+        android:clickable="false"
         android:divider="@null"
+        android:dividerHeight="8dip"
+        android:scrollbars="none"
         android:clipToPadding="false" />
 
     <TextView
