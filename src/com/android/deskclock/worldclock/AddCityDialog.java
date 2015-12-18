@@ -247,7 +247,7 @@ public class AddCityDialog implements OnClickListener,
         checkGpsAvailability();
 
         // Create the dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.DialogTheme);
         builder.setTitle(R.string.cities_add_city_title);
         builder.setView(dlgView);
         builder.setPositiveButton(context.getString(android.R.string.ok), this);
@@ -290,8 +290,7 @@ public class AddCityDialog implements OnClickListener,
 
     private void setTimeZoneData(CityTimeZone[] data, int selected, boolean enabled) {
         ArrayAdapter<CityTimeZone> adapter = new ArrayAdapter<CityTimeZone>(mContext,
-                android.R.layout.simple_spinner_item, data);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.layout.spinner_item, data);
         mTimeZones.setAdapter(adapter);
         mTimeZones.setSelection(selected);
         mTimeZones.setEnabled(enabled);

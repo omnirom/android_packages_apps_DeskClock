@@ -24,9 +24,8 @@
         android:id="@+id/alarms_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:dividerHeight="10dip"
+        android:clickable="false"
         android:scrollbars="none"
-        android:divider="@null"
         android:clipToPadding="false" />
 
     <TextView
@@ -49,7 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="48dip"
             android:layout_gravity="bottom"
-            android:layout_marginBottom="96dp"
+            android:layout_marginBottom="@dimen/button_footer_height"
             android:paddingStart="@dimen/alarm_undo_bar_horizontal_margin"
             android:paddingEnd="@dimen/alarm_undo_bar_horizontal_margin"
             style="@style/ToastBarStyle" />

@@ -35,40 +35,43 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:text="@string/alarm_type_select_title"
-                android:textSize="16sp" />
+                style="@style/TextAppearanceDayNight"
+                android:text="@string/alarm_type_select_title" />
             <Spinner
                 android:id="@+id/alarm_type_select"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical" />
         </LinearLayout>
-        <TextView
-            android:id="@+id/choose_ringtone"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:drawablePadding="5dp"
-            android:drawableStart="@drawable/ic_ringtone_black"
-            android:ellipsize="start"
-            android:gravity="center_vertical"
-            android:padding="2dp"
-            android:singleLine="true"
-            android:textSize="16sp" />
+            android:paddingBottom="2dp"
+            android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                style="@style/TextAppearanceDayNight"
+                android:text="@string/alarm_ringtone_title" />
+            <TextView
+                android:id="@+id/choose_ringtone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:ellipsize="start"
+                android:gravity="center_vertical"
+                android:paddingStart="8dp"
+                style="@style/TextAppearanceDayNight"
+                android:singleLine="true" />
+        </LinearLayout>
         <LinearLayout
             android:id="@+id/pre_alarm_time_section"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone" >
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_gravity="center"
-                android:layout_marginBottom="4dp"
-                android:layout_marginTop="4dp"
-                android:background="#28ffffff" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -77,8 +80,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:text="@string/prealarm_time_select"
-                    android:textSize="16sp" />
+                    style="@style/TextAppearanceDayNight"
+                    android:text="@string/prealarm_time_select" />
                 <Spinner
                     android:id="@+id/pre_alarm_time_select"
                     android:layout_width="match_parent"
@@ -86,19 +89,12 @@
                     android:gravity="center_vertical" />
             </LinearLayout>
         </LinearLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_gravity="center"
-            android:layout_marginBottom="4dp"
-            android:layout_marginTop="4dp"
-            android:background="#28ffffff" />
-        -
+
         <CheckBox
             android:id="@+id/alarm_volume_enable"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            style="@style/TextAppearanceDayNight"
             android:text="@string/alarm_volume_enable_title" />
         <LinearLayout
             android:id="@+id/alarm_volume_container"
@@ -138,13 +134,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
-            android:textSize="16sp"
+            style="@style/TextAppearanceDayNight"
             android:text="@string/alarm_increasing_volume" />
         <CheckBox
             android:id="@+id/random_mode_enable"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            style="@style/TextAppearanceDayNight"
             android:text="@string/random_mode_enable_title" />
     </LinearLayout>
 </LinearLayout>

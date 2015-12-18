@@ -68,8 +68,7 @@ class SlidingTabStrip extends LinearLayout {
         final int themeBackgroundColor =  outValue.data;
         setBackgroundColor(themeBackgroundColor);
 
-        context.getTheme().resolveAttribute(R.attr.textColorPrimary, outValue, true);
-        mTextPrimaryColor =  outValue.data;
+        mTextPrimaryColor = getResources().getColor(R.color.white);
 
         mTextPrimaryColorDisabled = setColorAlpha(mTextPrimaryColor,
                 DISABLED_TAB_TEXT_COLOR_ALPHA);

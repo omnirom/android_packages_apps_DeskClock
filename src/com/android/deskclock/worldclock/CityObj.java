@@ -23,6 +23,7 @@ public class CityObj {
     private static final String CITY_NAME = "city_name_";
     private static final String CITY_TIME_ZONE = "city_tz_";
     private static final String CITY_ID = "city_id_";
+    private static final String CITY_UD = "ud_";
 
     public String mCityName;
     public String mTimeZone;
@@ -51,11 +52,13 @@ public class CityObj {
         mCityName = prefs.getString(CITY_NAME + index, null);
         mTimeZone = prefs.getString(CITY_TIME_ZONE + index, null);
         mCityId = prefs.getString(CITY_ID + index, null);
+        mUserDefined = prefs.getBoolean(CITY_UD + index, false);
     }
 
     public void saveCityToSharedPrefs(SharedPreferences.Editor editor, int index) {
         editor.putString (CITY_NAME + index, mCityName);
         editor.putString (CITY_TIME_ZONE + index, mTimeZone);
         editor.putString (CITY_ID + index, mCityId);
+        editor.putBoolean (CITY_UD + index, mUserDefined);
     }
 }
