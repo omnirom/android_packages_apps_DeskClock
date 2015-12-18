@@ -154,7 +154,7 @@ public class AlarmRingtoneDialog extends DialogFragment implements
             mRandomModeValue = mAlarm.getRandomMode(mPreAlarm);
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.DialogTheme)
         .setTitle(mPreAlarm ? R.string.prealarm_title : R.string.alarm_title)
         .setPositiveButton(android.R.string.ok, this)
         .setNeutralButton(R.string.alarm_test_button, null)
