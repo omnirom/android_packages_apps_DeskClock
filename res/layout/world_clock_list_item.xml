@@ -13,7 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
+    <!--android:background="?android:attr/selectableItemBackground"-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -22,13 +22,45 @@
     android:paddingStart="@dimen/world_clock_margin"
     android:orientation="horizontal"
     android:elevation="@dimen/item_elevation"
+    android:foreground="?android:attr/selectableItemBackground"
     android:background="@color/view_background">
 
-    <include layout="@layout/world_clock_item"
-        android:id="@+id/city_left"
-        android:gravity="center"
+    <com.android.deskclock.widget.EllipsizeLayout
+        android:id="@+id/city_name_layout"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_vertical" >
+
+        <include layout="@layout/world_clock_label"/>
+
+    </com.android.deskclock.widget.EllipsizeLayout>
+
+    <Space
         android:layout_width="0dip"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_height="wrap_content">
+
+        <TextClock
+            android:id="@+id/digital_clock"
+            android:format12Hour="@string/world_clock_12_hours_format"
+            android:format24Hour="@string/clock_24_hours_format"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/medium_light"
+            android:baselineAligned="true"
+            android:layout_gravity="center"
+            android:gravity="center" />
+        <com.android.deskclock.AnalogClock
+            android:id="@+id/analog_clock"
+            android:gravity="center"
+            android:layout_width="@dimen/world_clock_analog_size"
+            android:layout_height="@dimen/world_clock_analog_size"
+            android:layout_gravity="center_horizontal" />
+    </FrameLayout>
 
 </LinearLayout>

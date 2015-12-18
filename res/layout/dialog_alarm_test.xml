@@ -17,17 +17,17 @@
  */
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingStart="@dimen/alert_dialog_padding_material"
     android:paddingEnd="@dimen/alert_dialog_padding_material"
-    android:gravity="center_horizontal" >
+    android:minWidth="300dp" >
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginTop="16dip"
         android:gravity="center"
-        android:text="@string/alarm_test_dialog_content"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        style="@style/TextAppearanceDayNight"
+        android:text="@string/alarm_test_dialog_content" />
 </LinearLayout>

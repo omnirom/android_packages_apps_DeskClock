@@ -200,7 +200,7 @@ public class WorldClockAdapter extends BaseAdapter {
 
     @Override
     public boolean isEnabled(int p) {
-        return false;
+        return true;
     }
 
     @Override
@@ -214,7 +214,7 @@ public class WorldClockAdapter extends BaseAdapter {
         if (view == null) {
             view = mInflater.inflate(R.layout.world_clock_list_item, parent, false);
         }
-        updateView(view.findViewById(R.id.city_left), (CityObj)mCitiesList[index]);
+        updateView(view, (CityObj)mCitiesList[index]);
         return view;
     }
 

@@ -26,15 +26,14 @@
         android:id="@+id/current_folder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_marginTop="10dip"
+        android:gravity="center_vertical"
         android:ellipsize="start"
-        android:minHeight="40dip"
+        android:minHeight="?android:attr/listPreferredItemHeightSmall"
         android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
         android:paddingStart="?android:attr/listPreferredItemPaddingStart"
         android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/hot_blue" />
+        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+        android:textColor="@color/text_color_light" />
     <View
         android:id="@+id/hairline"
         android:layout_width="match_parent"

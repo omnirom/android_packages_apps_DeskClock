@@ -16,6 +16,7 @@
 
 package com.android.deskclock.worldclock;
 
+import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -24,6 +25,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -87,6 +89,8 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
 
     private static final int SORT_BY_NAME = 0;
     private static final int SORT_BY_GMT_OFFSET = 1;
+
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
 
     /**
      * This must be false for production. If true, turns on logging, test code,
@@ -296,7 +300,11 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
             mInflater = factory;
 
             Resources res = context.getResources();
-            mNormalCityFgColor = res.getColor(R.color.text_color_light);
+
+            TypedValue outValue = new TypedValue();
+            context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, outValue, true);
+            mNormalCityFgColor = res.getColor(outValue.resourceId);
+
             mUserDefinedCityFgColor = res.getColor(R.color.hot_blue);
 
             mPattern24 = DateFormat.getBestDateTimePattern(Locale.getDefault(), "Hm");
@@ -624,7 +632,7 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
                 finish();
                 break;
             case R.id.menu_item_add:
-                showAddCityDialog(null);
+                showAddCityDialog();
                 return true;
             case R.id.menu_item_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -707,6 +715,10 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
         onCheckedChanged(b, checked);
         b.setChecked(!checked);
         mAdapter.refreshSelectedCities(null);
+        if (!checked) {
+            // scroll to top cause we will remove a selected city and place it on top
+            mCitiesList.setSelectionAfterHeaderView();
+        }
     }
 
     @Override
@@ -754,6 +766,30 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
             mAddCityDialog.onRestoreInstanceState(savedInstance);
         }
         mAddCityDialog.show();
+    }
+
+    private void showAddCityDialog() {
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        } else {
+            showAddCityDialog(null);
+        }
+   }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    showAddCityDialog(null);
+                }
+            }
+            return;
+        }
     }
 
     @Override
