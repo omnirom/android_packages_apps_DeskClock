@@ -111,12 +111,19 @@ public class TestAlarmKlaxon {
                 sMultiFileMode = true;
             }
             if (sMultiFileMode) {
-                collectFiles(context, alarmNoise);
-                if (mSongs.size() != 0) {
-                    alarmNoise = mSongs.get(0);
-                } else {
+                // can fail if no external storage permissions
+                try {
+                    collectFiles(context, alarmNoise);
+                    if (mSongs.size() != 0) {
+                        alarmNoise = mSongs.get(0);
+                    } else {
+                        sError = true;
+                        sErrorHandler.onError("Empty folder");
+                        return;
+                    }
+                 } catch (Exception ex) {
                     sError = true;
-                    sErrorHandler.onError("Empty folder");
+                    sErrorHandler.onError("Error accessing folder");
                     return;
                 }
             }
@@ -159,7 +166,7 @@ public class TestAlarmKlaxon {
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
                 sError = true;
-                sErrorHandler.onError("Error playing " + alarmNoise);
+                sErrorHandler.onError("Error playing alarm sound");
                 return true;
             }
         });
@@ -190,7 +197,7 @@ public class TestAlarmKlaxon {
             sMediaPlayer.start();
         } catch (Exception ex) {
             sError = true;
-            sErrorHandler.onError("Error playing " + alarmNoise);
+            sErrorHandler.onError("Error playing alarm sound");
         }
     }
 

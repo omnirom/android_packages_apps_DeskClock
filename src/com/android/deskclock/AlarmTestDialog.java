@@ -81,7 +81,7 @@ public class AlarmTestDialog extends DialogFragment implements
                 new TestAlarmKlaxon.ErrorHandler() {
             @Override
             public void onError(String msg) {
-                mTitle.setText(R.string.play_error_title);
+                mTitle.setText(msg);
             }
         });
     }

@@ -190,10 +190,19 @@ public class AlarmKlaxon {
             }
 
             if (sMultiFileMode) {
-                collectFiles(context, alarmNoise);
-                if (mSongs.size() != 0) {
-                    alarmNoise = mSongs.get(0);
-                } else {
+                // can fail if no external storage permissions
+                try {
+                    collectFiles(context, alarmNoise);
+                    if (mSongs.size() != 0) {
+                        alarmNoise = mSongs.get(0);
+                    } else {
+                        // fallback
+                        alarmNoise = null;
+                        sMultiFileMode = false;
+                    }
+                } catch (Exception ex) {
+                    LogUtils.e("Error accessing folder contents", ex);
+                    // fallback
                     alarmNoise = null;
                     sMultiFileMode = false;
                 }
