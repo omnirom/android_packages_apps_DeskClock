@@ -16,12 +16,14 @@
 
 package com.android.deskclock;
 
+import android.Manifest;
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.content.ContentResolver;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
@@ -112,10 +114,13 @@ public class SettingsActivity extends PreferenceActivity
     public static final String ALARM_SNOOZE = "1";
     public static final String ALARM_DISMISS = "2";
 
+    private static final int PERMISSIONS_REQUEST_WRITE_SETTINGS = 0;
+
     private static CharSequence[][] mTimezones;
     private long mTime;
     private RingtonePreference mTimerAlarmPref;
     private final Handler mHandler = new Handler();
+    private CheckBoxPreference mFullscreenAlarm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -295,16 +300,18 @@ public class SettingsActivity extends PreferenceActivity
         listPref.setSummary(listPref.getEntry());
         listPref.setOnPreferenceChangeListener(this);
 
-        CheckBoxPreference fullscreenAlarm = (CheckBoxPreference) findPreference(KEY_FULLSCREEN_ALARM);
-        fullscreenAlarm.setChecked(Settings.System.getInt(this.getContentResolver(),
+        mFullscreenAlarm = (CheckBoxPreference) findPreference(KEY_FULLSCREEN_ALARM);
+        mFullscreenAlarm.setChecked(Settings.System.getInt(this.getContentResolver(),
 	            Settings.System.SHOW_ALARM_FULLSCREEN, 0) == 1);
-        fullscreenAlarm.setOnPreferenceChangeListener(this);
-        fullscreenAlarm.setEnabled(hasWriteSettingsPerms());
+        mFullscreenAlarm.setOnPreferenceChangeListener(this);
+        mFullscreenAlarm.setEnabled(false);
 
         listPref = (ListPreference) findPreference(KEY_WEEK_START);
         listPref.setEntries(getWeekdays());
         listPref.setSummary(listPref.getEntry());
         listPref.setOnPreferenceChangeListener(this);
+
+        checkWritePermissions();
     }
 
     private class TimeZoneRow implements Comparable<TimeZoneRow> {
@@ -417,16 +424,27 @@ public class SettingsActivity extends PreferenceActivity
         return weekDayList.toArray(new String[weekDayList.size()]);
     }
 
-    private boolean hasWriteSettingsPerms() {
-        final int val = Settings.System.getInt(this.getContentResolver(),
-	            Settings.System.SHOW_ALARM_FULLSCREEN, 0);
-        try {
-            // Ugh!
-            Settings.System.putInt(this.getContentResolver(),
-	            Settings.System.SHOW_ALARM_FULLSCREEN, val + 1);
-        } catch(java.lang.SecurityException e) {
-            return false;
+    private void checkWritePermissions() {
+        if (checkSelfPermission(Manifest.permission.WRITE_SETTINGS)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] { Manifest.permission.WRITE_SETTINGS },
+                    PERMISSIONS_REQUEST_WRITE_SETTINGS);
+        } else {
+            mFullscreenAlarm.setEnabled(true);
         }
-        return true;
+   }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_WRITE_SETTINGS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mFullscreenAlarm.setEnabled(true);
+                }
+            }
+            return;
+        }
     }
 }
