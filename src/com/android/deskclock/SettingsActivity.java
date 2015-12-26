@@ -116,6 +116,7 @@ public class SettingsActivity extends PreferenceActivity
     private long mTime;
     private RingtonePreference mTimerAlarmPref;
     private final Handler mHandler = new Handler();
+    private CheckBoxPreference mFullscreenAlarm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,12 +142,16 @@ public class SettingsActivity extends PreferenceActivity
         mTimerAlarmPref = (RingtonePreference) findPreference(KEY_TIMER_ALARM);
         mTimerAlarmPref.setOnPreferenceChangeListener(this);
         addSettings();
+        checkWritePermissions();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         lookupRingtoneNames();
+        if (Settings.System.canWrite(this)) {
+            mFullscreenAlarm.setEnabled(true);
+        }
     }
 
     @Override
@@ -295,11 +300,11 @@ public class SettingsActivity extends PreferenceActivity
         listPref.setSummary(listPref.getEntry());
         listPref.setOnPreferenceChangeListener(this);
 
-        CheckBoxPreference fullscreenAlarm = (CheckBoxPreference) findPreference(KEY_FULLSCREEN_ALARM);
-        fullscreenAlarm.setChecked(Settings.System.getInt(this.getContentResolver(),
+        mFullscreenAlarm = (CheckBoxPreference) findPreference(KEY_FULLSCREEN_ALARM);
+        mFullscreenAlarm.setChecked(Settings.System.getInt(this.getContentResolver(),
 	            Settings.System.SHOW_ALARM_FULLSCREEN, 0) == 1);
-        fullscreenAlarm.setOnPreferenceChangeListener(this);
-        fullscreenAlarm.setEnabled(hasWriteSettingsPerms());
+        mFullscreenAlarm.setOnPreferenceChangeListener(this);
+        mFullscreenAlarm.setEnabled(false);
 
         listPref = (ListPreference) findPreference(KEY_WEEK_START);
         listPref.setEntries(getWeekdays());
@@ -417,16 +422,10 @@ public class SettingsActivity extends PreferenceActivity
         return weekDayList.toArray(new String[weekDayList.size()]);
     }
 
-    private boolean hasWriteSettingsPerms() {
-        final int val = Settings.System.getInt(this.getContentResolver(),
-	            Settings.System.SHOW_ALARM_FULLSCREEN, 0);
-        try {
-            // Ugh!
-            Settings.System.putInt(this.getContentResolver(),
-	            Settings.System.SHOW_ALARM_FULLSCREEN, val + 1);
-        } catch(java.lang.SecurityException e) {
-            return false;
+    private void checkWritePermissions() {
+        if (!Settings.System.canWrite(this)) {
+            Intent grantIntent = new   Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+            startActivity(grantIntent);
         }
-        return true;
-    }
+   }
 }
