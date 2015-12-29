@@ -58,7 +58,7 @@
                 android:id="@+id/choose_ringtone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:background="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:ellipsize="start"
                 android:gravity="center_vertical"

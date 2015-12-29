@@ -120,7 +120,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     style="@style/TextAppearanceDayNight"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackground"
                     android:text="@string/alarm_ringtone_title" />
                 <TextView
                     android:id="@+id/choose_ringtone"
@@ -128,7 +128,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_marginEnd="16dp"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:ellipsize="start"
                     android:gravity="center_vertical"
@@ -155,7 +155,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     style="@style/TextAppearanceDayNight"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackground"
                     android:text="@string/alarm_ringtone_title" />
                 <TextView
                     android:id="@+id/prealarm_choose_ringtone"
@@ -163,7 +163,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_marginEnd="16dp"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:ellipsize="start"
                     android:gravity="center_vertical"
@@ -242,6 +242,15 @@
                         android:gravity="center_vertical"/>
 
                 </com.android.deskclock.widget.EllipsizeLayout>
+
+                <ImageButton
+                    android:id="@+id/clone"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:gravity="center_vertical"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/clone_alarm"
+                    android:src="@drawable/ic_clone_alarm" />
 
                 <ImageButton
                     android:id="@+id/delete"
