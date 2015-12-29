@@ -327,6 +327,25 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         randomMode = p.readInt();
     }
 
+    public Alarm(Alarm fromAlarm) {
+        this.id = INVALID_ID;
+        this.enabled = fromAlarm.enabled;
+        this.hour = fromAlarm.hour;
+        this.minutes = fromAlarm.minutes;
+        this.vibrate = fromAlarm.vibrate;
+        this.daysOfWeek = fromAlarm.daysOfWeek;
+        this.label = fromAlarm.label;
+        this.alert = fromAlarm.alert;
+        this.deleteAfterUse = fromAlarm.deleteAfterUse;
+        this.increasingVolume = fromAlarm.increasingVolume;
+        this.preAlarm = fromAlarm.preAlarm;
+        this.alarmVolume = fromAlarm.alarmVolume;
+        this.preAlarmVolume = fromAlarm.preAlarmVolume;
+        this.preAlarmTime = fromAlarm.preAlarmTime;
+        this.preAlarmAlert = fromAlarm.preAlarmAlert;
+        this.randomMode = fromAlarm.randomMode;
+    }
+
     public String getLabelOrDefault(Context context) {
         if (label == null || label.length() == 0) {
             return context.getString(R.string.default_label);

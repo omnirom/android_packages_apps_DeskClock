@@ -99,4 +99,5 @@
     <string name="timer_alarm_custom_summary"></string>
     <string name="week_start_title">Week starts on</string>
     <string name="default_week_start">Locale default</string>
+    <string name="clone_alarm">Copy alarm</string>
 </resources>
