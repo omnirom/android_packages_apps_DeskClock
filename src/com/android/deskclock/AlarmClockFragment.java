@@ -115,17 +115,13 @@ public class AlarmClockFragment extends DeskClockFragment implements
     private static final float TINTED_LEVEL = 0.09f;
 
     private static final String KEY_EXPANDED_ID = "expandedId";
-    private static final String KEY_REPEAT_CHECKED_IDS = "repeatCheckedIds";
     private static final String KEY_RINGTONE_TITLE_CACHE = "ringtoneTitleCache";
-    private static final String KEY_SELECTED_ALARMS = "selectedAlarms";
     private static final String KEY_DELETED_ALARM = "deletedAlarm";
     private static final String KEY_UNDO_SHOWING = "undoShowing";
-    private static final String KEY_PREVIOUS_DAY_MAP = "previousDayMap";
     private static final String KEY_SELECTED_ALARM = "selectedAlarm";
     private static final DeskClockExtensions sDeskClockExtensions = ExtensionsFactory
                     .getDeskClockExtensions();
 
-    private static final int REQUEST_CODE_RINGTONE = 1;
     private static final long INVALID_ID = -1;
 
     // This extra is used when receiving an intent to create an alarm, but no alarm details
@@ -139,7 +135,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
     private FrameLayout mMainLayout;
     private ListView mAlarmsList;
     private AlarmItemAdapter mAdapter;
-    private View mEmptyView;
 
     private Bundle mRingtoneTitleCache; // Key: ringtone uri, value: ringtone title
     private ActionableToastBar mUndoBar;
@@ -154,13 +149,13 @@ public class AlarmClockFragment extends DeskClockFragment implements
     private Alarm mDeletedAlarm;
     private Alarm mAddedAlarm;
     private boolean mUndoShowing;
+    private boolean mCloneAlarm;
 
     private Interpolator mExpandInterpolator;
     private Interpolator mCollapseInterpolator;
 
     private Transition mAddRemoveTransition;
     private Transition mRepeatTransition;
-    private Transition mEmptyViewTransition;
 
     private List<Uri> mAlarms;
 
@@ -184,17 +179,11 @@ public class AlarmClockFragment extends DeskClockFragment implements
 
         cacheSystemTones();
 
-        long[] repeatCheckedIds = null;
-        long[] selectedAlarms = null;
-        Bundle previousDayMap = null;
         if (savedState != null) {
             expandedId = savedState.getLong(KEY_EXPANDED_ID);
-            repeatCheckedIds = savedState.getLongArray(KEY_REPEAT_CHECKED_IDS);
             mRingtoneTitleCache = savedState.getBundle(KEY_RINGTONE_TITLE_CACHE);
             mDeletedAlarm = savedState.getParcelable(KEY_DELETED_ALARM);
             mUndoShowing = savedState.getBoolean(KEY_UNDO_SHOWING);
-            selectedAlarms = savedState.getLongArray(KEY_SELECTED_ALARMS);
-            previousDayMap = savedState.getBundle(KEY_PREVIOUS_DAY_MAP);
             mSelectedAlarm = savedState.getParcelable(KEY_SELECTED_ALARM);
         }
 
@@ -208,14 +197,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
         mRepeatTransition.setDuration(ANIMATION_DURATION / 2);
         mRepeatTransition.setInterpolator(new AccelerateDecelerateInterpolator());
 
-        mEmptyViewTransition = new TransitionSet()
-                .setOrdering(TransitionSet.ORDERING_SEQUENTIAL)
-                .addTransition(new Fade(Fade.OUT))
-                .addTransition(new Fade(Fade.IN))
-                .setDuration(ANIMATION_DURATION);
-
-        mEmptyView = v.findViewById(R.id.alarms_empty_view);
-
         mMainLayout = (FrameLayout) v.findViewById(R.id.main);
         mAlarmsList = (ListView) v.findViewById(R.id.alarms_list);
         mAlarmsList.setDivider(null);
@@ -225,8 +206,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
         mUndoFrame = v.findViewById(R.id.undo_frame);
         mUndoFrame.setOnTouchListener(this);
 
-        mAdapter = new AlarmItemAdapter(getActivity(),
-                expandedId, repeatCheckedIds, selectedAlarms, previousDayMap, mAlarmsList);
+        mAdapter = new AlarmItemAdapter(getActivity(), expandedId, mAlarmsList);
         mAdapter.registerDataSetObserver(new DataSetObserver() {
 
             private int prevAdapterCount = -1;
@@ -238,12 +218,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 if (mDeletedAlarm != null && prevAdapterCount > count) {
                     showUndoBar();
                 }
-
-                if ((count == 0 && prevAdapterCount > 0) ||  /* should fade in */
-                        (count > 0 && prevAdapterCount == 0) /* should fade out */) {
-                    TransitionManager.beginDelayedTransition(mMainLayout, mEmptyViewTransition);
-                }
-                mEmptyView.setVisibility(count == 0 ? View.VISIBLE : View.GONE);
 
                 // Cache this adapter's count for when the adapter changes.
                 prevAdapterCount = count;
@@ -345,12 +319,9 @@ public class AlarmClockFragment extends DeskClockFragment implements
         super.onSaveInstanceState(outState);
         if (mAdapter != null) {
             outState.putLong(KEY_EXPANDED_ID, mAdapter.getExpandedId());
-            outState.putLongArray(KEY_REPEAT_CHECKED_IDS, mAdapter.getRepeatArray());
-            outState.putLongArray(KEY_SELECTED_ALARMS, mAdapter.getSelectedAlarmsArray());
             outState.putBundle(KEY_RINGTONE_TITLE_CACHE, mRingtoneTitleCache);
             outState.putParcelable(KEY_DELETED_ALARM, mDeletedAlarm);
             outState.putBoolean(KEY_UNDO_SHOWING, mUndoShowing);
-            outState.putBundle(KEY_PREVIOUS_DAY_MAP, mAdapter.getPreviousDaysOfWeekMap());
             outState.putParcelable(KEY_SELECTED_ALARM, mSelectedAlarm);
         }
     }
@@ -377,22 +348,27 @@ public class AlarmClockFragment extends DeskClockFragment implements
     // Callback used by TimePickerDialog
     @Override
     public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
-        if (mSelectedAlarm == null) {
-            // If mSelectedAlarm is null then we're creating a new alarm.
-            Alarm a = new Alarm();
-            a.hour = hourOfDay;
-            a.minutes = minute;
-            a.enabled = true;
-            a.alert = getDefaultAlarmUri();
-            mAddedAlarm = a;
-            asyncAddAlarm(a);
+        if (mCloneAlarm && mSelectedAlarm != null) {
+            cloneAlarm(mSelectedAlarm, hourOfDay, minute);
+            mSelectedAlarm = null;
         } else {
-            // only change time but nothing else
-            if (mSelectedAlarm.hour != hourOfDay || mSelectedAlarm.minutes != minute) {
-                mSelectedAlarm.hour = hourOfDay;
-                mSelectedAlarm.minutes = minute;
-                asyncUpdateAlarm(mSelectedAlarm, true);
-                mSelectedAlarm = null;
+            if (mSelectedAlarm == null) {
+                // If mSelectedAlarm is null then we're creating a new alarm.
+                Alarm a = new Alarm();
+                a.hour = hourOfDay;
+                a.minutes = minute;
+                a.enabled = true;
+                a.alert = getDefaultAlarmUri();
+                mAddedAlarm = a;
+                asyncAddAlarm(a);
+            } else {
+                // only change time but nothing else
+                if (mSelectedAlarm.hour != hourOfDay || mSelectedAlarm.minutes != minute) {
+                    mSelectedAlarm.hour = hourOfDay;
+                    mSelectedAlarm.minutes = minute;
+                    asyncUpdateAlarm(mSelectedAlarm, true);
+                    mSelectedAlarm = null;
+                }
             }
         }
     }
@@ -444,7 +420,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 break;
             }
         }
-
         if (alarmPosition >= 0) {
             mAdapter.setNewAlarm(alarmId);
             mAlarmsList.smoothScrollToPositionFromTop(alarmPosition, 0);
@@ -464,44 +439,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
         mAdapter.swapCursor(null);
     }
 
-    private void launchRingTonePicker(Alarm alarm) {
-        mSelectedAlarm = alarm;
-        Uri oldRingtone = Alarm.NO_RINGTONE_URI.equals(alarm.alert) ? null : alarm.alert;
-        final Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, oldRingtone);
-        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM);
-        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, false);
-        startActivityForResult(intent, REQUEST_CODE_RINGTONE);
-    }
-
-    private void saveRingtoneUri(Intent intent) {
-        Uri uri = intent.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-        if (uri == null) {
-            uri = Alarm.NO_RINGTONE_URI;
-        }
-        mSelectedAlarm.alert = uri;
-
-        // Save the last selected ringtone as the default for new alarms
-        if (!Alarm.NO_RINGTONE_URI.equals(uri)) {
-            RingtoneManager.setActualDefaultRingtoneUri(
-                    getActivity(), RingtoneManager.TYPE_ALARM, uri);
-        }
-        asyncUpdateAlarm(mSelectedAlarm, false);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            switch (requestCode) {
-                case REQUEST_CODE_RINGTONE:
-                    saveRingtoneUri(data);
-                    break;
-                default:
-                    LogUtils.w("Unhandled request code in onActivityResult: " + requestCode);
-            }
-        }
-    }
-
     public class AlarmItemAdapter extends CursorAdapter {
         private final Context mContext;
         private final LayoutInflater mFactory;
@@ -510,9 +447,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
 
         private long mExpandedId;
         private ItemHolder mExpandedItemHolder;
-        private final HashSet<Long> mRepeatChecked = new HashSet<Long>();
-        private final HashSet<Long> mSelectedAlarms = new HashSet<Long>();
-        private Bundle mPreviousDaysOfWeekMap = new Bundle();
 
         private final boolean mHasVibrator;
         private final int mCollapseExpandHeight;
@@ -545,28 +479,15 @@ public class AlarmClockFragment extends DeskClockFragment implements
             TextView prealarmRingtone;
             TextView ringtoneTitle;
             TextView prealarmRingtoneTitle;
+            ImageButton clone;
             // Other states
             Alarm alarm;
         }
 
         // Used for scrolling an expanded item in the list to make sure it is fully visible.
         private long mScrollAlarmId = AlarmClockFragment.INVALID_ID;
-        private final Runnable mScrollRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (mScrollAlarmId != AlarmClockFragment.INVALID_ID) {
-                    View v = getViewById(mScrollAlarmId);
-                    if (v != null) {
-                        Rect rect = new Rect(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
-                        mList.requestChildRectangleOnScreen(v, rect, false);
-                    }
-                    mScrollAlarmId = AlarmClockFragment.INVALID_ID;
-                }
-            }
-        };
 
-        public AlarmItemAdapter(Context context, long expandedId, long[] repeatCheckedIds,
-                long[] selectedAlarms, Bundle previousDaysOfWeekMap, ListView list) {
+        public AlarmItemAdapter(Context context, long expandedId, ListView list) {
             super(context, null, 0);
             mContext = context;
             mFactory = LayoutInflater.from(context);
@@ -580,15 +501,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
             Resources res = mContext.getResources();
 
             mExpandedId = expandedId;
-            if (repeatCheckedIds != null) {
-                buildHashSetFromArray(repeatCheckedIds, mRepeatChecked);
-            }
-            if (previousDaysOfWeekMap != null) {
-                mPreviousDaysOfWeekMap = previousDaysOfWeekMap;
-            }
-            if (selectedAlarms != null) {
-                buildHashSetFromArray(selectedAlarms, mSelectedAlarms);
-            }
 
             mHasVibrator = ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE))
                     .hasVibrator();
@@ -627,10 +539,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
             return weekDayList.toArray(new String[weekDayList.size()]);
         }
 
-        public void removeSelectedId(int id) {
-            mSelectedAlarms.remove(id);
-        }
-
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (!getCursor().moveToPosition(position)) {
@@ -662,9 +570,10 @@ public class AlarmClockFragment extends DeskClockFragment implements
          */
         @Override
         public synchronized Cursor swapCursor(Cursor cursor) {
-            if (mAddedAlarm != null || mDeletedAlarm != null) {
+            // maxwen TODO this causes graphic glitches
+            /*if (mAddedAlarm != null || mDeletedAlarm != null) {
                 TransitionManager.beginDelayedTransition(mAlarmsList, mAddRemoveTransition);
-            }
+            }*/
 
             final Cursor c = super.swapCursor(cursor);
 
@@ -697,6 +606,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
             holder.prealarmRingtone = (TextView) view.findViewById(R.id.prealarm_choose_ringtone);
             holder.ringtoneTitle = (TextView) view.findViewById(R.id.choose_ringtone_title);
             holder.prealarmRingtoneTitle = (TextView) view.findViewById(R.id.prealarm_choose_ringtone_title);
+            holder.clone = (ImageButton) view.findViewById(R.id.clone);
             view.setTag(holder);
         }
 
@@ -715,12 +625,8 @@ public class AlarmClockFragment extends DeskClockFragment implements
             // state would affect the wrong alarm.
             itemHolder.onoff.setOnCheckedChangeListener(null);
             itemHolder.onoff.setChecked(alarm.enabled);
+            setDigitalTimeAlpha(itemHolder, alarm.enabled);
 
-            if (mSelectedAlarms.contains(itemHolder.alarm.id)) {
-                setDigitalTimeAlpha(itemHolder, true);
-            } else {
-                setDigitalTimeAlpha(itemHolder, itemHolder.onoff.isChecked());
-            }
             itemHolder.clock.setFormat(
                     (int)mContext.getResources().getDimension(R.dimen.alarm_label_size));
             itemHolder.clock.setTime(alarm.hour, alarm.minutes);
@@ -729,6 +635,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 @Override
                 public void onClick(View view) {
                     mSelectedAlarm = itemHolder.alarm;
+                    mCloneAlarm = false;
                     AlarmUtils.showTimeEditDialog(AlarmClockFragment.this, alarm);
                 }
             });
@@ -746,7 +653,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
                         }
                     };
 
-            if (mRepeatChecked.contains(alarm.id) || itemHolder.alarm.daysOfWeek.isRepeating()) {
+            if (itemHolder.alarm.daysOfWeek.isRepeating()) {
                 itemHolder.tomorrowLabel.setVisibility(View.GONE);
             } else {
                 itemHolder.tomorrowLabel.setVisibility(View.VISIBLE);
@@ -781,19 +688,23 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 @Override
                 public void onClick(View v) {
                     mDeletedAlarm = alarm;
-                    mRepeatChecked.remove(alarm.id);
                     asyncDeleteAlarm(alarm);
+                }
+            })
+
+            itemHolder.clone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mSelectedAlarm = alarm;
+                    startCloningAlarm();
                 }
             });
 
-            itemHolder.summary.setEnabled(expanded ? true : false);
+            //itemHolder.summary.setEnabled(expanded ? true : false);
             itemHolder.summary.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    boolean expanded = isAlarmExpanded(itemHolder.alarm);
-                    if (expanded) {
-                        showLabelDialog(alarm);
-                    }
+                    showLabelDialog(alarm);
                 }
             });
 
@@ -832,7 +743,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
         private void bindExpandArea(final ItemHolder itemHolder, final Alarm alarm) {
             // Views in here are not bound until the item is expanded.
 
-            if (mRepeatChecked.contains(alarm.id) || itemHolder.alarm.daysOfWeek.isRepeating()) {
+            if (itemHolder.alarm.daysOfWeek.isRepeating()) {
                 itemHolder.repeat.setChecked(true);
                 itemHolder.repeatDays.setVisibility(View.VISIBLE);
             } else {
@@ -850,25 +761,14 @@ public class AlarmClockFragment extends DeskClockFragment implements
                     if (checked) {
                         // Show days
                         itemHolder.repeatDays.setVisibility(View.VISIBLE);
-                        mRepeatChecked.add(alarm.id);
 
-                        // Set all previously set days
-                        // or
-                        // Set all days if no previous.
-                        final int bitSet = mPreviousDaysOfWeekMap.getInt("" + alarm.id);
-                        alarm.daysOfWeek.setBitSet(bitSet);
-                        if (!alarm.daysOfWeek.isRepeating()) {
-                            alarm.daysOfWeek.setDaysOfWeek(true, DAY_ORDER);
-                        }
+                        // Set all days
+                        alarm.daysOfWeek.setDaysOfWeek(true, DAY_ORDER);
+
                         updateDaysOfWeekButtons(itemHolder, alarm.daysOfWeek);
                     } else {
                         // Hide days
                         itemHolder.repeatDays.setVisibility(View.GONE);
-                        mRepeatChecked.remove(alarm.id);
-
-                        // Remember the set days in case the user wants it back.
-                        final int bitSet = alarm.daysOfWeek.getBitSet();
-                        mPreviousDaysOfWeekMap.putInt("" + alarm.id, bitSet);
 
                         // Remove all repeat days
                         alarm.daysOfWeek.clearAllDays();
@@ -901,12 +801,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
 
                                 itemHolder.repeat.setChecked(false);
                                 itemHolder.repeatDays.setVisibility(View.GONE);
-                                mRepeatChecked.remove(alarm.id);
-
-                                // Set history to no days, so it will be everyday when repeat is
-                                // turned back on
-                                mPreviousDaysOfWeekMap.putInt("" + alarm.id,
-                                        DaysOfWeek.NO_DAYS_SET);
                             }
                         }
                         asyncUpdateAlarm(alarm, false);
@@ -918,11 +812,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 itemHolder.vibrate.setVisibility(View.GONE);
             } else {
                 itemHolder.vibrate.setVisibility(View.VISIBLE);
-                if (!alarm.vibrate) {
-                    itemHolder.vibrate.setChecked(false);
-                } else {
-                    itemHolder.vibrate.setChecked(true);
-                }
+                itemHolder.vibrate.setChecked(alarm.vibrate);
             }
 
             itemHolder.vibrate.setOnClickListener(new View.OnClickListener() {
@@ -1126,28 +1016,11 @@ public class AlarmClockFragment extends DeskClockFragment implements
             }
         }
 
-        public void toggleSelectState(View v) {
-            // long press could be on the parent view or one of its childs, so find the parent view
-            v = getTopParent(v);
-            if (v != null) {
-                long id = ((ItemHolder)v.getTag()).alarm.id;
-                if (mSelectedAlarms.contains(id)) {
-                    mSelectedAlarms.remove(id);
-                } else {
-                    mSelectedAlarms.add(id);
-                }
-            }
-        }
-
         private View getTopParent(View v) {
             while (v != null && v.getId() != R.id.alarm_item) {
                 v = (View) v.getParent();
             }
             return v;
-        }
-
-        public int getSelectedItemsNum() {
-            return mSelectedAlarms.size();
         }
 
         private void turnOffDayOfWeek(ItemHolder holder, int dayIndex) {
@@ -1447,42 +1320,18 @@ public class AlarmClockFragment extends DeskClockFragment implements
         public long getExpandedId() {
             return mExpandedId;
         }
-
-        public long[] getSelectedAlarmsArray() {
-            int index = 0;
-            long[] ids = new long[mSelectedAlarms.size()];
-            for (long id : mSelectedAlarms) {
-                ids[index] = id;
-                index++;
-            }
-            return ids;
-        }
-
-        public long[] getRepeatArray() {
-            int index = 0;
-            long[] ids = new long[mRepeatChecked.size()];
-            for (long id : mRepeatChecked) {
-                ids[index] = id;
-                index++;
-            }
-            return ids;
-        }
-
-        public Bundle getPreviousDaysOfWeekMap() {
-            return mPreviousDaysOfWeekMap;
-        }
-
-        private void buildHashSetFromArray(long[] ids, HashSet<Long> set) {
-            for (long id : ids) {
-                set.add(id);
-            }
-        }
     }
 
     private void startCreatingAlarm() {
         // Set the "selected" alarm as null, and we'll create the new one when the timepicker
         // comes back.
         mSelectedAlarm = null;
+        mCloneAlarm = false;
+        AlarmUtils.showTimeEditDialog(this, null);
+    }
+
+    private void startCloningAlarm() {
+        mCloneAlarm = true;
         AlarmUtils.showTimeEditDialog(this, null);
     }
 
@@ -1716,5 +1565,13 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 }
             }
         }
+    }
+
+    private void cloneAlarm(Alarm baseAlarm, int hourOfDay, int minute) {
+        Alarm a = new Alarm(baseAlarm);
+        a.hour = hourOfDay;
+        a.minutes = minute;
+        mAddedAlarm = a;
+        asyncAddAlarm(a);
     }
 }

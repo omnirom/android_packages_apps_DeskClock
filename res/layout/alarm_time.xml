@@ -244,6 +244,15 @@
                 </com.android.deskclock.widget.EllipsizeLayout>
 
                 <ImageButton
+                    android:id="@+id/clone"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:gravity="center_vertical"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/clone_alarm"
+                    android:src="@drawable/ic_clone_alarm" />
+
+                <ImageButton
                     android:id="@+id/delete"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
