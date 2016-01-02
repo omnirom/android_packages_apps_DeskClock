@@ -28,7 +28,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -180,8 +179,6 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     public void onStart() {
         super.onStart();
 
-        closeAlarmTestDialog();
-
         AlertDialog d = (AlertDialog)getDialog();
         if(d != null) {
             Button testButton = (Button) d.getButton(Dialog.BUTTON_NEUTRAL);
@@ -196,6 +193,13 @@ public class AlarmRingtoneDialog extends DialogFragment implements
                     }
                 });
          }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        closeAlarmTestDialog();
+        closeFolderPicker();
     }
 
     @Override
@@ -381,15 +385,17 @@ public class AlarmRingtoneDialog extends DialogFragment implements
    }
 
     private void launchFolderPickerWithPerm() {
-        final FragmentTransaction ft = getFragmentManager().beginTransaction();
-        final Fragment prev = getFragmentManager().findFragmentByTag("choose_folder");
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
+        closeFolderPicker();
 
         final DirectoryChooserDialog fragment = DirectoryChooserDialog.newInstance(getTag());
         fragment.show(getFragmentManager(), "choose_folder");
+    }
+
+    private void closeFolderPicker() {
+        final Fragment prev = getFragmentManager().findFragmentByTag("choose_folder");
+        if (prev != null) {
+            ((DialogFragment)prev).dismiss();
+        }
     }
 
     @Override

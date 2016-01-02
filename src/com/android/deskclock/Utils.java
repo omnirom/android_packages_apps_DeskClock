@@ -50,6 +50,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.webkit.MimeTypeMap;
 import android.widget.TextClock;
 import android.widget.TextView;
 import android.util.Log;
@@ -623,5 +624,18 @@ public class Utils {
     public static int getNextHourColor() {
         final int currHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         return Color.parseColor(BACKGROUND_SPECTRUM[currHour < 24 ? currHour + 1 : 1]);
+    }
+
+    public static boolean isValidAudioFile(String baseName) {
+        // check if audio
+        int idx = baseName.lastIndexOf(".");
+        if (idx != -1) {
+            String ext = baseName.substring(idx + 1);
+            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
+            if (mime != null && (mime.contains("audio") || mime.contains("ogg"))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

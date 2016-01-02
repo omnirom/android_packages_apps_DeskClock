@@ -1,17 +1,19 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ *  Copyright (C) 2015-2016 The OmniROM Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package com.android.deskclock.alarms;
@@ -34,10 +36,12 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.content.res.AssetFileDescriptor;
+import android.util.Log;
 
 import com.android.deskclock.provider.Alarm;
 import com.android.deskclock.provider.AlarmInstance;
 import com.android.deskclock.R;
+import com.android.deskclock.Utils;
 
 /**
  * for testing alarm tones
@@ -60,6 +64,9 @@ public class TestAlarmKlaxon {
 
     public interface ErrorHandler {
         public void onError(String msg);
+        public void onInfo(String msg);
+        public void startProgress();
+        public void stopProgress();
     };
 
     private static Uri getDefaultAlarm(Context context) {
@@ -115,6 +122,7 @@ public class TestAlarmKlaxon {
                 try {
                     collectFiles(context, alarmNoise);
                     if (mSongs.size() != 0) {
+                        sErrorHandler.onInfo("Scanned files: " + mSongs.size());
                         alarmNoise = mSongs.get(0);
                     } else {
                         sError = true;
@@ -136,7 +144,7 @@ public class TestAlarmKlaxon {
            // silent
            alarmNoise = null;
         }
-        if (alarmNoise != null) {
+        if (alarmNoise != null && sTestStarted) {
             playTestAlarm(context, instance, alarmNoise);
         }
     }
@@ -145,6 +153,7 @@ public class TestAlarmKlaxon {
         if (!sTestStarted) {
             return;
         }
+
         // reset to default from before
         sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
                         sSavedVolume, 0);
@@ -214,16 +223,38 @@ public class TestAlarmKlaxon {
 
     private static void collectFiles(Context context, Uri folderUri) {
         mSongs.clear();
-
+        sErrorHandler.startProgress();
         File folder = new File(folderUri.getPath());
         if (folder.exists() && folder.isDirectory()) {
             for (final File fileEntry : folder.listFiles()) {
                 if (!fileEntry.isDirectory()) {
-                    mSongs.add(Uri.fromFile(fileEntry));
+                    if (Utils.isValidAudioFile(fileEntry.getName())) {
+                        mSongs.add(Uri.fromFile(fileEntry));
+                    }
+                } else {
+                    collectSub(context, fileEntry);
                 }
             }
             if (sRandomPlayback) {
                 Collections.shuffle(mSongs);
+            }
+        }
+        sErrorHandler.stopProgress();
+    }
+
+    private static void collectSub(Context context, File folder) {
+        if (!sTestStarted) {
+            return;
+        }
+        if (folder.exists() && folder.isDirectory()) {
+            for (final File fileEntry : folder.listFiles()) {
+                if (!fileEntry.isDirectory()) {
+                    if (Utils.isValidAudioFile(fileEntry.getName())) {
+                        mSongs.add(Uri.fromFile(fileEntry));
+                    }
+                } else {
+                    collectSub(context, fileEntry);
+                }
             }
         }
     }
