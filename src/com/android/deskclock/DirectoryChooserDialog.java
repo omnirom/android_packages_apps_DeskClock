@@ -34,6 +34,8 @@ import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +44,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class DirectoryChooserDialog extends DialogFragment
@@ -55,8 +58,8 @@ public class DirectoryChooserDialog extends DialogFragment
     private ArrayAdapter<File> mListAdapter;
     private ListView mListView;
     private String mTag;
-    private TextView mCurrentDirDisplay;
     private int mTextColor;
+    private Spinner mStorageSelect;
 
     public interface ChosenDirectoryListener {
         public void onChooseDirOk(Uri chosenDir);
@@ -132,7 +135,6 @@ public class DirectoryChooserDialog extends DialogFragment
     private void updateDirectory() {
         mSubDirs.clear();
         mSubDirs.addAll(getDirectories(mCurrentDir));
-        mCurrentDirDisplay.setText(mCurrentDir);
         mListAdapter.notifyDataSetChanged();
     }
 
@@ -199,8 +201,32 @@ public class DirectoryChooserDialog extends DialogFragment
                 updateDirectory();
             }
         });
-        mCurrentDirDisplay = (TextView) view.findViewById(R.id.current_folder);
-        mCurrentDirDisplay.setText(mCurrentDir);
+
+        mStorageSelect = (Spinner) view.findViewById(R.id.storage_select);
+
+        final List<String> storageNames = new ArrayList<String>();
+        final List<String> storageList = new ArrayList<String>();
+        buildStorage(storageList, storageNames);
+
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter(getActivity(), R.layout.spinner_item, storageNames);
+        mStorageSelect.setAdapter(adapter);
+
+        mStorageSelect.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int storageNum = position;
+                try {
+                    mSDCardDirectory = new File(storageList.get(storageNum)).getCanonicalPath();
+                    mCurrentDir = mSDCardDirectory;
+                    updateDirectory();
+                } catch (IOException e) {
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }});
+
         return view;
     }
 
@@ -216,6 +242,21 @@ public class DirectoryChooserDialog extends DialogFragment
             Fragment frag = getFragmentManager().findFragmentByTag(mTag);
             if (frag instanceof ChosenDirectoryListener) {
                 ((ChosenDirectoryListener) frag).onChooseDirCancel();
+            }
+        }
+    }
+
+    private void buildStorage(List<String> storage, List<String> storageNames) {
+        StorageManager sm = (StorageManager) getActivity().getSystemService(Context.STORAGE_SERVICE);
+        StorageVolume[] volumes = sm.getVolumeList();
+
+        for (int i = 0; i < volumes.length; i++) {
+            StorageVolume v = volumes[i];
+            // Hide unavailable volumes
+            if (sm.getVolumeState(v.getPath())
+                    .equals(Environment.MEDIA_MOUNTED)) {
+                storageNames.add(v.getDescription(getActivity()));
+                storage.add(v.getPath());
             }
         }
     }

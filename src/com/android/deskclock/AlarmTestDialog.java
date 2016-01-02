@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2014 The OmniROM Project
+ *  Copyright (C) 2015-2016 The OmniROM Project
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,10 +24,14 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ProgressBar;
 
 import com.android.deskclock.alarms.TestAlarmKlaxon;
 import com.android.deskclock.provider.Alarm;
@@ -41,6 +45,10 @@ public class AlarmTestDialog extends DialogFragment implements
     public Alarm mAlarm;
     public boolean mPreAlarm;
     private TextView mTitle;
+    private ProgressBar mProgressCircle;
+    private TextView mProgressText;
+    private LinearLayout mProgress;
+    private Handler mHandler = new Handler();
 
     public static AlarmTestDialog newInstance(Alarm alarm, boolean preAlarm) {
         AlarmTestDialog fragment = new AlarmTestDialog();
@@ -75,21 +83,62 @@ public class AlarmTestDialog extends DialogFragment implements
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        TestAlarmKlaxon.test(getActivity().getApplicationContext(), mAlarm, mPreAlarm,
-                new TestAlarmKlaxon.ErrorHandler() {
-            @Override
-            public void onError(String msg) {
-                mTitle.setText(msg);
-            }
-        });
+    public void onDismiss(DialogInterface dialog) {
+        TestAlarmKlaxon.stopTest(mAlarm);
     }
 
     @Override
-    public void onStop() {
-        TestAlarmKlaxon.stopTest(mAlarm);
-        super.onStop();
+    public void onStart() {
+        super.onStart();
+        new AsyncTask<Void,Void,Void>(){
+            @Override
+            protected Void doInBackground(final Void... params){
+                TestAlarmKlaxon.test(getActivity().getApplicationContext(), mAlarm, mPreAlarm,
+                    new TestAlarmKlaxon.ErrorHandler() {
+                        @Override
+                        public void onError(final String msg) {
+                            mHandler.post(new Runnable() {
+                                public void run() {
+                                    mTitle.setText(msg);
+                                }
+                            });
+                        }
+                        @Override
+                        public void onInfo(final String msg) {
+                            mHandler.post(new Runnable() {
+                                public void run() {
+                                    mTitle.setText(msg);
+                                }
+                            });
+                        }
+                        @Override
+                        public void startProgress() {
+                            mHandler.post(new Runnable() {
+                                public void run() {
+                                    mTitle.setVisibility(View.GONE);
+                                    mProgress.setVisibility(View.VISIBLE);
+                                    mProgressText.setText(getActivity().getResources().getString(R.string.folders_scanning));
+                                    mProgressCircle.setProgress(1);
+                                }
+                            });
+                        }
+                        @Override
+                        public void stopProgress() {
+                            mHandler.post(new Runnable() {
+                                public void run() {
+                                    mProgress.setVisibility(View.GONE);
+                                    mTitle.setVisibility(View.VISIBLE);
+                                }
+                            });
+                        }
+                    });
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(final Void result){
+            }
+        }.execute();
     }
 
     private View createDialogView() {
@@ -99,6 +148,12 @@ public class AlarmTestDialog extends DialogFragment implements
         final View view = inflater
                 .inflate(R.layout.dialog_alarm_test, null);
         mTitle = (TextView) view.findViewById(R.id.title);
+        mProgress = (LinearLayout) view.findViewById(R.id.progress);
+        mProgressCircle = (ProgressBar) view.findViewById(R.id.progress_circle);
+        mProgressCircle.setIndeterminate(true);
+        mProgressText = (TextView) view.findViewById(R.id.progress_text);
+        mProgress.setVisibility(View.GONE);
+
         return view;
     }
 }
