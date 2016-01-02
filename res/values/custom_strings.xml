@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (C) 2013 The OmniROM Project
+  Copyright (C) 2013-2016 The OmniROM Project
 
   Parts Copyright (C) 2012-2013 The CyanogenMod Project
 
@@ -100,4 +100,6 @@
     <string name="week_start_title">Week starts on</string>
     <string name="default_week_start">Locale default</string>
     <string name="clone_alarm">Copy alarm</string>
+    <string name="storage_title">Storage:</string>
+    <string name="folders_scanning">Scanning\u2026</string>
 </resources>
