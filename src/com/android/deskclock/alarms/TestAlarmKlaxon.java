@@ -34,10 +34,12 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.content.res.AssetFileDescriptor;
+import android.util.Log;
 
 import com.android.deskclock.provider.Alarm;
 import com.android.deskclock.provider.AlarmInstance;
 import com.android.deskclock.R;
+import com.android.deskclock.Utils;
 
 /**
  * for testing alarm tones
@@ -60,6 +62,7 @@ public class TestAlarmKlaxon {
 
     public interface ErrorHandler {
         public void onError(String msg);
+        public void onInfo(String msg);
     };
 
     private static Uri getDefaultAlarm(Context context) {
@@ -115,6 +118,7 @@ public class TestAlarmKlaxon {
                 try {
                     collectFiles(context, alarmNoise);
                     if (mSongs.size() != 0) {
+                        sErrorHandler.onInfo("Scanned files: " + mSongs.size());
                         alarmNoise = mSongs.get(0);
                     } else {
                         sError = true;
@@ -219,7 +223,9 @@ public class TestAlarmKlaxon {
         if (folder.exists() && folder.isDirectory()) {
             for (final File fileEntry : folder.listFiles()) {
                 if (!fileEntry.isDirectory()) {
-                    mSongs.add(Uri.fromFile(fileEntry));
+                    if (Utils.isValidAudioFile(fileEntry.getName())) {
+                        mSongs.add(Uri.fromFile(fileEntry));
+                    }
                 }
             }
             if (sRandomPlayback) {

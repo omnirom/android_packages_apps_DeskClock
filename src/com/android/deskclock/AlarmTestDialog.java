@@ -83,6 +83,10 @@ public class AlarmTestDialog extends DialogFragment implements
             public void onError(String msg) {
                 mTitle.setText(msg);
             }
+            @Override
+            public void onInfo(String msg) {
+                mTitle.setText(msg);
+            }
         });
     }
 

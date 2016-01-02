@@ -49,6 +49,7 @@ import com.android.internal.app.IAppOpsService;
 import com.android.deskclock.LogUtils;
 import com.android.deskclock.R;
 import com.android.deskclock.SettingsActivity;
+import com.android.deskclock.Utils;
 import com.android.deskclock.provider.AlarmInstance;
 
 /**
@@ -401,7 +402,9 @@ public class AlarmKlaxon {
         if (folder.exists() && folder.isDirectory()) {
             for (final File fileEntry : folder.listFiles()) {
                 if (!fileEntry.isDirectory()) {
-                    mSongs.add(Uri.fromFile(fileEntry));
+                    if (Utils.isValidAudioFile(fileEntry.getName())) {
+                        mSongs.add(Uri.fromFile(fileEntry));
+                    }
                 }
             }
             if (sRandomPlayback) {
