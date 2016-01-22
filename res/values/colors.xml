@@ -47,10 +47,10 @@
     <color name="text_color_disabled">#cccccc</color>
     <color name="material_blue_grey_900">#ff263238</color>
     <color name="undo_background">@color/material_blue_grey_900</color>
-	<color name="material_grey_50">#fffafafa</color>
-	<color name="material_grey_100">#fff5f5f5</color>
-	<color name="material_grey_600">#ff757575</color>
-	<color name="material_grey_800">#ff424242</color>
+    <color name="material_grey_50">#fffafafa</color>
+    <color name="material_grey_100">#fff5f5f5</color>
+    <color name="material_grey_600">#ff757575</color>
+    <color name="material_grey_800">#ff424242</color>
     <color name="view_background">#ffffff</color>
     <color name="window_background">@color/material_grey_100</color>
     <color name="collapse_expand_bg">@color/view_background</color>
