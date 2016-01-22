@@ -11,6 +11,6 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_PACKAGE_NAME := DeskClockTests
 
-LOCAL_INSTRUMENTATION_FOR := DeskClock
+LOCAL_INSTRUMENTATION_FOR := DeskClock2
 
 include $(BUILD_PACKAGE)
