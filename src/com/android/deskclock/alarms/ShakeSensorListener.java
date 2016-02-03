@@ -37,10 +37,11 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.util.Log;
 
 
 public class ShakeSensorListener implements SensorEventListener {
-    private static float SENSITIVITY = 10;
+    private static float SENSITIVITY = 8;
     private static final int BUFFER = 5;
     private float[] gravity = new float[3];
     private float average = 0;
