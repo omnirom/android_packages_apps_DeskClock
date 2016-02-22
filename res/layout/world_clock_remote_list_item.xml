@@ -36,7 +36,7 @@
                 android:format24Hour="@string/clock_24_hours_format"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/widget_medium_thin"
+                style="@style/widget_medium"
                 android:baselineAligned="true"
                 android:layout_gravity="center"
                 android:gravity="center" />
@@ -79,7 +79,7 @@
                 android:format24Hour="@string/clock_24_hours_format"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/widget_medium_thin"
+                style="@style/widget_medium"
                 android:baselineAligned="true"
                 android:layout_gravity="center"
                 android:gravity="center" />
