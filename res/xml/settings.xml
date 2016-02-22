@@ -90,6 +90,12 @@
             android:key="keep_screen_on"
             android:summary="@string/keep_screen_on_summary"
             android:title="@string/keep_screen_on_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/alarm_action_category">
+        <Preference
+            android:summary="@string/alarm_action_header"
+            android:selectable="false" />
         <ListPreference
             android:defaultValue="0"
             android:dialogTitle="@string/volume_button_setting_title"

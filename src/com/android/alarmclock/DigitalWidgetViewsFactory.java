@@ -197,7 +197,7 @@ public class DigitalWidgetViewsFactory implements RemoteViewsFactory {
         mAdapter.loadCitiesDb(mContext);
         mAdapter.updateHomeLabel(mContext);
 
-        mFontScale = WidgetUtils.getScaleRatio(mContext, null, mId);
+        mFontScale = WidgetUtils.getScaleRatio(mContext, null, mId, true);
     }
 
     @Override
