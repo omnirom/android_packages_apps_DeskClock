@@ -150,11 +150,15 @@
     <dimen name="widget_medium_time_margin_right">5dip</dimen>
     <!-- width/height of layout/digital_widget_time -->
     <!-- height is sum of widget_big_font_size + label_font_size + margins -->
-    <dimen name="min_digital_widget_width">206dp</dimen>
-    <dimen name="min_digital_widget_height">129dp</dimen>
+    <dimen name="min_digital_widget_width">200dp</dimen>
+    <dimen name="min_digital_widget_height">80dp</dimen>
+    <dimen name="min_digital_widget_height_time">64dp</dimen>
+
     <!-- same as min_digital_widget_{width,height} -->
-    <dimen name="min_digital_widget_resize_width">206dp</dimen>
-    <dimen name="min_digital_widget_resize_height">129dp</dimen>
+    <dimen name="min_digital_widget_resize_width">200dp</dimen>
+    <dimen name="min_digital_widget_resize_height">80dp</dimen>
+    <dimen name="min_digital_widget_resize_height_time">64dp</dimen>
+
     <!-- sum of scaled heights -->
     <dimen name="digital_widget_list_min_scaled_height">162dp</dimen>
     <!-- sum of fixed heights -->
