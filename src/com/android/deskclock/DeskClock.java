@@ -70,12 +70,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         LabelDialogFragment.AlarmLabelDialogHandler {
     private static final boolean DEBUG = false;
     private static final String LOG_TAG = "DeskClock";
-    // Alarm action for midnight (so we can update the date display).
     private static final String KEY_SELECTED_TAB = "selected_tab";
-    // Check whether to change background every minute
-    private static final long BACKGROUND_COLOR_CHECK_DELAY_MILLIS = DateUtils.MINUTE_IN_MILLIS;
-    private static final int BACKGROUND_COLOR_INITIAL_ANIMATION_DURATION_MILLIS = 3000;
-    private static final int UNKNOWN_COLOR_ID = 0;
 
     private ViewPager mViewPager;
     private TabsAdapter mTabsAdapter;
@@ -213,7 +208,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
             }
         }
         initViews();
-
+        Log.d(LOG_TAG, "mSelectedTab=" + mSelectedTab);
         mViewPager.setCurrentItem(mSelectedTab);
         setHomeTimeZone();
 

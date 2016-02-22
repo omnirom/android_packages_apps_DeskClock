@@ -20,7 +20,9 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.widget.RemoteViews;
@@ -71,6 +73,9 @@ public class WidgetUtils {
 
     // Calculate the scale factor of the fonts in the list of  the widget using the widget height
     private static float getHeightScaleRatio(Context context, Bundle options, int id) {
+        if (!isShowingWorldClockList(context, id)) {
+            return 1;
+        }
         if (options == null) {
             AppWidgetManager widgetManager = AppWidgetManager.getInstance(context);
             if (widgetManager == null) {
@@ -145,6 +150,11 @@ public class WidgetUtils {
             // Set the best format for 24 hours mode according to the locale
             clock.setCharSequence(clockId, "setFormat24Hour", Utils.get24ModeFormat());
         }
+    }
+
+    public static boolean isShowingWorldClockList(Context context, int id) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean("world_clock_items_" + id, true);
     }
 }
 

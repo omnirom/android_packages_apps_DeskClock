@@ -176,6 +176,12 @@
         <receiver android:name="com.android.alarmclock.DigitalWidgetViewsFactory"
              android:exported="false" />
 
+        <activity android:name="com.android.alarmclock.DigitalAppWidgetConfigure">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
+
         <!-- Dream (screensaver) implementation -->
         <service android:name="Screensaver"
             android:exported="true"

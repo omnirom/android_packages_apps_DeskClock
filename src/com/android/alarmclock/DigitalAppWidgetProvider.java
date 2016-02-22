@@ -24,9 +24,10 @@ import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -69,6 +70,18 @@ public class DigitalAppWidgetProvider extends AppWidgetProvider {
     public void onDisabled(Context context) {
         super.onDisabled(context);
         cancelAlarmOnQuarterHour(context);
+    }
+
+    @Override
+    public void onDeleted(Context context, int[] appWidgetIds) {
+        super.onDeleted(context, appWidgetIds);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        for (int id : appWidgetIds) {
+            if (DigitalAppWidgetService.LOGGING) {
+                Log.i(TAG, "onDeleted: " + id);
+            }
+            prefs.edit().remove("world_clock_items_" + id).commit();
+        }
     }
 
     @Override
@@ -149,12 +162,28 @@ public class DigitalAppWidgetProvider extends AppWidgetProvider {
             int appWidgetId, Bundle newOptions) {
         // scale the fonts of the clock to fit inside the new size
         float ratio = WidgetUtils.getScaleRatio(context, newOptions, appWidgetId);
+        if (DigitalAppWidgetService.LOGGING) {
+            Log.i(TAG, "onAppWidgetOptionsChanged = " + ratio);
+        }
         AppWidgetManager widgetManager = AppWidgetManager.getInstance(context);
         updateClock(context, widgetManager, appWidgetId, ratio);
     }
 
-    private void updateClock(
+    public static void updateAfterConfigure(Context context, int appWidgetId) {
+        float ratio = WidgetUtils.getScaleRatio(context, null, appWidgetId);
+        if (DigitalAppWidgetService.LOGGING) {
+            Log.i(TAG, "updateAfterConfigure = " + ratio);
+        }
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        updateClock(context, appWidgetManager, appWidgetId, ratio);
+    }
+
+    private static void updateClock(
             Context context, AppWidgetManager appWidgetManager, int appWidgetId, float ratio) {
+        boolean showWorldClock = WidgetUtils.isShowingWorldClockList(context, appWidgetId);
+        if (DigitalAppWidgetService.LOGGING) {
+            Log.i(TAG, "updateClock:showWorldClock = " + showWorldClock + " " + appWidgetId);
+        }
         RemoteViews widget = new RemoteViews(context.getPackageName(), R.layout.digital_appwidget);
 
         // Launch clock when clicking on the time in the widget only if not a lock screen widget
@@ -177,26 +206,30 @@ public class DigitalAppWidgetProvider extends AppWidgetProvider {
         widget.setCharSequence(R.id.date, "setFormat12Hour", dateFormat);
         widget.setCharSequence(R.id.date, "setFormat24Hour", dateFormat);
 
-        // Set up R.id.digital_appwidget_listview to use a remote views adapter
-        // That remote views adapter connects to a RemoteViewsService through intent.
-        final Intent intent = new Intent(context, DigitalAppWidgetService.class);
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-        intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
-        widget.setRemoteAdapter(R.id.digital_appwidget_listview, intent);
+        if (showWorldClock) {
+            // Set up R.id.digital_appwidget_listview to use a remote views adapter
+            // That remote views adapter connects to a RemoteViewsService through intent.
+            final Intent intent = new Intent(context, DigitalAppWidgetService.class);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+            intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
+            widget.setRemoteAdapter(R.id.digital_appwidget_listview, intent);
 
-        // Set up the click on any world clock to start the Cities Activity
-        //TODO: Should this be in the options guard above?
-        widget.setPendingIntentTemplate(R.id.digital_appwidget_listview,
-                PendingIntent.
-                        getActivity(context, 0, new Intent(context, CitiesActivity.class), 0));
+            // Set up the click on any world clock to start the Cities Activity
+            //TODO: Should this be in the options guard above?
+            widget.setPendingIntentTemplate(R.id.digital_appwidget_listview,
+                    PendingIntent.
+                            getActivity(context, 0, new Intent(context, CitiesActivity.class), 0));
 
-        // Refresh the widget
-        appWidgetManager.notifyAppWidgetViewDataChanged(
-                appWidgetId, R.id.digital_appwidget_listview);
+            // Refresh the widget
+            appWidgetManager.notifyAppWidgetViewDataChanged(
+                    appWidgetId, R.id.digital_appwidget_listview);
+        } else {
+            widget.setViewVisibility(R.id.digital_appwidget_listview, View.GONE);
+        }
         appWidgetManager.updateAppWidget(appWidgetId, widget);
     }
 
-    protected void refreshAlarm(Context context, RemoteViews widget) {
+    protected static void refreshAlarm(Context context, RemoteViews widget) {
         final String nextAlarm = Utils.getNextAlarm(context);
         if (!TextUtils.isEmpty(nextAlarm)) {
             widget.setTextViewText(R.id.nextAlarm,
