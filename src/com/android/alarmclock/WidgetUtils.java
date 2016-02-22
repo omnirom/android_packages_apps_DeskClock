@@ -20,9 +20,16 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
+import android.text.TextPaint;
 import android.widget.RemoteViews;
 import android.widget.RemoteViews.RemoteView;
 import android.widget.TextClock;
@@ -55,13 +62,14 @@ public class WidgetUtils {
                 // No data , do no scaling
                 return 1f;
             }
+            boolean timeOnly = !isShowingAlarm(context, id) &&  !isShowingDate(context, id) && !isShowingWorldClockList(context, id);
             Resources res = context.getResources();
             float density = res.getDisplayMetrics().density;
-            float ratio = (density * minWidth) / res.getDimension(R.dimen.min_digital_widget_width);
             // Check if the height could introduce a font size constraint
             int minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
+            float ratio = 1;
             if (minHeight > 0 && (density * minHeight)
-                    < res.getDimension(R.dimen.min_digital_widget_height)) {
+                    < res.getDimension(timeOnly ? R.dimen.min_digital_widget_height_time : R.dimen.min_digital_widget_height)) {
                 ratio = Math.min(ratio, getHeightScaleRatio(context, options, id));
             }
             return (ratio > 1) ? 1 : ratio;
@@ -85,14 +93,17 @@ public class WidgetUtils {
                 // No data , do no scaling
                 return 1f;
             }
+
+            boolean notLabel = !isShowingAlarm(context, id) &&  !isShowingDate(context, id);
+            boolean timeOnly = !notLabel && !isShowingWorldClockList(context, id);
             Resources res = context.getResources();
             float density = res.getDisplayMetrics().density;
             // Estimate height of date text box - 1.35 roughly approximates the text box padding
-            float lblBox = 1.35f * res.getDimension(R.dimen.label_font_size);
+            float lblBox = notLabel ? 0 :  (1.35f * res.getDimension(R.dimen.label_font_size));
             // Ensure divisor for ratio is positive number
             if (res.getDimension(R.dimen.min_digital_widget_height) - lblBox > 0) {
                 float ratio = ((density * minHeight) - lblBox)
-                        / (res.getDimension(R.dimen.min_digital_widget_height) - lblBox);
+                        / (res.getDimension(timeOnly ? R.dimen.min_digital_widget_height_time : R.dimen.min_digital_widget_height) - lblBox);
                 return (ratio > 1) ? 1 : ratio;
             }
         }
@@ -145,6 +156,46 @@ public class WidgetUtils {
             // Set the best format for 24 hours mode according to the locale
             clock.setCharSequence(clockId, "setFormat24Hour", Utils.get24ModeFormat());
         }
+    }
+
+    public static boolean isShowingWorldClockList(Context context, int id) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean(DigitalAppWidgetConfigure.KEY_SHOW_WORLD_CLOCK + "_" + id, true);
+    }
+
+    public static boolean isShowingAlarm(Context context, int id) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean(DigitalAppWidgetConfigure.KEY_SHOW_ALARM + "_" + id, true);
+    }
+
+    public static boolean isShowingDate(Context context, int id) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean(DigitalAppWidgetConfigure.KEY_SHOW_DATE + "_" + id, true);
+    }
+
+    public static Bitmap createTextBitmap(final String text, final Typeface typeface, final float textSizePixels, final int textColour) {
+        final TextPaint textPaint = new TextPaint();
+        textPaint.setTypeface(typeface);
+        textPaint.setTextSize(textSizePixels);
+        textPaint.setAntiAlias(true);
+        textPaint.setSubpixelText(true);
+        textPaint.setColor(textColour);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        int textHeight = (int)(textPaint.descent() - textPaint.ascent());
+        int textOffset = (int)((textHeight / 2) - textPaint.descent());
+        Bitmap myBitmap = Bitmap.createBitmap((int) textPaint.measureText(text), (int) textSizePixels, Bitmap.Config.ARGB_8888);
+        Canvas myCanvas = new Canvas(myBitmap);
+        myCanvas.drawText(text, myBitmap.getWidth() / 2, myBitmap.getHeight() / 2 + textOffset, textPaint);
+        return myBitmap;
+    }
+
+    public static Typeface getClockFont(Context context, int id) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String font = prefs.getString(DigitalAppWidgetConfigure.KEY_CLOCK_FONT + "_" + id, null);
+        if (font != null) {
+            return Typeface.createFromFile(font);
+        }
+        return null;
     }
 }
 
