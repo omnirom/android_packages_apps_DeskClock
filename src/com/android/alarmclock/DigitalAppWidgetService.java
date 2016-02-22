@@ -21,7 +21,7 @@ import android.util.Log;
 import android.widget.RemoteViewsService;
 
 public class DigitalAppWidgetService extends RemoteViewsService {
-    public static final boolean LOGGING = false;
+    public static final boolean LOGGING = true;
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent i) {
