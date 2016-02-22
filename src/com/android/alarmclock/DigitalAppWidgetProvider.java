@@ -24,9 +24,10 @@ import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -155,7 +156,12 @@ public class DigitalAppWidgetProvider extends AppWidgetProvider {
 
     private void updateClock(
             Context context, AppWidgetManager appWidgetManager, int appWidgetId, float ratio) {
-        RemoteViews widget = new RemoteViews(context.getPackageName(), R.layout.digital_appwidget);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean showWorldClock = prefs.getBoolean("world_clock_items_" + String.valueOf(appWidgetId), true);
+        Log.d("maxwen", "showWorldClock = " + showWorldClock + " " + appWidgetId);
+
+        RemoteViews widget = new RemoteViews(context.getPackageName(),
+                showWorldClock ? R.layout.digital_appwidget : R.layout.digital_appwidget_small);
 
         // Launch clock when clicking on the time in the widget only if not a lock screen widget
         Bundle newOptions = appWidgetManager.getAppWidgetOptions(appWidgetId);
@@ -177,22 +183,24 @@ public class DigitalAppWidgetProvider extends AppWidgetProvider {
         widget.setCharSequence(R.id.date, "setFormat12Hour", dateFormat);
         widget.setCharSequence(R.id.date, "setFormat24Hour", dateFormat);
 
-        // Set up R.id.digital_appwidget_listview to use a remote views adapter
-        // That remote views adapter connects to a RemoteViewsService through intent.
-        final Intent intent = new Intent(context, DigitalAppWidgetService.class);
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-        intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
-        widget.setRemoteAdapter(R.id.digital_appwidget_listview, intent);
+        if (showWorldClock) {
+            // Set up R.id.digital_appwidget_listview to use a remote views adapter
+            // That remote views adapter connects to a RemoteViewsService through intent.
+            final Intent intent = new Intent(context, DigitalAppWidgetService.class);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+            intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
+            widget.setRemoteAdapter(R.id.digital_appwidget_listview, intent);
 
-        // Set up the click on any world clock to start the Cities Activity
-        //TODO: Should this be in the options guard above?
-        widget.setPendingIntentTemplate(R.id.digital_appwidget_listview,
-                PendingIntent.
-                        getActivity(context, 0, new Intent(context, CitiesActivity.class), 0));
+            // Set up the click on any world clock to start the Cities Activity
+            //TODO: Should this be in the options guard above?
+            widget.setPendingIntentTemplate(R.id.digital_appwidget_listview,
+                    PendingIntent.
+                            getActivity(context, 0, new Intent(context, CitiesActivity.class), 0));
 
-        // Refresh the widget
-        appWidgetManager.notifyAppWidgetViewDataChanged(
-                appWidgetId, R.id.digital_appwidget_listview);
+            // Refresh the widget
+            appWidgetManager.notifyAppWidgetViewDataChanged(
+                    appWidgetId, R.id.digital_appwidget_listview);
+        }
         appWidgetManager.updateAppWidget(appWidgetId, widget);
     }
 
