@@ -169,12 +169,36 @@
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/digital_appwidget" />
         </receiver>
 
+        <receiver android:name="com.android.alarmclock.CustomAppWidgetProvider" android:label="@string/custom_gadget"
+           android:icon="@mipmap/ic_launcher_alarmclock">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.android.deskclock.ON_QUARTER_HOUR" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+                <action android:name="android.app.action.NEXT_ALARM_CLOCK_CHANGED" />
+                </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/custom_appwidget" />
+        </receiver>
+
+        <service android:name="com.android.alarmclock.CustomAppWidgetProvider$ClockUpdateService"
+             android:exported="false" />
+
         <service android:name="com.android.alarmclock.DigitalAppWidgetService"
              android:permission="android.permission.BIND_REMOTEVIEWS"
              android:exported="false" />
 
         <receiver android:name="com.android.alarmclock.DigitalWidgetViewsFactory"
              android:exported="false" />
+
+        <activity android:name="com.android.alarmclock.CustomAppWidgetConfigure">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
 
         <!-- Dream (screensaver) implementation -->
         <service android:name="Screensaver"

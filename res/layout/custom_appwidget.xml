@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2007 The Android Open Source Project
+<!-- Copyright (C) 2012 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,12 +13,17 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/custom_appwidget"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal|top"
+    android:orientation="vertical">
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- String matching the lock screen format for displaying the date. -->
-    <string name="abbrev_wday_month_day_no_year">EEEMMMd</string>
-    <!-- Format for describing the date, for accessibility. -->
-    <string name="full_wday_month_day_no_year">EEEEMMMMd</string>
-    <!-- Default clock style. -->
-    <string name="default_clock_style">digital</string>
-</resources>
+    <include layout="@layout/custom_widget_time"
+        android:id="@+id/digital_clock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|top"
+         />
+</LinearLayout>

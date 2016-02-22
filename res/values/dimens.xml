@@ -173,4 +173,15 @@
     <dimen name="alarm_list_divider_height">8dp</dimen>
     <dimen name="list_header_height">8dp</dimen>
     <dimen name="empty_list_header_height">1dp</dimen>
+
+    <dimen name="color_preference_width">18dip</dimen>
+    <dimen name="color_preference_height">18dip</dimen>
+    <dimen name="custom_widget_label_font_size">14sp</dimen>
+
+    <dimen name="min_custom_widget_width">250dp</dimen>
+    <dimen name="min_custom_widget_resize_width">250dp</dimen>
+    <dimen name="min_custom_widget_height">80dp</dimen>
+    <dimen name="min_custom_widget_resize_height">80dp</dimen>
+    <dimen name="widget_custom_font_size">120sp</dimen>
+
 </resources>
