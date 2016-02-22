@@ -116,6 +116,10 @@
         <item name="android:textSize">@dimen/widget_label_font_size</item>
     </style>
 
+    <style name="custom_widget_label" parent="label">
+        <item name="android:textSize">@dimen/custom_widget_label_font_size</item>
+    </style>
+
     <style name="header_1">
         <item name="android:textSize">@dimen/header_font_size</item>
         <item name="android:textStyle">bold</item>
