@@ -84,6 +84,7 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
     private static final int ALERT_REVEAL_DURATION_MILLIS = 500;
     private static final int ALERT_FADE_DURATION_MILLIS = 500;
     private static final int ALERT_DISMISS_DELAY_MILLIS = 2000;
+    private static final int SENSOR_ATTACH_DELAY_MILLIS = 1000;
 
     private static final float BUTTON_SCALE_DEFAULT = 0.7f;
     private static final int BUTTON_DRAWABLE_ALPHA_DEFAULT = 165;
@@ -280,7 +281,12 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
         filter.addAction(ALARM_DISMISS_ACTION);
         registerReceiver(mReceiver, filter);
 
-        attachListeners();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                attachListeners();
+            }
+        }, SENSOR_ATTACH_DELAY_MILLIS);
     }
 
     @Override
