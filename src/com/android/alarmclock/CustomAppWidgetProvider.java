@@ -205,7 +205,7 @@ public class CustomAppWidgetProvider extends AppWidgetProvider {
         if (newOptions != null &&
                 newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, -1)
                 != AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD) {
-            widget.setOnClickPendingIntent(R.id.digital_appwidget,
+            widget.setOnClickPendingIntent(R.id.custom_appwidget,
                     PendingIntent.getActivity(context, 0, new Intent(context, DeskClock.class), 0));
         }
 
