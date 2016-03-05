@@ -19,10 +19,13 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Setting title for the flip action setting. -->
   <string name="flip_action_title">Переворот</string>
   <string name="flip_action_dialog_title">Переворот</string>
+  <!-- Setting title for the shake action setting. -->
   <string name="shake_action_title">Встряхивание</string>
   <string name="shake_action_dialog_title">Встряхивание</string>
+  <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
   <string name="alarm_increasing_volume">Возрастающая громкость</string>
   <string name="snooze_count_title">Сколько раз допускается повтор</string>
   <string name="entry_zero_count">Неограниченно</string>
@@ -73,9 +76,9 @@
   <string name="prealarm_default_label">Предварительный сигнал</string>
   <string name="fullscreen_alarm_settings">Полноэкранные будильники</string>
   <string name="fullscreen_alarm_title">Полноэкранные будильники</string>
-  <string name="fullscreen_alarm_summary">Открывать будильник во весь экран вместо всплывающего уведомления</string>
   <string name="take_persistent_grant_uri_permission_failed_msg">Не удалось получить постоянное разрешение для мелодии звонка</string>
   <string name="notification_settings">Уведомления</string>
+  <!-- User-defined cities -->
   <string name="menu_item_add">Добавить</string>
   <string name="cities_add_city_title">Добавить город</string>
   <string name="cities_add_city_city">Город:</string>

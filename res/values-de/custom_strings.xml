@@ -19,10 +19,13 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Setting title for the flip action setting. -->
   <string name="flip_action_title">Aktion beim Umdrehen</string>
   <string name="flip_action_dialog_title">Aktion beim Umdrehen</string>
+  <!-- Setting title for the shake action setting. -->
   <string name="shake_action_title">Aktion beim Schütteln</string>
   <string name="shake_action_dialog_title">Aktion beim Schütteln</string>
+  <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
   <string name="alarm_increasing_volume">Ansteigende Lautstärke</string>
   <string name="snooze_count_title">Erlaubte Anzahl von \"Schlummern\"</string>
   <string name="entry_zero_count">Unbegrenzt</string>
@@ -73,9 +76,9 @@
   <string name="prealarm_default_label">Vor-Alarm</string>
   <string name="fullscreen_alarm_settings">Vollbild-Alarme</string>
   <string name="fullscreen_alarm_title">Vollbild-Alarme</string>
-  <string name="fullscreen_alarm_summary">Vollbild-Alarme anstelle von Überlagerungs-Benachrichtigungen verwenden</string>
   <string name="take_persistent_grant_uri_permission_failed_msg">Fehler beim Übernehmen dauerhafter Klingeltonberechtigung</string>
   <string name="notification_settings">Mitteilungen</string>
+  <!-- User-defined cities -->
   <string name="menu_item_add">Hinzufügen</string>
   <string name="cities_add_city_title">Stadt hinzufügen</string>
   <string name="cities_add_city_city">Stadt:</string>

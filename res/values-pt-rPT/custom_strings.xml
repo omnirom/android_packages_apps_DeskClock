@@ -19,7 +19,11 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Setting title for the flip action setting. -->
   <string name="flip_action_title">Virar o dispositivo</string>
   <string name="flip_action_dialog_title">Virar o dispositivo</string>
+  <!-- Setting title for the shake action setting. -->
   <string name="shake_action_title">Acção ao agitar dispositivo</string>
+  <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
+  <!-- User-defined cities -->
 </resources>

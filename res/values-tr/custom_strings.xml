@@ -19,6 +19,9 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Setting title for the flip action setting. -->
+  <!-- Setting title for the shake action setting. -->
+  <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
   <string name="entry_one_count">1 kez</string>
   <string name="entry_three_count">3 kez</string>
   <string name="entry_five_count">5 kez</string>
@@ -35,4 +38,5 @@
   <string name="entry_ten_minute">10 dakika</string>
   <string name="entry_fifteen_minute">15 dakika</string>
   <string name="entry_thirty_minute">30 dakika</string>
+  <!-- User-defined cities -->
 </resources>

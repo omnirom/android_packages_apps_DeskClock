@@ -19,5 +19,9 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Setting title for the flip action setting. -->
+  <!-- Setting title for the shake action setting. -->
+  <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
+  <!-- User-defined cities -->
   <string name="cities_add_city_timezone">Vremenska zona:</string>
 </resources>

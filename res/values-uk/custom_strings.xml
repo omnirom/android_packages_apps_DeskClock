@@ -19,10 +19,13 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Setting title for the flip action setting. -->
   <string name="flip_action_title">Переворот</string>
   <string name="flip_action_dialog_title">Переворот</string>
+  <!-- Setting title for the shake action setting. -->
   <string name="shake_action_title">Струшування</string>
   <string name="shake_action_dialog_title">Струшування</string>
+  <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
   <string name="alarm_increasing_volume">Збільшення гучності</string>
   <string name="snooze_count_title">Скільки разів допускається повтор</string>
   <string name="entry_zero_count">Необмежено</string>
@@ -72,9 +75,9 @@
   <string name="prealarm_default_label">Попередній сигнал</string>
   <string name="fullscreen_alarm_settings">Повноекранні будильники</string>
   <string name="fullscreen_alarm_title">Повноекранні будильники</string>
-  <string name="fullscreen_alarm_summary">Відкривати будильник на весь екран замість спливаючого сповіщення</string>
   <string name="take_persistent_grant_uri_permission_failed_msg">Не вдалось отримати постійний дозвіл для мелодії дзвінка</string>
   <string name="notification_settings">Сповіщення</string>
+  <!-- User-defined cities -->
   <string name="menu_item_add">Додати</string>
   <string name="cities_add_city_title">Додати місто</string>
   <string name="cities_add_city_city">Місто:</string>

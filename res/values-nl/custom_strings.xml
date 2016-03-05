@@ -19,10 +19,13 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Setting title for the flip action setting. -->
   <string name="flip_action_title">Omdraai-actie</string>
   <string name="flip_action_dialog_title">Omdraai-actie</string>
+  <!-- Setting title for the shake action setting. -->
   <string name="shake_action_title">Schud actie</string>
   <string name="shake_action_dialog_title">Schud actie</string>
+  <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
   <string name="alarm_increasing_volume">Toenemend volume</string>
   <string name="snooze_count_title">Toegestane \"snooze\" keren</string>
   <string name="entry_zero_count">Onbeperkt</string>
@@ -73,9 +76,9 @@
   <string name="prealarm_default_label">Vooralarm</string>
   <string name="fullscreen_alarm_settings">Volledig scherm alarmen</string>
   <string name="fullscreen_alarm_title">Volledig scherm alarmen</string>
-  <string name="fullscreen_alarm_summary">Gebruik volledig scherm alarm in plaats van pop up notificatie</string>
   <string name="take_persistent_grant_uri_permission_failed_msg">Het is niet gelukt om de permanente permissie toe te kennen voor ringtones</string>
   <string name="notification_settings">Notificaties</string>
+  <!-- User-defined cities -->
   <string name="menu_item_add">Toevoegen</string>
   <string name="cities_add_city_title">Plaats toevoegen</string>
   <string name="cities_add_city_city">Plaats:</string>
