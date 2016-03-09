@@ -103,7 +103,7 @@
     <string name="storage_title">Storage:</string>
     <string name="folders_scanning">Scanning\u2026</string>
     <string name="alarm_action_category">Alarm actions</string>
-    <string name="alarm_action_header">Only valid for full screen alarm notifications</string>
+    <string name="alarm_action_header">Note: These options are only valid for full screen alarm notifications</string>
     <string name="show_world_clock_title">Show world clock items</string>
     <string name="show_alarm_title">Show next alarm</string>
     <string name="show_date_title">Show date</string>
@@ -112,4 +112,5 @@
     <string name="custom_gadget">Custom clock</string>
     <string name="clock_color_title">Color</string>
     <string name="clock_shadow_title">Shadow</string>
+    <string name="alarm_action_wireless_header_title">Note: For this device flip and shake actions will be disabled while using wireless charging</string>
 </resources>

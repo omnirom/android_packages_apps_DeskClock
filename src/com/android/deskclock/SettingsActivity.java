@@ -103,6 +103,9 @@ public class SettingsActivity extends PreferenceActivity
             "week_start";
     public static final String KEY_FULLSCREEN_ALARM_SETTINGS =
             "fullscreen_alarm_settings";
+    private static final String KEY_ALARM_ACTION_WIRELESS_HEADER =
+            "alarm_action_wireless_header";
+    private static final String KEY_ALARM_ACTION_CATEGORY = "alarm_action_category";
 
     // default action for alarm action
     public static final String DEFAULT_ALARM_ACTION = "0";
@@ -142,6 +145,12 @@ public class SettingsActivity extends PreferenceActivity
         mTimerAlarmPref = (RingtonePreference) findPreference(KEY_TIMER_ALARM);
         mTimerAlarmPref.setOnPreferenceChangeListener(this);
         addSettings();
+
+        if (!getResources().getBoolean(R.bool.config_disableSensorOnWirelessCharging)) {
+            Preference p = findPreference(KEY_ALARM_ACTION_WIRELESS_HEADER);
+            PreferenceCategory alarmActionsCategory = (PreferenceCategory) findPreference(KEY_ALARM_ACTION_CATEGORY);
+            alarmActionsCategory.removePreference(p);
+        }
         checkWritePermissions();
     }
 
