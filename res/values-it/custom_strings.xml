@@ -19,6 +19,9 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Setting title for the flip action setting. -->
+  <!-- Setting title for the shake action setting. -->
+  <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
   <string name="alarm_type_select_title">Sorgente:</string>
   <string name="entry_five_secs">5 secondi</string>
   <string name="entry_thirty_secs">30 secondi</string>
@@ -28,4 +31,5 @@
   <string name="entry_ten_minute">10 minuti</string>
   <string name="entry_fifteen_minute">15 minuti</string>
   <string name="entry_thirty_minute">30 minuti</string>
+  <!-- User-defined cities -->
 </resources>

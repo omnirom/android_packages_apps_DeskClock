@@ -19,10 +19,13 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Setting title for the flip action setting. -->
   <string name="flip_action_title">Akce při otočení</string>
   <string name="flip_action_dialog_title">Akce při otočení</string>
+  <!-- Setting title for the shake action setting. -->
   <string name="shake_action_title">Akce při zatřesení</string>
   <string name="shake_action_dialog_title">Akce při zatřesení</string>
+  <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
   <string name="alarm_increasing_volume">Zvyšování hlasitosti</string>
   <string name="snooze_count_title">Povolený čas dospání</string>
   <string name="entry_zero_count">Neomezeno</string>
@@ -76,6 +79,7 @@
   <string name="fullscreen_alarm_summary">Použít budík na celý displej místo plovoucího upozornění</string>
   <string name="take_persistent_grant_uri_permission_failed_msg">Nepodařilo se přidělit trvalé oprávnění pro vyzvánění</string>
   <string name="notification_settings">Upozornění</string>
+  <!-- User-defined cities -->
   <string name="menu_item_add">Přidat</string>
   <string name="cities_add_city_title">Přidat město</string>
   <string name="cities_add_city_city">Město:</string>
@@ -98,4 +102,14 @@
   <string name="clone_alarm">Kopírovat budík</string>
   <string name="storage_title">Úložiště:</string>
   <string name="folders_scanning">Vyhledávání\u2026</string>
+  <string name="alarm_action_category">Možnosti upozornění</string>
+  <string name="alarm_action_header">Platné pouze pro budík na celý displej</string>
+  <string name="show_world_clock_title">Zobrazit světové hodiny</string>
+  <string name="show_alarm_title">Zobrazit další budík</string>
+  <string name="show_date_title">Zobrazit datum</string>
+  <string name="font_sample_text">11:57</string>
+  <string name="clock_font_title">Písmo</string>
+  <string name="custom_gadget">Vlastní hodiny</string>
+  <string name="clock_color_title">Barva</string>
+  <string name="clock_shadow_title">Stínování</string>
 </resources>

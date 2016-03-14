@@ -19,10 +19,13 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Setting title for the flip action setting. -->
   <string name="flip_action_title">Aktion beim Umdrehen</string>
   <string name="flip_action_dialog_title">Aktion beim Umdrehen</string>
+  <!-- Setting title for the shake action setting. -->
   <string name="shake_action_title">Aktion beim Schütteln</string>
   <string name="shake_action_dialog_title">Aktion beim Schütteln</string>
+  <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
   <string name="alarm_increasing_volume">Ansteigende Lautstärke</string>
   <string name="snooze_count_title">Erlaubte Anzahl von \"Schlummern\"</string>
   <string name="entry_zero_count">Unbegrenzt</string>
@@ -73,9 +76,9 @@
   <string name="prealarm_default_label">Vor-Alarm</string>
   <string name="fullscreen_alarm_settings">Vollbild-Alarme</string>
   <string name="fullscreen_alarm_title">Vollbild-Alarme</string>
-  <string name="fullscreen_alarm_summary">Vollbild-Alarme anstelle von Überlagerungs-Benachrichtigungen verwenden</string>
   <string name="take_persistent_grant_uri_permission_failed_msg">Fehler beim Übernehmen dauerhafter Klingeltonberechtigung</string>
   <string name="notification_settings">Mitteilungen</string>
+  <!-- User-defined cities -->
   <string name="menu_item_add">Hinzufügen</string>
   <string name="cities_add_city_title">Stadt hinzufügen</string>
   <string name="cities_add_city_city">Stadt:</string>
@@ -98,4 +101,14 @@
   <string name="clone_alarm">Wecker kopieren</string>
   <string name="storage_title">Speicherort:</string>
   <string name="folders_scanning">Durchsuche\u2026</string>
+  <string name="alarm_action_category">Alarm-Aktionen</string>
+  <string name="alarm_action_header">Nur gültig für Vollbild-Alarm-Benachrichtigungen</string>
+  <string name="show_world_clock_title">Welt Uhr Elemente anzeigen</string>
+  <string name="show_alarm_title">Nächsten Alarm anzeigen</string>
+  <string name="show_date_title">Datum anzeigen</string>
+  <string name="font_sample_text">11:57</string>
+  <string name="clock_font_title">Schriftart</string>
+  <string name="custom_gadget">Benutzerdefinierte Uhr</string>
+  <string name="clock_color_title">Farbe</string>
+  <string name="clock_shadow_title">Schatten</string>
 </resources>

@@ -19,10 +19,13 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Setting title for the flip action setting. -->
   <string name="flip_action_title">Akcja po odwróceniu</string>
   <string name="flip_action_dialog_title">Akcja po odwróceniu</string>
+  <!-- Setting title for the shake action setting. -->
   <string name="shake_action_title">Akcja potrząsania</string>
   <string name="shake_action_dialog_title">Akcja potrząsania</string>
+  <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
   <string name="alarm_increasing_volume">Narastająca głośność</string>
   <string name="snooze_count_title">Dozwolona ilość drzemek</string>
   <string name="entry_zero_count">Nieograniczona</string>
@@ -73,9 +76,9 @@
   <string name="prealarm_default_label">Przed-budzik</string>
   <string name="fullscreen_alarm_settings">Pełnoekranowy alarm</string>
   <string name="fullscreen_alarm_title">Pełnoekranowy alarm</string>
-  <string name="fullscreen_alarm_summary">Użyj pełnoekranowego alarmu zamiast wyskakującego powiadomienia</string>
   <string name="take_persistent_grant_uri_permission_failed_msg">Nie udało się uzyskać zezwolenia dla dzwonka</string>
   <string name="notification_settings">Powiadomienia</string>
+  <!-- User-defined cities -->
   <string name="menu_item_add">Dodaj</string>
   <string name="cities_add_city_title">Dodaj miasto</string>
   <string name="cities_add_city_city">Miasto:</string>

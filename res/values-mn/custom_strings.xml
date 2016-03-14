@@ -22,6 +22,5 @@
   <!-- Setting title for the flip action setting. -->
   <!-- Setting title for the shake action setting. -->
   <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
-  <string name="entry_ten_minute">10 minutos</string>
   <!-- User-defined cities -->
 </resources>
