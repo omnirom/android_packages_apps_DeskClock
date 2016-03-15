@@ -32,6 +32,7 @@ import android.graphics.Color;
 import android.content.res.Configuration;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -280,7 +281,19 @@ public class AlarmActivity extends Activity implements View.OnClickListener, Vie
         filter.addAction(ALARM_DISMISS_ACTION);
         registerReceiver(mReceiver, filter);
 
-        attachListeners();
+        if (getResources().getBoolean(R.bool.config_disableSensorOnWirelessCharging)) {
+            Intent chargingIntent = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+            int plugged = chargingIntent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+            boolean wirelessPluggedIn = plugged == BatteryManager.BATTERY_PLUGGED_WIRELESS;
+
+            if (!wirelessPluggedIn) {
+                attachListeners();
+            } else {
+                LogUtils.v(LOGTAG, "detected wireless charging - disabled sensors");
+            }
+        } else {
+            attachListeners();
+        }
     }
 
     @Override
