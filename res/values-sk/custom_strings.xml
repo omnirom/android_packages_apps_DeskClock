@@ -103,7 +103,7 @@
   <string name="storage_title">Úložisko:</string>
   <string name="folders_scanning">Vyhľadávánie\u2026</string>
   <string name="alarm_action_category">Akcie budíkov</string>
-  <string name="alarm_action_header">Platí len pre upozornenia na celú obrazovku</string>
+  <string name="alarm_action_header">Poznámka: Tieto možnosti sú použiteľné len pre upozornenia na celú obrazovku</string>
   <string name="show_world_clock_title">Zobraziť svetový čas</string>
   <string name="show_alarm_title">Zobraziť nasledujúci budík</string>
   <string name="show_date_title">Zobraziť dátum</string>
@@ -112,4 +112,5 @@
   <string name="custom_gadget">Vlastné hodiny</string>
   <string name="clock_color_title">Farba</string>
   <string name="clock_shadow_title">Obrys</string>
+  <string name="alarm_action_wireless_header_title">Poznámka: Pri bezdrôtovom nabíjaní budú pre toto zariadenie vypnuté akcie pri otočení a zatrasení</string>
 </resources>

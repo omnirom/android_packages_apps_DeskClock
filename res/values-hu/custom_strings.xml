@@ -103,7 +103,7 @@
   <string name="storage_title">Tárhely:</string>
   <string name="folders_scanning">Keresés\u2026</string>
   <string name="alarm_action_category">Riasztási műveletek</string>
-  <string name="alarm_action_header">Csak a teljes képernyős riasztási értesítésekre érvényes</string>
+  <string name="alarm_action_header">Megjegyzés: Ezek a beállítások csak a teljes képernyős riasztási értesítésekre érvényesek</string>
   <string name="show_world_clock_title">Világóra elemek megjelenítése</string>
   <string name="show_alarm_title">Következő riasztás megjelenítése</string>
   <string name="show_date_title">Dátum megjelenítése</string>
@@ -112,4 +112,5 @@
   <string name="custom_gadget">Egyéni óra</string>
   <string name="clock_color_title">Szín</string>
   <string name="clock_shadow_title">Árnyék</string>
+  <string name="alarm_action_wireless_header_title">Megjegyzés: A készülék fordítási és rázási műveletei le lesznek tiltva a vezeték nélküli töltés közben</string>
 </resources>

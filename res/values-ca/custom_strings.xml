@@ -103,7 +103,7 @@
   <string name="storage_title">Emmagatzematge:</string>
   <string name="folders_scanning">S\'està cercant\u2026</string>
   <string name="alarm_action_category">Accions de l\'alarma</string>
-  <string name="alarm_action_header">Només és vàlida per a avisos d\'alarma de pantalla completa</string>
+  <string name="alarm_action_header">Nota: Aquestes opcions només són vàlides per a avisos d\'alarma de pantalla completa</string>
   <string name="show_world_clock_title">Mostra els elements del rellotge mundial</string>
   <string name="show_alarm_title">Mostra l\'alarma següent</string>
   <string name="show_date_title">Mostra la data</string>
@@ -112,4 +112,5 @@
   <string name="custom_gadget">Rellotge personalitzat</string>
   <string name="clock_color_title">Color</string>
   <string name="clock_shadow_title">Ombra</string>
+  <string name="alarm_action_wireless_header_title">Nota: Per a aquest dispositiu les accions de voltejar i sacsejar s\'inhabilitaran durant la càrrega sense fils</string>
 </resources>

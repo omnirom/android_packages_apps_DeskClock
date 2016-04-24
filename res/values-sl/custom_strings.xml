@@ -103,7 +103,7 @@
   <string name="storage_title">Pomnilniška naprava:</string>
   <string name="folders_scanning">Pregledovanje \u2026</string>
   <string name="alarm_action_category">Dejanja budilk</string>
-  <string name="alarm_action_header">Veljavno samo za celozaslonska obvestila budilk</string>
+  <string name="alarm_action_header">Opomba: te možnosti so veljavne samo za celozaslonska obvestila budilk</string>
   <string name="show_world_clock_title">Prikaži predmete svetovnih ur</string>
   <string name="show_alarm_title">Prikaži naslednjo budilko</string>
   <string name="show_date_title">Prikaži datum</string>
@@ -112,4 +112,5 @@
   <string name="custom_gadget">Ura po meri</string>
   <string name="clock_color_title">Barva</string>
   <string name="clock_shadow_title">Senčenje</string>
+  <string name="alarm_action_wireless_header_title">Opomba: za to napravo bodo med uporabo brezžičnega polnjenja dejanja obračanja in tresenja onemogočena</string>
 </resources>

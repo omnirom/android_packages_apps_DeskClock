@@ -76,6 +76,7 @@
   <string name="prealarm_default_label">Pré-alarme</string>
   <string name="fullscreen_alarm_settings">Alarmes plein écran</string>
   <string name="fullscreen_alarm_title">Alarmes plein écran</string>
+  <string name="fullscreen_alarm_summary">Toujours utiliser les alarmes en plein écran au lieu de notification en aperçu</string>
   <string name="take_persistent_grant_uri_permission_failed_msg">Impossible d\'obtenir une autorisation permanente pour la sonnerie</string>
   <string name="notification_settings">Notifications</string>
   <!-- User-defined cities -->
@@ -101,4 +102,15 @@
   <string name="clone_alarm">Copier l\'alarme</string>
   <string name="storage_title">Stockage :</string>
   <string name="folders_scanning">Recherche\u2026</string>
+  <string name="alarm_action_category">Actions de l\'alarme</string>
+  <string name="alarm_action_header">Remarque : Ces options sont valables uniquement pour les notifications d\'alarme en plein écran</string>
+  <string name="show_world_clock_title">Afficher les éléments de l\'horloge mondiale</string>
+  <string name="show_alarm_title">Afficher l\'alarme suivante</string>
+  <string name="show_date_title">Afficher la date</string>
+  <string name="font_sample_text">11:57</string>
+  <string name="clock_font_title">Police</string>
+  <string name="custom_gadget">Horloge personnalisée</string>
+  <string name="clock_color_title">Couleur</string>
+  <string name="clock_shadow_title">Ombre</string>
+  <string name="alarm_action_wireless_header_title">Remarque : Pour cet appareil les actions retourner et secouer seront désactivées pendant l\'utilisation du chargement sans fil</string>
 </resources>

@@ -76,6 +76,7 @@
   <string name="prealarm_default_label">Vor-Alarm</string>
   <string name="fullscreen_alarm_settings">Vollbild-Alarme</string>
   <string name="fullscreen_alarm_title">Vollbild-Alarme</string>
+  <string name="fullscreen_alarm_summary">Vollbild-Alarme anstelle von Vorschau-Benachrichtigungen verwenden</string>
   <string name="take_persistent_grant_uri_permission_failed_msg">Fehler beim Übernehmen dauerhafter Klingeltonberechtigung</string>
   <string name="notification_settings">Mitteilungen</string>
   <!-- User-defined cities -->
@@ -102,7 +103,7 @@
   <string name="storage_title">Speicherort:</string>
   <string name="folders_scanning">Durchsuche\u2026</string>
   <string name="alarm_action_category">Alarm-Aktionen</string>
-  <string name="alarm_action_header">Nur gültig für Vollbild-Alarm-Benachrichtigungen</string>
+  <string name="alarm_action_header">Hinweis: Diese Optionen sind nur für Vollbild-Alarm-Benachrichtigungen gültig</string>
   <string name="show_world_clock_title">Welt Uhr Elemente anzeigen</string>
   <string name="show_alarm_title">Nächsten Alarm anzeigen</string>
   <string name="show_date_title">Datum anzeigen</string>
@@ -111,4 +112,5 @@
   <string name="custom_gadget">Benutzerdefinierte Uhr</string>
   <string name="clock_color_title">Farbe</string>
   <string name="clock_shadow_title">Schatten</string>
+  <string name="alarm_action_wireless_header_title">Hinweis: Für dieses Gerät werden Umdreh- und Schüttel- Aktionen während des drahtlosen Aufladens deaktiviert</string>
 </resources>
