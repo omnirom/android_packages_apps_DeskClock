@@ -30,6 +30,16 @@
         <item name="android:navigationBarColor">@color/hot_blue_dark</item>
         <item name="android:colorControlActivated">@color/hot_blue</item>
         <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:actionBarStyle">@style/ActionBarStyle</item>
+    </style>
+
+    <style name="ActionBarStyle" parent="@android:style/Widget.Material.ActionBar">
+        <item name="android:background">@color/hot_blue</item>
+        <item name="android:popupTheme">@style/ActionBarPopupTheme</item>
+    </style>
+
+    <style name="ActionBarPopupTheme" parent="@android:style/Widget.Material">
+        <item name="android:colorBackground">@color/hot_blue</item>
     </style>
 
     <style name="SettingsTheme" parent="@android:style/Theme.Material.Settings">
