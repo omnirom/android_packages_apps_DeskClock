@@ -51,6 +51,7 @@
   <string name="folderType">Музична тека</string>
   <string name="playlistType">Плейлист</string>
   <string name="alarm_type_select_title">Джерело:</string>
+  <string name="alarm_ringtone_title">Звук:</string>
   <string name="alarm_test_button">Перевірити</string>
   <string name="keep_screen_on_title">Не вимикати екран</string>
   <string name="keep_screen_on_summary">Екран не буде вимикатись при активному будильнику</string>
@@ -75,6 +76,7 @@
   <string name="prealarm_default_label">Попередній сигнал</string>
   <string name="fullscreen_alarm_settings">Повноекранні будильники</string>
   <string name="fullscreen_alarm_title">Повноекранні будильники</string>
+  <string name="fullscreen_alarm_summary">Використовуйте повноекранні попередження замість спливаючих сповіщень</string>
   <string name="take_persistent_grant_uri_permission_failed_msg">Не вдалось отримати постійний дозвіл для мелодії дзвінка</string>
   <string name="notification_settings">Сповіщення</string>
   <!-- User-defined cities -->
@@ -97,4 +99,18 @@
   <string name="timer_alarm_custom_title">Інша мелодія таймера</string>
   <string name="week_start_title">Тиждень починається з</string>
   <string name="default_week_start">За промовчанням для даного регіону</string>
+  <string name="clone_alarm">Скопіювати сигнал</string>
+  <string name="storage_title">Сховище:</string>
+  <string name="folders_scanning">Сканування\u2026</string>
+  <string name="alarm_action_category">Параметри будильника</string>
+  <string name="alarm_action_header">Увага: Ці опції активні тільки для повноекранного сповіщення</string>
+  <string name="show_world_clock_title">Показати елементи світового годинника</string>
+  <string name="show_alarm_title">Показати наступний будильник</string>
+  <string name="show_date_title">Показати дату</string>
+  <string name="font_sample_text">11:57</string>
+  <string name="clock_font_title">Шрифт</string>
+  <string name="custom_gadget">Користувацький годинник</string>
+  <string name="clock_color_title">Колір</string>
+  <string name="clock_shadow_title">Тіні</string>
+  <string name="alarm_action_wireless_header_title">Увага: При бездротовій зарядці функції струшування і змахування будуть вимкнені</string>
 </resources>
