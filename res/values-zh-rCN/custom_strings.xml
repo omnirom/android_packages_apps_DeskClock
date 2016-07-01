@@ -51,6 +51,7 @@
   <string name="folderType">音乐文件夹</string>
   <string name="playlistType">播放列表</string>
   <string name="alarm_type_select_title">源：</string>
+  <string name="alarm_ringtone_title">声音：</string>
   <string name="alarm_test_button">测试</string>
   <string name="keep_screen_on_title">保持屏幕开启</string>
   <string name="keep_screen_on_summary">当闹钟激活时，屏幕将不会被关闭。</string>
@@ -75,6 +76,7 @@
   <string name="prealarm_default_label">预提醒</string>
   <string name="fullscreen_alarm_settings">全屏幕闹钟</string>
   <string name="fullscreen_alarm_title">全屏幕闹钟</string>
+  <string name="fullscreen_alarm_summary">始终使用全屏闹钟而不是顶部通知</string>
   <string name="take_persistent_grant_uri_permission_failed_msg">无法为铃声获得持续授权</string>
   <string name="notification_settings">通知</string>
   <!-- User-defined cities -->
@@ -95,4 +97,13 @@
   <string name="timer_settings">计时器</string>
   <string name="timer_alarm_title">铃声</string>
   <string name="timer_alarm_custom_title">自定义计时器铃声</string>
+  <string name="default_week_start">区域默认</string>
+  <string name="alarm_action_category">闹铃动作</string>
+  <string name="alarm_action_header">注意：这些选项仅在全屏闹钟模式下生效。</string>
+  <string name="show_alarm_title">显示下一个闹钟</string>
+  <string name="font_sample_text">11:57</string>
+  <string name="clock_font_title">字体</string>
+  <string name="custom_gadget">自定义时钟</string>
+  <string name="clock_color_title">颜色</string>
+  <string name="clock_shadow_title">阴影</string>
 </resources>

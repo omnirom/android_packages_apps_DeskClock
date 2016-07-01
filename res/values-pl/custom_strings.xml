@@ -76,6 +76,7 @@
   <string name="prealarm_default_label">Przed-budzik</string>
   <string name="fullscreen_alarm_settings">Pełnoekranowy alarm</string>
   <string name="fullscreen_alarm_title">Pełnoekranowy alarm</string>
+  <string name="fullscreen_alarm_summary">Użyj pełnoekranowego alarmu zamiast wyskakującego powiadomienia</string>
   <string name="take_persistent_grant_uri_permission_failed_msg">Nie udało się uzyskać zezwolenia dla dzwonka</string>
   <string name="notification_settings">Powiadomienia</string>
   <!-- User-defined cities -->
@@ -101,4 +102,15 @@
   <string name="clone_alarm">Skopiuj alarm</string>
   <string name="storage_title">Pamięć:</string>
   <string name="folders_scanning">Skanowanie\u2026</string>
+  <string name="alarm_action_category">Akcje alarmu</string>
+  <string name="alarm_action_header">Uwaga: Wybrane opcje są aktywne tylko dla pełnoekranowego alarmu</string>
+  <string name="show_world_clock_title">Pokaż elementy zegara światowego</string>
+  <string name="show_alarm_title">Pokaż następny alarm</string>
+  <string name="show_date_title">Pokaż datę</string>
+  <string name="font_sample_text">11:57</string>
+  <string name="clock_font_title">Czcionka</string>
+  <string name="custom_gadget">Niestandardowy zegar</string>
+  <string name="clock_color_title">Kolor</string>
+  <string name="clock_shadow_title">Cień</string>
+  <string name="alarm_action_wireless_header_title">Uwaga: Podczas ładowania bezprzewodowego funkcja wstrząśnięcia i obrotu telefonu zostaną wyłączone</string>
 </resources>
