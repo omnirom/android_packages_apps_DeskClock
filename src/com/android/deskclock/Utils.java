@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -560,30 +561,55 @@ public class Utils {
         // Get list of cities defined by the app (App-defined has the prefix C)
         // Read strings array of name,timezone, id
         // make sure the list are the same length
-        String[] cities = r.getStringArray(R.array.cities_names);
+        String[] cityNames = r.getStringArray(R.array.cities_names);
         String[] timezones = r.getStringArray(R.array.cities_tz);
         String[] ids = r.getStringArray(R.array.cities_id);
-        int minLength = cities.length;
-        if (cities.length != timezones.length || ids.length != cities.length) {
-            minLength = Math.min(cities.length, Math.min(timezones.length, ids.length));
-            LogUtils.e("City lists sizes are not the same, truncating");
-        }
 
-        List<CityObj> tempList = new ArrayList<CityObj>(minLength);
-        for (int i = 0; i < minLength; i++) {
-            tempList.add(new CityObj(cities[i], timezones[i], ids[i]));
+        int minLength = cityNames.length;
+        if (cityNames.length != timezones.length || ids.length != cityNames.length) {
+            minLength = Math.min(cityNames.length, Math.min(timezones.length, ids.length));
+            LogUtils.e("City lists sizes are not the same, fallback to default");
+            Configuration conf = c.getResources().getConfiguration();
+            Locale currentLocale = conf.locale;
+            conf.locale = Locale.US;
+            c.getResources().updateConfiguration(conf, null);
+            cityNames = r.getStringArray(R.array.cities_names);
+            minLength = cityNames.length;
+            conf.locale = currentLocale;
+            c.getResources().updateConfiguration(conf, null);
         }
-
         // Get the list of user-defined cities (User-defined has the prefix UD)
-        List<DbCity> dbcities = DbCities.getCities(c.getContentResolver());
-        for (int i = 0; i < dbcities.size(); i++) {
-            DbCity dbCity = dbcities.get(i);
-            CityObj city = new CityObj(dbCity.name, dbCity.tz, "UD" + dbCity.id);
-            city.mUserDefined = true;
-            tempList.add(city);
+        final List<DbCity> dbcities = DbCities.getCities(c.getContentResolver());
+        final CityObj[] cities = new CityObj[minLength + dbcities.size()];
+        int i = 0;
+        for (; i < minLength; i++) {
+            // Default to using the first character of the city name as the index unless one is
+            // specified. The indicator for a specified index is the addition of character(s)
+            // before the "=" separator.
+            final String parseString = cityNames[i];
+            final int separatorIndex = parseString.indexOf("=");
+            final String index;
+            final String cityName;
+            if (separatorIndex == 0) {
+                // Default to using second character (the first character after the = separator)
+                // as the index.
+                index = parseString.substring(1, 2);
+                cityName = parseString.substring(1, parseString.length());
+            } else {
+                 index = parseString.substring(0, separatorIndex);
+                 cityName = parseString.substring(separatorIndex + 1, parseString.length());
+            }
+            cities[i] = new CityObj(cityName, timezones[i], ids[i], index);
         }
 
-        return tempList.toArray(new CityObj[tempList.size()]);
+        for (int j = 0; j < dbcities.size(); j++) {
+            DbCity dbCity = dbcities.get(j);
+            CityObj city = new CityObj(dbCity.name, dbCity.tz, "UD" + dbCity.id, dbCity.name.substring(0, 1));
+            city.mUserDefined = true;
+            cities[i] = city;
+            i++;
+        }
+        return cities;
     }
 
     /**
