@@ -204,8 +204,7 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
                         sectionHeaders.add("+");
                         sectionPositions.add(0);
                         filteredList.add(new CityObj(mSelectedCitiesHeaderString,
-                                mSelectedCitiesHeaderString,
-                                null));
+                                mSelectedCitiesHeaderString, null, null));
                     }
                     for (CityObj city : mSelectedCities) {
                         city.isHeader = false;
@@ -232,11 +231,11 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
                     // If the search query is empty, add section headers.
                     if (TextUtils.isEmpty(modifiedQuery)) {
                         if (!selectedCityIds.contains(city.mCityId)) {
-                            // If the list is sorted by name, and the city begins with a letter
-                            // different than the previous city's letter, insert a section header.
+                            // If the list is sorted by name, and the city has an index
+                            // different than the previous city's index, update the section header.
                             if (mSortType == SORT_BY_NAME
-                                    && !city.mCityName.substring(0, 1).equals(val)) {
-                                val = city.mCityName.substring(0, 1).toUpperCase();
+                                    && !city.mCityIndex.equals(val)) {
+                                val = city.mCityIndex.toUpperCase();
                                 sectionHeaders.add(val);
                                 sectionPositions.add(filteredList.size());
                                 city.isHeader = true;
@@ -251,7 +250,7 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
                                 int newOffset = timezone.getOffset(currentTime);
                                 if (offset != newOffset) {
                                     offset = newOffset;
-                                    String offsetString = Utils.getGMTHourOffset(timezone, true);
+                                    String offsetString = Utils.getGMTHourOffset(timezone, false);
                                     sectionHeaders.add(offsetString);
                                     sectionPositions.add(filteredList.size());
                                     city.isHeader = true;
@@ -463,7 +462,7 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
                 if (c.isHeader) {
                     holder.index.setVisibility(View.VISIBLE);
                     if (mSortType == SORT_BY_NAME) {
-                        holder.index.setText(c.mCityName.substring(0, 1));
+                        holder.index.setText(c.mCityIndex);
                         holder.index.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
                     } else { // SORT_BY_GMT_OFFSET
                         holder.index.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
@@ -814,7 +813,8 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
           Toast.makeText(this, R.string.cities_add_city_failed,
                   Toast.LENGTH_SHORT).show();
         } else {
-            CityObj o = new CityObj(name, tz, "UD" + id);
+            CityObj o = new CityObj(name, tz, "UD" + id, name.substring(0, 1));
+            o.mUserDefined = true;
             mAdapter.loadCitiesDatabase(this, o);
             mCitiesList.invalidate();
         }

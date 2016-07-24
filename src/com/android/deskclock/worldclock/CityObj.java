@@ -23,18 +23,21 @@ public class CityObj {
     private static final String CITY_NAME = "city_name_";
     private static final String CITY_TIME_ZONE = "city_tz_";
     private static final String CITY_ID = "city_id_";
+    private static final String CITY_INDEX = "city_index_";
     private static final String CITY_UD = "ud_";
 
     public String mCityName;
     public String mTimeZone;
     public String mCityId;
+    public String mCityIndex;
     public boolean isHeader;
     public boolean mUserDefined;
 
-    public CityObj(String name, String timezone, String id) {
+    public CityObj(String name, String timezone, String id, String index) {
         mCityName = name;
         mTimeZone = timezone;
         mCityId = id;
+        mCityIndex = index;
         mUserDefined = false;
     }
 
@@ -44,6 +47,7 @@ public class CityObj {
                 "name=" + mCityName +
                 ", timezone=" + mTimeZone +
                 ", id=" + mCityId +
+                ", index=" + mCityIndex +
                 ", user-defined=" + mUserDefined +
                 '}';
     }
@@ -52,13 +56,15 @@ public class CityObj {
         mCityName = prefs.getString(CITY_NAME + index, null);
         mTimeZone = prefs.getString(CITY_TIME_ZONE + index, null);
         mCityId = prefs.getString(CITY_ID + index, null);
+        mCityIndex = prefs.getString(CITY_INDEX + index, null);
         mUserDefined = prefs.getBoolean(CITY_UD + index, false);
     }
 
     public void saveCityToSharedPrefs(SharedPreferences.Editor editor, int index) {
-        editor.putString (CITY_NAME + index, mCityName);
-        editor.putString (CITY_TIME_ZONE + index, mTimeZone);
-        editor.putString (CITY_ID + index, mCityId);
-        editor.putBoolean (CITY_UD + index, mUserDefined);
+        editor.putString(CITY_NAME + index, mCityName);
+        editor.putString(CITY_TIME_ZONE + index, mTimeZone);
+        editor.putString(CITY_ID + index, mCityId);
+        editor.putString(CITY_INDEX + index, mCityIndex);
+        editor.putBoolean(CITY_UD + index, mUserDefined);
     }
 }
