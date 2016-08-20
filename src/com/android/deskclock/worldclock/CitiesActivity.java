@@ -304,7 +304,7 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
             context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, outValue, true);
             mNormalCityFgColor = res.getColor(outValue.resourceId);
 
-            mUserDefinedCityFgColor = res.getColor(R.color.hot_blue);
+            mUserDefinedCityFgColor = res.getColor(R.color.primary);
 
             mPattern24 = DateFormat.getBestDateTimePattern(Locale.getDefault(), "Hm");
 
@@ -816,7 +816,10 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
             CityObj o = new CityObj(name, tz, "UD" + id, name.substring(0, 1));
             o.mUserDefined = true;
             mAdapter.loadCitiesDatabase(this, o);
+            mUserSelectedCities.put(o.mCityId, o);
+            mAdapter.refreshSelectedCities(o);
             mCitiesList.invalidate();
+            mCitiesList.setSelectionAfterHeaderView();
         }
 
         mAddCityDialog = null;

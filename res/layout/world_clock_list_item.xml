@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2012 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2012 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -12,55 +11,78 @@
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
--->
-    <!--android:background="?android:attr/selectableItemBackground"-->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+--><!--android:background="?android:attr/selectableItemBackground"-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:cardview="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingEnd="@dimen/world_clock_margin"
-    android:paddingStart="@dimen/world_clock_margin"
-    android:orientation="horizontal"
-    android:elevation="@dimen/item_elevation"
-    android:foreground="?android:attr/selectableItemBackground"
-    android:background="@color/view_background">
+    android:orientation="horizontal">
 
-    <com.android.deskclock.widget.EllipsizeLayout
-        android:id="@+id/city_name_layout"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_gravity="center_vertical" >
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        android:foreground="?android:attr/selectableItemBackground"
+        cardview:cardCornerRadius="2dp"
+        cardview:contentPadding="8dp"
+        cardview:cardBackgroundColor="@color/view_background">
 
-        <include layout="@layout/world_clock_label"/>
-
-    </com.android.deskclock.widget.EllipsizeLayout>
-
-    <Space
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:layout_weight="1" />
-
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_height="wrap_content">
-
-        <TextClock
-            android:id="@+id/digital_clock"
-            android:format12Hour="@string/world_clock_12_hours_format"
-            android:format24Hour="@string/clock_24_hours_format"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/medium_light"
-            android:baselineAligned="true"
-            android:layout_gravity="center"
-            android:gravity="center" />
-        <com.android.deskclock.AnalogClock
-            android:id="@+id/analog_clock"
-            android:gravity="center"
-            android:layout_width="@dimen/world_clock_analog_size"
-            android:layout_height="@dimen/world_clock_analog_size"
-            android:layout_gravity="center_horizontal" />
-    </FrameLayout>
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/city_name_layout"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/city_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textAppearance="@style/CityNameTextAppearance" />
+
+                <TextView
+                    android:id="@+id/city_day"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textAppearance="@style/CityDayTextAppearance" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1">
+
+                <TextClock
+                    android:id="@+id/digital_clock"
+                    style="@style/medium_light"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:baselineAligned="true"
+                    android:format12Hour="@string/world_clock_12_hours_format"
+                    android:format24Hour="@string/clock_24_hours_format"
+                    android:gravity="center" />
+
+                <com.android.deskclock.AnalogClock
+                    android:id="@+id/analog_clock"
+                    android:layout_width="@dimen/world_clock_analog_size"
+                    android:layout_height="@dimen/world_clock_analog_size"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center" />
+            </FrameLayout>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
 
 </LinearLayout>

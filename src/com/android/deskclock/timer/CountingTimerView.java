@@ -77,7 +77,6 @@ public class CountingTimerView extends View {
     private boolean mRemeasureText = true;
 
     private int mDefaultColor;
-    private final int mPressedColor;
     private final int mWhiteColor;
     private final int mAccentColor;
     private final AccessibilityManager mAccessibilityManager;
@@ -277,8 +276,7 @@ public class CountingTimerView extends View {
         mWhiteColor = r.getColor(outValue.resourceId);
 
         mDefaultColor = mWhiteColor;
-        mPressedColor = r.getColor(R.color.hot_blue);
-        mAccentColor = r.getColor(R.color.hot_blue);
+        mAccentColor = r.getColor(R.color.primary);
         mBigFontSize = r.getDimension(R.dimen.big_font_size);
         mSmallFontSize = r.getDimension(R.dimen.small_font_size);
 
@@ -635,7 +633,7 @@ public class CountingTimerView extends View {
         float yTextStart = yCenter + mTextHeight/2 - (mTextHeight * FONT_VERTICAL_OFFSET);
 
         // Text color differs based on pressed state.
-        final int textColor = mVirtualButtonPressedOn ? mPressedColor : mDefaultColor;
+        final int textColor = mDefaultColor;
         mPaintBigThin.setColor(textColor);
         mPaintMed.setColor(textColor);
 

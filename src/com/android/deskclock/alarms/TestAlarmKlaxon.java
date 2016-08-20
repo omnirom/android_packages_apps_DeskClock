@@ -25,20 +25,19 @@ import java.util.Collections;
 import java.io.IOException;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.RemoteException;
-import android.os.SystemClock;
-import android.view.KeyEvent;
 import android.content.res.AssetFileDescriptor;
-import android.util.Log;
+import android.preference.PreferenceManager;
 
+import com.android.deskclock.LogUtils;
 import com.android.deskclock.provider.Alarm;
+import com.android.deskclock.SettingsActivity;
 import com.android.deskclock.provider.AlarmInstance;
 import com.android.deskclock.R;
 import com.android.deskclock.Utils;
@@ -69,6 +68,13 @@ public class TestAlarmKlaxon {
         public void stopProgress();
     };
 
+    private static int getAudioStream(Context context) {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String stream = prefs.getString(SettingsActivity.KEY_AUDIO_STREAM, "0");
+        int streamInt = Integer.decode(stream).intValue();
+        return streamInt == 0 ? AudioManager.STREAM_MUSIC : AudioManager.STREAM_ALARM;
+    }
+
     private static Uri getDefaultAlarm(Context context) {
         Uri alarmNoise = RingtoneManager.getActualDefaultRingtoneUri(context,
                     RingtoneManager.TYPE_ALARM);
@@ -88,7 +94,7 @@ public class TestAlarmKlaxon {
                 .getSystemService(Context.AUDIO_SERVICE);
 
         // save current value
-        sSavedVolume = sAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        sSavedVolume = sAudioManager.getStreamVolume(getAudioStream(context));
         if (preAlarm) {
             sMaxVolume = instance.preAlarmVolume;
         } else {
@@ -97,10 +103,10 @@ public class TestAlarmKlaxon {
         sRandomPlayback = instance.getRandomMode(preAlarm);
         if (sMaxVolume == -1){
             // calc from current alarm volume
-            sMaxVolume = calcMusicVolumeFromCurrentAlarm();
+            sMaxVolume = calcMusicVolumeFromCurrentAlarm(context);
         }
 
-        sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, sMaxVolume, 0);
+        sAudioManager.setStreamVolume(getAudioStream(context), sMaxVolume, 0);
         sFallbackRingtone = instance.isFallbackRingtone(context, preAlarm);
 
         Uri alarmNoise = null;
@@ -149,13 +155,13 @@ public class TestAlarmKlaxon {
         }
     }
 
-    public static void stopTest(Alarm instance) {
+    public static void stopTest(Context context, Alarm instance) {
         if (!sTestStarted) {
             return;
         }
 
         // reset to default from before
-        sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+        sAudioManager.setStreamVolume(getAudioStream(context),
                         sSavedVolume, 0);
 
         if (sMediaPlayer != null) {
@@ -196,12 +202,14 @@ public class TestAlarmKlaxon {
             } else {
                 sMediaPlayer.setDataSource(context, alarmNoise);
             }
-            sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            LogUtils.v("Using audio stream " + (getAudioStream(context) == AudioManager.STREAM_MUSIC ? "Music" : "Alarm"));
+
+            sMediaPlayer.setAudioStreamType(getAudioStream(context));
             if (!sMultiFileMode) {
                 sMediaPlayer.setLooping(true);
             }
             sMediaPlayer.prepare();
-            sAudioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
+            sAudioManager.requestAudioFocus(null, getAudioStream(context),
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
             sMediaPlayer.start();
         } catch (Exception ex) {
@@ -210,8 +218,8 @@ public class TestAlarmKlaxon {
         }
     }
 
-    private static int calcMusicVolumeFromCurrentAlarm() {
-        int maxMusicVolume = sAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+    private static int calcMusicVolumeFromCurrentAlarm(Context context) {
+        int maxMusicVolume = sAudioManager.getStreamMaxVolume(getAudioStream(context));
         int alarmVolume = sAudioManager.getStreamVolume(AudioManager.STREAM_ALARM);
         int maxAlarmVolume = sAudioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM);
 
