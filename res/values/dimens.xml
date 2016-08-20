@@ -71,7 +71,7 @@
     <dimen name="alarm_lockscreen_bottom_margin">40dp</dimen>
 
     <dimen name="big_font_size">88sp</dimen>
-    <dimen name="medium_font_size">56sp</dimen>
+    <dimen name="medium_font_size">48sp</dimen>
     <dimen name="small_font_size">32sp</dimen>
     <dimen name="label_font_size">16sp</dimen>
 
@@ -170,7 +170,6 @@
     <dimen name="item_elevation">2dp</dimen>
     <dimen name="circle_elevation">5dp</dimen>
     <dimen name="repeat_day_height">40dp</dimen>
-    <dimen name="alarm_list_divider_height">8dp</dimen>
     <dimen name="list_header_height">8dp</dimen>
     <dimen name="empty_list_header_height">1dp</dimen>
 

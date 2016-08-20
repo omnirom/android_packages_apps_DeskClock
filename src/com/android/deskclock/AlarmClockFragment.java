@@ -17,10 +17,7 @@
 package com.android.deskclock;
 
 import android.animation.Animator;
-import android.animation.Animator.AnimatorListener;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ValueAnimator;
-import android.app.Activity;
+import android.animation.ObjectAnimator;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.LoaderManager;
@@ -31,13 +28,9 @@ import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.UriPermission;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DataSetObserver;
-import android.graphics.Color;
-import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -46,22 +39,16 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.transition.AutoTransition;
-import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionManager;
-import android.transition.TransitionSet;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
-import android.widget.Button;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CursorAdapter;
@@ -73,17 +60,14 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 import android.provider.OpenableColumns;
-import android.provider.MediaStore;
-import android.provider.MediaStore.Audio;
-import android.provider.MediaStore.Audio.Media;
 
 import com.android.deskclock.alarms.AlarmStateManager;
 import com.android.deskclock.provider.Alarm;
 import com.android.deskclock.provider.AlarmInstance;
 import com.android.deskclock.provider.DaysOfWeek;
 import com.android.deskclock.widget.ActionableToastBar;
+import com.android.deskclock.widget.ExpandAnimation;
 import com.android.deskclock.widget.TextTime;
 
 import java.text.DateFormatSymbols;
@@ -91,7 +75,6 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.Locale;
 import java.io.File;
 
@@ -109,10 +92,9 @@ public class AlarmClockFragment extends DeskClockFragment implements
 
     private static final int ANIMATION_DURATION = 300;
     private static final int EXPAND_DURATION = 300;
-    private static final int COLLAPSE_DURATION = 250;
 
-    private static final int ROTATE_180_DEGREE = 180;
-    private static final float TINTED_LEVEL = 0.09f;
+    private static final float ROTATE_180_DEGREE = 180f;
+    private static final float ROTATE_0_DEGREE = 0f;
 
     private static final String KEY_EXPANDED_ID = "expandedId";
     private static final String KEY_RINGTONE_TITLE_CACHE = "ringtoneTitleCache";
@@ -151,9 +133,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
     private boolean mUndoShowing;
     private boolean mCloneAlarm;
 
-    private Interpolator mExpandInterpolator;
-    private Interpolator mCollapseInterpolator;
-
     private Transition mAddRemoveTransition;
     private Transition mRepeatTransition;
 
@@ -187,9 +166,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
             mSelectedAlarm = savedState.getParcelable(KEY_SELECTED_ALARM);
         }
 
-        mExpandInterpolator = new DecelerateInterpolator(EXPAND_DECELERATION);
-        mCollapseInterpolator = new DecelerateInterpolator(COLLAPSE_DECELERATION);
-
         mAddRemoveTransition = new AutoTransition();
         mAddRemoveTransition.setDuration(ANIMATION_DURATION);
 
@@ -200,7 +176,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
         mMainLayout = (FrameLayout) v.findViewById(R.id.main);
         mAlarmsList = (ListView) v.findViewById(R.id.alarms_list);
         mAlarmsList.setDivider(null);
-        mAlarmsList.setDividerHeight((int)getResources().getDimension(R.dimen.alarm_list_divider_height));
+        mAlarmsList.setDividerHeight(0);
 
         mUndoBar = (ActionableToastBar) v.findViewById(R.id.undo_bar);
         mUndoFrame = v.findViewById(R.id.undo_frame);
@@ -385,7 +361,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
     private void closeLabelDialog() {
         final Fragment prev = getFragmentManager().findFragmentByTag("label_dialog");
         if (prev != null) {
-            ((DialogFragment)prev).dismiss();
+            ((DialogFragment) prev).dismiss();
         }
     }
 
@@ -451,7 +427,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
         private ItemHolder mExpandedItemHolder;
 
         private final boolean mHasVibrator;
-        private final int mCollapseExpandHeight;
 
         // This determines the order in which it is shown and processed in the UI.
         private final int[] DAY_ORDER = new int[7];
@@ -462,7 +437,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
             LinearLayout alarmItem;
             TextTime clock;
             TextView tomorrowLabel;
-            Switch onoff;
             TextView daysOfWeek;
             ImageButton delete;
             View expandArea;
@@ -486,9 +460,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
             Alarm alarm;
         }
 
-        // Used for scrolling an expanded item in the list to make sure it is fully visible.
-        private long mScrollAlarmId = AlarmClockFragment.INVALID_ID;
-
         public AlarmItemAdapter(Context context, long expandedId, ListView list) {
             super(context, null, 0);
             mContext = context;
@@ -506,8 +477,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
 
             mHasVibrator = ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE))
                     .hasVibrator();
-
-            mCollapseExpandHeight = (int) res.getDimension(R.dimen.collapse_expand_height);
         }
 
         public void updateDayOrder() {
@@ -591,7 +560,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
             holder.alarmItem = (LinearLayout) view.findViewById(R.id.alarm_item);
             holder.tomorrowLabel = (TextView) view.findViewById(R.id.tomorrowLabel);
             holder.clock = (TextTime) view.findViewById(R.id.digital_clock);
-            holder.onoff = (Switch) view.findViewById(R.id.onoff);
             holder.daysOfWeek = (TextView) view.findViewById(R.id.daysOfWeek);
             holder.delete = (ImageButton) view.findViewById(R.id.delete);
             holder.summary = view.findViewById(R.id.summary);
@@ -623,37 +591,29 @@ public class AlarmClockFragment extends DeskClockFragment implements
             final ItemHolder itemHolder = (ItemHolder) tag;
             itemHolder.alarm = alarm;
 
-            // We must unset the listener first because this maybe a recycled view so changing the
-            // state would affect the wrong alarm.
-            itemHolder.onoff.setOnCheckedChangeListener(null);
-            itemHolder.onoff.setChecked(alarm.enabled);
             setDigitalTimeAlpha(itemHolder, alarm.enabled);
 
             itemHolder.clock.setFormat(
-                    (int)mContext.getResources().getDimension(R.dimen.alarm_label_size));
+                    (int) mContext.getResources().getDimension(R.dimen.alarm_label_size));
             itemHolder.clock.setTime(alarm.hour, alarm.minutes);
             itemHolder.clock.setClickable(true);
-            itemHolder.clock.setOnClickListener(new View.OnClickListener() {
+            itemHolder.clock.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
-                public void onClick(View view) {
+                public boolean onLongClick(View view) {
                     mSelectedAlarm = itemHolder.alarm;
                     mCloneAlarm = false;
                     AlarmUtils.showTimeEditDialog(AlarmClockFragment.this, alarm);
+                    return true;
                 }
             });
-
-            final CompoundButton.OnCheckedChangeListener onOffListener =
-                    new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton compoundButton,
-                                boolean checked) {
-                            if (checked != alarm.enabled) {
-                                setDigitalTimeAlpha(itemHolder, checked);
-                                alarm.enabled = checked;
-                                asyncUpdateAlarm(alarm, alarm.enabled);
-                            }
-                        }
-                    };
+            itemHolder.clock.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alarm.enabled = !alarm.enabled;
+                    setDigitalTimeAlpha(itemHolder, alarm.enabled);
+                    asyncUpdateAlarm(alarm, alarm.enabled);
+                }
+            });
 
             if (itemHolder.alarm.daysOfWeek.isRepeating()) {
                 itemHolder.tomorrowLabel.setVisibility(View.GONE);
@@ -665,13 +625,12 @@ public class AlarmClockFragment extends DeskClockFragment implements
                         resources.getString(R.string.alarm_today);
                 itemHolder.tomorrowLabel.setText(labelText);
             }
-            itemHolder.onoff.setOnCheckedChangeListener(onOffListener);
 
             boolean expanded = isAlarmExpanded(alarm);
             if (expanded) {
                 mExpandedItemHolder = itemHolder;
             }
-            itemHolder.expandArea.setVisibility(expanded? View.VISIBLE : View.GONE);
+            itemHolder.expandArea.setVisibility(expanded ? View.VISIBLE : View.GONE);
             itemHolder.arrow.setRotation(expanded ? ROTATE_180_DEGREE : 0);
 
             // Set the repeat text or leave it blank if it does not repeat.
@@ -739,7 +698,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
             final int alarmHour = alarm.hour;
             final int currHour = now.get(Calendar.HOUR_OF_DAY);
             return alarmHour < currHour ||
-                        (alarmHour == currHour && alarm.minutes < now.get(Calendar.MINUTE));
+                    (alarmHour == currHour && alarm.minutes < now.get(Calendar.MINUTE));
         }
 
         private void bindExpandArea(final ItemHolder itemHolder, final Alarm alarm) {
@@ -837,7 +796,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 }
             }
 
-            if (mediaAlertEnabled){
+            if (mediaAlertEnabled) {
                 ringtone = getMediaTitle(alarm.alert);
                 // file no longer found
                 if (ringtone == null) {
@@ -941,7 +900,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
                     }
                 }
             }
-            if (mediaAlertEnabled){
+            if (mediaAlertEnabled) {
                 ringtone = getMediaTitle(alarm.preAlarmAlert);
                 // file no longer found
                 if (ringtone == null) {
@@ -985,7 +944,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
         // for enabled/disabled alarm while leaving the on/off switch more visible
         private void setDigitalTimeAlpha(ItemHolder holder, boolean enabled) {
             if (enabled) {
-                holder.clock.setTextColor(getResources().getColor(R.color.hot_blue));
+                holder.clock.setTextColor(getResources().getColor(R.color.primary));
             } else {
                 TypedValue outValue = new TypedValue();
                 getActivity().getTheme().resolveAttribute(android.R.attr.textColorPrimary, outValue, true);
@@ -1034,7 +993,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
         private void turnOnDayOfWeek(ItemHolder holder, int dayIndex) {
             final TextView dayButton = holder.dayButtons[dayIndex];
             dayButton.setActivated(true);
-            dayButton.setTextColor(getResources().getColor(R.color.hot_blue));
+            dayButton.setTextColor(getResources().getColor(R.color.primary));
         }
 
 
@@ -1073,11 +1032,11 @@ public class AlarmClockFragment extends DeskClockFragment implements
             }
             Cursor cursor = null;
             try {
-                cursor = mContext.getContentResolver().query(uri,  null, null, null, null);
+                cursor = mContext.getContentResolver().query(uri, null, null, null, null);
                 int nameIndex = cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME);
                 cursor.moveToFirst();
                 return cursor.getString(nameIndex);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 return null;
             } finally {
                 if (cursor != null) {
@@ -1096,121 +1055,51 @@ public class AlarmClockFragment extends DeskClockFragment implements
          * @param itemHolder The item holder instance.
          */
         private void expandAlarm(final ItemHolder itemHolder, boolean animate) {
-            // Skip animation later if item is already expanded
-            animate &= mExpandedId != itemHolder.alarm.id;
-
             if (mExpandedItemHolder != null
                     && mExpandedItemHolder != itemHolder
                     && mExpandedId != itemHolder.alarm.id) {
                 // Only allow one alarm to expand at a time.
-                collapseAlarm(mExpandedItemHolder, animate);
+                collapseAlarm(mExpandedItemHolder, true);
             }
 
             bindExpandArea(itemHolder, itemHolder.alarm);
 
             mExpandedId = itemHolder.alarm.id;
             mExpandedItemHolder = itemHolder;
-
             // Scroll the view to make sure it is fully viewed
-            mScrollAlarmId = itemHolder.alarm.id;
+            final int position = getPositionOfAlarm(itemHolder.alarm.id);
 
-            // Save the starting height so we can animate from this value.
-            final int startingHeight = itemHolder.alarmItem.getHeight();
-
-            // Set the expand area to visible so we can measure the height to animate to.
-            itemHolder.expandArea.setVisibility(View.VISIBLE);
-            itemHolder.summary.setEnabled(true);
-
-            if (!animate) {
-                // Set the "end" layout and don't do the animation.
-                itemHolder.arrow.setRotation(ROTATE_180_DEGREE);
-                return;
-            }
-
-            // Add an onPreDrawListener, which gets called after measurement but before the draw.
-            // This way we can check the height we need to animate to before any drawing.
-            // Note the series of events:
-            //  * expandArea is set to VISIBLE, which causes a layout pass
-            //  * the view is measured, and our onPreDrawListener is called
-            //  * we set up the animation using the start and end values.
-            //  * the height is set back to the starting point so it can be animated down.
-            //  * request another layout pass.
-            //  * return false so that onDraw() is not called for the single frame before
-            //    the animations have started.
-            final ViewTreeObserver observer = mAlarmsList.getViewTreeObserver();
-            observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    // We don't want to continue getting called for every listview drawing.
-                    if (observer.isAlive()) {
-                        observer.removeOnPreDrawListener(this);
+            if (animate) {
+                ExpandAnimation expandAni = new ExpandAnimation(itemHolder.expandArea, EXPAND_DURATION);
+                expandAni.setAnimationListener(new AnimationListener() {
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        if (position != -1) {
+                            mAlarmsList.smoothScrollToPositionFromTop(position, 0);
+                        }
                     }
-                    // Calculate some values to help with the animation.
-                    final int endingHeight = itemHolder.alarmItem.getHeight();
-                    final int distance = endingHeight - startingHeight;
-                    final int collapseHeight = itemHolder.collapseExpandArea.getHeight();
 
-                    // Set the height back to the start state of the animation.
-                    itemHolder.alarmItem.getLayoutParams().height = startingHeight;
-                    // To allow the expandArea to glide in with the expansion animation, set a
-                    // negative top margin, which will animate down to a margin of 0 as the height
-                    // is increased.
-                    // Note that we need to maintain the bottom margin as a fixed value (instead of
-                    // just using a listview, to allow for a flatter hierarchy) to fit the bottom
-                    // bar underneath.
-                    FrameLayout.LayoutParams expandParams = (FrameLayout.LayoutParams)
-                            itemHolder.expandArea.getLayoutParams();
-                    expandParams.setMargins(0, -distance, 0, collapseHeight);
-                    itemHolder.alarmItem.requestLayout();
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
 
-                    // Set up the animator to animate the expansion.
-                    ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f)
-                            .setDuration(EXPAND_DURATION);
-                    animator.setInterpolator(mExpandInterpolator);
-                    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator animator) {
-                            Float value = (Float) animator.getAnimatedValue();
-
-                            // For each value from 0 to 1, animate the various parts of the layout.
-                            itemHolder.alarmItem.getLayoutParams().height =
-                                    (int) (value * distance + startingHeight);
-                            FrameLayout.LayoutParams expandParams = (FrameLayout.LayoutParams)
-                                    itemHolder.expandArea.getLayoutParams();
-                            expandParams.setMargins(
-                                    0, (int) -((1 - value) * distance), 0, collapseHeight);
-                            itemHolder.arrow.setRotation(ROTATE_180_DEGREE * value);
-
-                            itemHolder.alarmItem.requestLayout();
-                        }
-                    });
-                    // Set everything to their final values when the animation's done.
-                    animator.addListener(new AnimatorListener() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            // Set it back to wrap content since we'd explicitly set the height.
-                            itemHolder.alarmItem.getLayoutParams().height =
-                                    LayoutParams.WRAP_CONTENT;
-                            itemHolder.arrow.setRotation(ROTATE_180_DEGREE);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-                            // TODO we may have to deal with cancelations of the animation.
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) { }
-                        @Override
-                        public void onAnimationStart(Animator animation) { }
-                    });
-                    animator.start();
-
-                    // Return false so this draw does not occur to prevent the final frame from
-                    // being drawn for the single frame before the animations start.
-                    return false;
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+                });
+                itemHolder.expandArea.startAnimation(expandAni);
+                itemHolder.summary.setEnabled(true);
+                Animator rotateAnimator = ObjectAnimator.ofFloat(itemHolder.arrow, View.ROTATION, ROTATE_0_DEGREE, ROTATE_180_DEGREE);
+                rotateAnimator.setDuration(EXPAND_DURATION);
+                rotateAnimator.start();
+            } else {
+                itemHolder.expandArea.setVisibility(View.VISIBLE);
+                itemHolder.arrow.setRotation(ROTATE_180_DEGREE);
+                itemHolder.summary.setEnabled(true);
+                if (position != -1) {
+                    mAlarmsList.smoothScrollToPositionFromTop(position, 0);
                 }
-            });
+            }
         }
 
         private boolean isAlarmExpanded(Alarm alarm) {
@@ -1221,84 +1110,20 @@ public class AlarmClockFragment extends DeskClockFragment implements
             mExpandedId = AlarmClockFragment.INVALID_ID;
             mExpandedItemHolder = null;
 
-            // Save the starting height so we can animate from this value.
-            final int startingHeight = itemHolder.alarmItem.getHeight();
+            if (animate) {
+                ExpandAnimation expandAni = new ExpandAnimation(itemHolder.expandArea, EXPAND_DURATION);
+                itemHolder.expandArea.startAnimation(expandAni);
 
-            // Set the expand area to gone so we can measure the height to animate to.
-            itemHolder.expandArea.setVisibility(View.GONE);
-            itemHolder.summary.setEnabled(false);
+                itemHolder.summary.setEnabled(false);
 
-            if (!animate) {
-                // Set the "end" layout and don't do the animation.
-                itemHolder.arrow.setRotation(0);
-                return;
+                Animator rotateAnimator = ObjectAnimator.ofFloat(itemHolder.arrow, View.ROTATION, ROTATE_180_DEGREE, ROTATE_0_DEGREE);
+                rotateAnimator.setDuration(EXPAND_DURATION);
+                rotateAnimator.start();
+            } else {
+                itemHolder.expandArea.setVisibility(View.GONE);
+                itemHolder.arrow.setRotation(ROTATE_0_DEGREE);
+                itemHolder.summary.setEnabled(false);
             }
-
-            // Add an onPreDrawListener, which gets called after measurement but before the draw.
-            // This way we can check the height we need to animate to before any drawing.
-            // Note the series of events:
-            //  * expandArea is set to GONE, which causes a layout pass
-            //  * the view is measured, and our onPreDrawListener is called
-            //  * we set up the animation using the start and end values.
-            //  * expandArea is set to VISIBLE again so it can be shown animating.
-            //  * request another layout pass.
-            //  * return false so that onDraw() is not called for the single frame before
-            //    the animations have started.
-            final ViewTreeObserver observer = mAlarmsList.getViewTreeObserver();
-            observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    if (observer.isAlive()) {
-                        observer.removeOnPreDrawListener(this);
-                    }
-
-                    // Calculate some values to help with the animation.
-                    final int endingHeight = itemHolder.alarmItem.getHeight();
-                    final int distance = endingHeight - startingHeight;
-
-                    // Re-set the visibilities for the start state of the animation.
-                    itemHolder.expandArea.setVisibility(View.VISIBLE);
-
-                    // Set up the animator to animate the expansion.
-                    ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f)
-                            .setDuration(COLLAPSE_DURATION);
-                    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator animator) {
-                            Float value = (Float) animator.getAnimatedValue();
-
-                            // For each value from 0 to 1, animate the various parts of the layout.
-                            itemHolder.alarmItem.getLayoutParams().height =
-                                    (int) (value * distance + startingHeight);
-                            FrameLayout.LayoutParams expandParams = (FrameLayout.LayoutParams)
-                                    itemHolder.expandArea.getLayoutParams();
-                            expandParams.setMargins(
-                                    0, (int) (value * distance), 0, mCollapseExpandHeight);
-                            itemHolder.arrow.setRotation(ROTATE_180_DEGREE * (1 - value));
-                            itemHolder.alarmItem.requestLayout();
-                        }
-                    });
-                    animator.setInterpolator(mCollapseInterpolator);
-                    // Set everything to their final values when the animation's done.
-                    animator.addListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            // Set it back to wrap content since we'd explicitly set the height.
-                            itemHolder.alarmItem.getLayoutParams().height =
-                                    LayoutParams.WRAP_CONTENT;
-
-                            FrameLayout.LayoutParams expandParams = (FrameLayout.LayoutParams)
-                                    itemHolder.expandArea.getLayoutParams();
-                            expandParams.setMargins(0, 0, 0, mCollapseExpandHeight);
-                            itemHolder.expandArea.setVisibility(View.GONE);
-                            itemHolder.arrow.setRotation(0);
-                        }
-                    });
-                    animator.start();
-
-                    return false;
-                }
-            });
         }
 
         @Override
@@ -1310,7 +1135,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
             for (int i = 0; i < mList.getCount(); i++) {
                 View v = mList.getChildAt(i);
                 if (v != null) {
-                    ItemHolder h = (ItemHolder)(v.getTag());
+                    ItemHolder h = (ItemHolder) (v.getTag());
                     if (h != null && h.alarm.id == id) {
                         return v;
                     }
@@ -1321,6 +1146,18 @@ public class AlarmClockFragment extends DeskClockFragment implements
 
         public long getExpandedId() {
             return mExpandedId;
+        }
+
+        private int getPositionOfAlarm(long alarmId) {
+            int alarmPosition = -1;
+            for (int i = 0; i < getCount(); i++) {
+                long id = getItemId(i);
+                if (id == alarmId) {
+                    alarmPosition = i;
+                    break;
+                }
+            }
+            return alarmPosition;
         }
     }
 
@@ -1369,31 +1206,31 @@ public class AlarmClockFragment extends DeskClockFragment implements
         final Context context = getActivity().getApplicationContext();
         final AsyncTask<Void, Void, AlarmInstance> updateTask =
                 new AsyncTask<Void, Void, AlarmInstance>() {
-            @Override
-            protected AlarmInstance doInBackground(Void... parameters) {
-                if (context != null && alarm != null) {
-                    ContentResolver cr = context.getContentResolver();
+                    @Override
+                    protected AlarmInstance doInBackground(Void... parameters) {
+                        if (context != null && alarm != null) {
+                            ContentResolver cr = context.getContentResolver();
 
-                    // Add alarm to db
-                    Alarm newAlarm = Alarm.addAlarm(cr, alarm);
-                    mScrollToAlarmId = newAlarm.id;
+                            // Add alarm to db
+                            Alarm newAlarm = Alarm.addAlarm(cr, alarm);
+                            mScrollToAlarmId = newAlarm.id;
 
-                    // Create and add instance to db
-                    if (newAlarm.enabled) {
-                        sDeskClockExtensions.addAlarm(context, newAlarm);
-                        return setupAlarmInstance(context, newAlarm);
+                            // Create and add instance to db
+                            if (newAlarm.enabled) {
+                                sDeskClockExtensions.addAlarm(context, newAlarm);
+                                return setupAlarmInstance(context, newAlarm);
+                            }
+                        }
+                        return null;
                     }
-                }
-                return null;
-            }
 
-            @Override
-            protected void onPostExecute(AlarmInstance instance) {
-                if (instance != null) {
-                    AlarmUtils.popAlarmSetToast(context, instance.getAlarmTime().getTimeInMillis());
-                }
-            }
-        };
+                    @Override
+                    protected void onPostExecute(AlarmInstance instance) {
+                        if (instance != null) {
+                            AlarmUtils.popAlarmSetToast(context, instance.getAlarmTime().getTimeInMillis());
+                        }
+                    }
+                };
         updateTask.execute();
     }
 
@@ -1401,29 +1238,29 @@ public class AlarmClockFragment extends DeskClockFragment implements
         final Context context = getActivity().getApplicationContext();
         final AsyncTask<Void, Void, AlarmInstance> updateTask =
                 new AsyncTask<Void, Void, AlarmInstance>() {
-            @Override
-            protected AlarmInstance doInBackground(Void ... parameters) {
-                ContentResolver cr = context.getContentResolver();
+                    @Override
+                    protected AlarmInstance doInBackground(Void... parameters) {
+                        ContentResolver cr = context.getContentResolver();
 
-                // Dismiss all old instances
-                AlarmStateManager.deleteAllInstances(context, alarm.id);
+                        // Dismiss all old instances
+                        AlarmStateManager.deleteAllInstances(context, alarm.id);
 
-                // Update alarm
-                Alarm.updateAlarm(cr, alarm);
-                if (alarm.enabled) {
-                    return setupAlarmInstance(context, alarm);
-                }
+                        // Update alarm
+                        Alarm.updateAlarm(cr, alarm);
+                        if (alarm.enabled) {
+                            return setupAlarmInstance(context, alarm);
+                        }
 
-                return null;
-            }
+                        return null;
+                    }
 
-            @Override
-            protected void onPostExecute(AlarmInstance instance) {
-                if (popToast && instance != null) {
-                    AlarmUtils.popAlarmSetToast(context, instance.getAlarmTime().getTimeInMillis());
-                }
-            }
-        };
+                    @Override
+                    protected void onPostExecute(AlarmInstance instance) {
+                        if (popToast && instance != null) {
+                            AlarmUtils.popAlarmSetToast(context, instance.getAlarmTime().getTimeInMillis());
+                        }
+                    }
+                };
         updateTask.execute();
     }
 
@@ -1434,7 +1271,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
     }
 
     @Override
-    public void onFabClick(View view){
+    public void onFabClick(View view) {
         hideUndoBar(true, null);
         startCreatingAlarm();
     }
@@ -1473,7 +1310,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
             return;
         }
 
-        while(!alarmsCursor.isAfterLast() && alarmsCursor.moveToNext()) {
+        while (!alarmsCursor.isAfterLast() && alarmsCursor.moveToNext()) {
             int currentPosition = alarmsCursor.getPosition();
             mAlarms.add(ringtoneMgr.getRingtoneUri(currentPosition));
         }
@@ -1492,7 +1329,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
     private void closeAlarmRingtoneDialog() {
         final Fragment prev = getFragmentManager().findFragmentByTag("alarm_ringtone_edit");
         if (prev != null) {
-            ((DialogFragment)prev).dismiss();
+            ((DialogFragment) prev).dismiss();
         }
     }
 
@@ -1510,7 +1347,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
                 context.getContentResolver().takePersistableUriPermission(
                         uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 LogUtils.v("takePersistableUriPermission " + uri);
-            } catch(SecurityException ex) {
+            } catch (SecurityException ex) {
                 LogUtils.e("Unable to take persistent grant permission for uri " + uri, ex);
                 if (preAlarm) {
                     alarm.preAlarmAlert = getDefaultAlarmUri();
@@ -1526,7 +1363,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
 
     private Uri getDefaultAlarmUri() {
         Uri alert = RingtoneManager.getActualDefaultRingtoneUri(getActivity(),
-                    RingtoneManager.TYPE_ALARM);
+                RingtoneManager.TYPE_ALARM);
         if (alert == null) {
             alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         }

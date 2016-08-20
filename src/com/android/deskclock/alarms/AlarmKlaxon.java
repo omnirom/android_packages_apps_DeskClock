@@ -22,29 +22,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 
-import android.app.AppOpsManager;
-import android.content.ContentResolver;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.media.AudioAttributes;
-import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Process;
-import android.os.RemoteException;
-import android.os.ServiceManager;
-import android.os.SystemClock;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
-import android.view.KeyEvent;
-import com.android.internal.app.IAppOpsService;
 
 import com.android.deskclock.LogUtils;
 import com.android.deskclock.R;
@@ -80,6 +73,7 @@ public class AlarmKlaxon {
     private static long sVolumeIncreaseSpeed;
     private static boolean sIncreasingVolumeDone;
     private static boolean sFirstFile;
+    private static Context sContext;
 
     // Internal messages
     private static final int INCREASING_VOLUME = 1001;
@@ -94,7 +88,7 @@ public class AlarmKlaxon {
                     if (sCurrentVolume <= sMaxVolume) {
                         LogUtils.v("Increasing alarm volume to " + sCurrentVolume);
                         sAudioManager.setStreamVolume(
-                                AudioManager.STREAM_MUSIC, sCurrentVolume, 0);
+                                getAudioStream(sContext), sCurrentVolume, 0);
                         sHandler.sendEmptyMessageDelayed(INCREASING_VOLUME,
                                 sVolumeIncreaseSpeed);
                     }
@@ -104,6 +98,13 @@ public class AlarmKlaxon {
         }
     };
 
+    private static int getAudioStream(Context context) {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String stream = prefs.getString(SettingsActivity.KEY_AUDIO_STREAM, "0");
+        int streamInt = Integer.decode(stream).intValue();
+        return streamInt == 0 ? AudioManager.STREAM_MUSIC : AudioManager.STREAM_ALARM;
+    }
+
     public static void stop(Context context) {
         if (sStarted) {
             LogUtils.v("AlarmKlaxon.stop()");
@@ -111,7 +112,7 @@ public class AlarmKlaxon {
             sStarted = false;
             sHandler.removeMessages(INCREASING_VOLUME);
             // reset to default from before
-            sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+            sAudioManager.setStreamVolume(getAudioStream(context),
                         sSavedVolume, 0);
 
             // Stop audio playing
@@ -140,6 +141,7 @@ public class AlarmKlaxon {
 
     public static void start(final Context context, AlarmInstance instance,
             boolean inTelephoneCall) {
+        sContext = context;
         // Make sure we are stop before starting
         stop(context);
 
@@ -157,7 +159,7 @@ public class AlarmKlaxon {
         sAudioManager = (AudioManager) appContext
                 .getSystemService(Context.AUDIO_SERVICE);
         // save current value
-        sSavedVolume = sAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        sSavedVolume = sAudioManager.getStreamVolume(getAudioStream(context));
         sIncreasingVolume = instance.getIncreasingVolume(sPreAlarmMode);
         sRandomPlayback = instance.getRandomMode(sPreAlarmMode);
         sFirstFile = true;
@@ -167,9 +169,9 @@ public class AlarmKlaxon {
         } else {
             sMaxVolume = instance.mAlarmVolume;
         }
-        if (sMaxVolume == -1){
+        if (sMaxVolume == -1) {
             // calc from current alarm volume
-            sMaxVolume = calcMusicVolumeFromCurrentAlarm();
+            sMaxVolume = calcMusicVolumeFromCurrentAlarm(context);
         }
 
         Uri alarmNoise = null;
@@ -218,24 +220,20 @@ public class AlarmKlaxon {
             // silent
             alarmNoise = null;
         }
-
-        IAppOpsService appOps = IAppOpsService.Stub.asInterface(ServiceManager.getService(Context.APP_OPS_SERVICE));
-        int mode = AppOpsManager.MODE_ALLOWED;
-        try {
-            mode = appOps.checkAudioOperation(AppOpsManager.OP_PLAY_AUDIO, AudioAttributes.USAGE_ALARM, Process.myUid(), "com.android.deskclock");
-            LogUtils.d("appOps OP_PLAY_AUDIO = " + (mode == AppOpsManager.MODE_ALLOWED));
-        } catch (RemoteException e) {
+        boolean playSound = alarmNoise != null;
+        boolean vibrate = instance.mVibrate;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            NotificationManager noMan = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            int filter = noMan.getCurrentInterruptionFilter();
+            if (filter == NotificationManager.INTERRUPTION_FILTER_NONE) {
+                playSound = false;
+                vibrate = false;
+            }
         }
-        if (alarmNoise != null && mode == AppOpsManager.MODE_ALLOWED) {
+        if (playSound) {
             playAlarm(context, instance, inTelephoneCall, alarmNoise);
         }
-        mode = AppOpsManager.MODE_ALLOWED;
-        try {
-            mode = appOps.checkAudioOperation(AppOpsManager.OP_VIBRATE, AudioAttributes.USAGE_ALARM, Process.myUid(), "com.android.deskclock");
-            LogUtils.d("appOps OP_VIBRATE = " + (mode == AppOpsManager.MODE_ALLOWED));
-        } catch (RemoteException e) {
-        }
-        if (instance.mVibrate && mode == AppOpsManager.MODE_ALLOWED) {
+        if (vibrate) {
             Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
             vibrator.vibrate(sVibratePattern, 0);
         }
@@ -319,7 +317,7 @@ public class AlarmKlaxon {
             if (sFirstFile) {
                 if (sIncreasingVolume) {
                     sCurrentVolume = INCREASING_VOLUME_START;
-                    sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+                    sAudioManager.setStreamVolume(getAudioStream(context),
                             sCurrentVolume, 0);
                     LogUtils.v("Starting alarm volume " + sCurrentVolume
                             + " max volume " + sMaxVolume);
@@ -329,19 +327,21 @@ public class AlarmKlaxon {
                                 sVolumeIncreaseSpeed);
                     }
                 } else {
-                    sAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,
+                    sAudioManager.setStreamVolume(getAudioStream(context),
                             sMaxVolume, 0);
                     LogUtils.v("Alarm volume " + sMaxVolume);
                 }
                 sFirstFile = false;
             }
 
-            player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            LogUtils.v("Using audio stream " + (getAudioStream(context) == AudioManager.STREAM_MUSIC ? "Music" : "Alarm"));
+
+            player.setAudioStreamType(getAudioStream(context));
             if (!sMultiFileMode) {
                 player.setLooping(true);
             }
             player.prepare();
-            sAudioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
+            sAudioManager.requestAudioFocus(null, getAudioStream(context),
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
             player.start();
         }
@@ -364,8 +364,8 @@ public class AlarmKlaxon {
         return speedInt * 1000;
     }
 
-    private static int calcMusicVolumeFromCurrentAlarm() {
-        int maxMusicVolume = sAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+    private static int calcMusicVolumeFromCurrentAlarm(Context context) {
+        int maxMusicVolume = sAudioManager.getStreamMaxVolume(getAudioStream(context));
         int alarmVolume = sAudioManager.getStreamVolume(AudioManager.STREAM_ALARM);
         int maxAlarmVolume = sAudioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM);
 

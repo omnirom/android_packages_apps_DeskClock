@@ -31,15 +31,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnLongClickListener;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextClock;
 
@@ -136,6 +131,8 @@ public class ClockFragment extends DeskClockFragment implements OnSharedPreferen
                 startActivity(new Intent(getActivity(), CitiesActivity.class));
             }
         });
+        mList.setDivider(null);
+        mList.setDividerHeight(0);
 
         mClockFrame = v.findViewById(R.id.main_clock);
         mClockFrame.setOnLongClickListener(new View.OnLongClickListener() {

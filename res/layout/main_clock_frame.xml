@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2012 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2012 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,55 +14,79 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:cardview="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_clock_frame"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/view_background"
-    android:elevation="@dimen/item_elevation" >
-    <FrameLayout
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.android.deskclock.AnalogClock
-            android:id="@+id/analog_clock"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        cardview:cardCornerRadius="2dp"
+        cardview:contentPadding="5dp"
+        cardview:cardBackgroundColor="@color/view_background">
+
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/circle_margin_top"
-            android:layout_marginLeft="@dimen/analog_clock_margin"
-            android:layout_marginStart="@dimen/analog_clock_margin"
-            android:layout_marginRight="@dimen/analog_clock_margin"
-            android:layout_marginEnd="@dimen/analog_clock_margin"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="@dimen/bottom_text_spacing_analog" />
-        <TextClock
-            android:id="@+id/digital_clock"
-            android:format12Hour="@string/main_clock_12_hours_format"
-            android:format24Hour="@string/clock_24_hours_format"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:ellipsize="none"
-            style="@style/big_light" />
-    </FrameLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:gravity="center"
-        android:background="@color/hot_blue" >
-        <TextView android:id="@+id/date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            style="@style/TextAppearanceWhiteBigger" />
-        <TextView android:id="@+id/nextAlarm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dip"
-            android:drawablePadding="2dip"
-            android:drawableStart="@drawable/ic_alarm_small"
-            android:gravity="center"
-            style="@style/TextAppearanceGray" />
-    </LinearLayout>
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.android.deskclock.AnalogClock
+                    android:id="@+id/analog_clock"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="@dimen/bottom_text_spacing_analog"
+                    android:layout_marginEnd="@dimen/analog_clock_margin"
+                    android:layout_marginLeft="@dimen/analog_clock_margin"
+                    android:layout_marginRight="@dimen/analog_clock_margin"
+                    android:layout_marginStart="@dimen/analog_clock_margin"
+                    android:layout_marginTop="@dimen/circle_margin_top" />
+
+                <TextClock
+                    android:id="@+id/digital_clock"
+                    style="@style/big_light"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:ellipsize="none"
+                    android:format12Hour="@string/main_clock_12_hours_format"
+                    android:format24Hour="@string/clock_24_hours_format"
+                    android:singleLine="true" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@color/primary"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/date"
+                    style="@style/TextAppearanceWhiteBigger"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/nextAlarm"
+                    style="@style/TextAppearanceGray"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dip"
+                    android:drawablePadding="2dip"
+                    android:drawableStart="@drawable/ic_alarm_small"
+                    android:gravity="center" />
+            </LinearLayout>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
 </LinearLayout>
 

@@ -37,16 +37,16 @@
         android:elevation="@dimen/circle_elevation"
         android:background="@drawable/bg_circle_view" >
 
-        <com.android.deskclock.timer.CountingTimerView
-            android:id="@+id/stopwatch_time_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
         <com.android.deskclock.CircleTimerView
             android:id="@+id/stopwatch_time"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@null" />
+            android:layout_height="match_parent"/>
+        <com.android.deskclock.timer.CountingTimerView
+            android:id="@+id/stopwatch_time_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/big_font_size"
+            android:layout_gravity="center"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
 
     </com.android.deskclock.CircleButtonsLayout>
 

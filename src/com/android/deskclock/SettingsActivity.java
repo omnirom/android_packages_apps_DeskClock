@@ -106,6 +106,7 @@ public class SettingsActivity extends PreferenceActivity
     private static final String KEY_ALARM_ACTION_WIRELESS_HEADER =
             "alarm_action_wireless_header";
     private static final String KEY_ALARM_ACTION_CATEGORY = "alarm_action_category";
+    public static final String KEY_AUDIO_STREAM = "audio_stream";
 
     // default action for alarm action
     public static final String DEFAULT_ALARM_ACTION = "0";
@@ -227,7 +228,10 @@ public class SettingsActivity extends PreferenceActivity
             final ListPreference listPref = (ListPreference) pref;
             final int idx = listPref.findIndexOfValue((String) newValue);
             listPref.setSummary(listPref.getEntries()[idx]);
-        }
+        } else if (KEY_AUDIO_STREAM.equals(pref.getKey())) {
+            final ListPreference listPref = (ListPreference) pref;
+            final int idx = listPref.findIndexOfValue((String) newValue);
+            listPref.setSummary(listPref.getEntries()[idx]);        }
         return true;
     }
 
@@ -317,6 +321,10 @@ public class SettingsActivity extends PreferenceActivity
 
         listPref = (ListPreference) findPreference(KEY_WEEK_START);
         listPref.setEntries(getWeekdays());
+        listPref.setSummary(listPref.getEntry());
+        listPref.setOnPreferenceChangeListener(this);
+
+        listPref = (ListPreference) findPreference(KEY_AUDIO_STREAM);
         listPref.setSummary(listPref.getEntry());
         listPref.setOnPreferenceChangeListener(this);
     }

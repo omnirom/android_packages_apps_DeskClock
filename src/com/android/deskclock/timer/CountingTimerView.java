@@ -77,14 +77,9 @@ public class CountingTimerView extends View {
     private boolean mRemeasureText = true;
 
     private int mDefaultColor;
-    private final int mPressedColor;
     private final int mWhiteColor;
     private final int mAccentColor;
     private final AccessibilityManager mAccessibilityManager;
-
-    // Fields for the text serving as a virtual button.
-    private boolean mVirtualButtonEnabled = false;
-    private boolean mVirtualButtonPressedOn = false;
 
     Runnable mBlinkThread = new Runnable() {
         private boolean mVisible = true;
@@ -277,8 +272,7 @@ public class CountingTimerView extends View {
         mWhiteColor = r.getColor(outValue.resourceId);
 
         mDefaultColor = mWhiteColor;
-        mPressedColor = r.getColor(R.color.hot_blue);
-        mAccentColor = r.getColor(R.color.hot_blue);
+        mAccentColor = r.getColor(R.color.primary);
         mBigFontSize = r.getDimension(R.dimen.big_font_size);
         mSmallFontSize = r.getDimension(R.dimen.small_font_size);
 
@@ -442,7 +436,7 @@ public class CountingTimerView extends View {
         // To determine the maximum width, we find the minimum of the height and width (since the
         // circle we are trying to fit the text into has its radius sized to the smaller of the
         // two.
-        int width = Math.min(getWidth(), getHeight());
+        int width = Math.min(getWidth(), getWidth());
         if (width != 0) {
             // Shrink 'width' to account for circle stroke and other painted objects.
             // Note on the "4 *": (1) To reduce divisions, using the diameter instead of the radius.
@@ -551,73 +545,19 @@ public class CountingTimerView extends View {
         return s.toString();
     }
 
-    public void setVirtualButtonEnabled(boolean enabled) {
-        mVirtualButtonEnabled = enabled;
-    }
-
-    private void virtualButtonPressed(boolean pressedOn) {
-        mVirtualButtonPressedOn = pressedOn;
-        invalidate();
-    }
-
-    private boolean withinVirtualButtonBounds(float x, float y) {
-        int width = getWidth();
-        int height = getHeight();
-        float centerX = width / 2;
-        float centerY = height / 2;
-        float radius = Math.min(width, height) / 2;
-
-        // Within the circle button if distance to the center is less than the radius.
-        double distance = Math.sqrt(Math.pow(centerX - x, 2) + Math.pow(centerY - y, 2));
-        return distance < radius;
-    }
-
     public void registerVirtualButtonAction(final Runnable runnable) {
-        if (!mAccessibilityManager.isEnabled()) {
-            this.setOnTouchListener(new OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (mVirtualButtonEnabled) {
-                        switch (event.getAction()) {
-                            case MotionEvent.ACTION_DOWN:
-                                if (withinVirtualButtonBounds(event.getX(), event.getY())) {
-                                    virtualButtonPressed(true);
-                                    return true;
-                                } else {
-                                    virtualButtonPressed(false);
-                                    return false;
-                                }
-                            case MotionEvent.ACTION_CANCEL:
-                                virtualButtonPressed(false);
-                                return true;
-                            case MotionEvent.ACTION_OUTSIDE:
-                                virtualButtonPressed(false);
-                                return false;
-                            case MotionEvent.ACTION_UP:
-                                virtualButtonPressed(false);
-                                if (withinVirtualButtonBounds(event.getX(), event.getY())) {
-                                    runnable.run();
-                                }
-                                return true;
-                        }
-                    }
-                    return false;
-                }
-            });
-        } else {
-            this.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    runnable.run();
-                }
-            });
-        }
+	setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                runnable.run();
+            }
+        });
     }
 
     @Override
     public void onDraw(Canvas canvas) {
         // Blink functionality.
-        if (!mShowTimeStr && !mVirtualButtonPressedOn) {
+        if (!mShowTimeStr) {
             return;
         }
 
@@ -635,7 +575,7 @@ public class CountingTimerView extends View {
         float yTextStart = yCenter + mTextHeight/2 - (mTextHeight * FONT_VERTICAL_OFFSET);
 
         // Text color differs based on pressed state.
-        final int textColor = mVirtualButtonPressedOn ? mPressedColor : mDefaultColor;
+        final int textColor = mDefaultColor;
         mPaintBigThin.setColor(textColor);
         mPaintMed.setColor(textColor);
 

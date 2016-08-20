@@ -81,6 +81,13 @@
             android:key="fullscreen_alarm"
             android:summary="@string/fullscreen_alarm_summary"
             android:title="@string/fullscreen_alarm_title" />
+        <ListPreference
+            android:defaultValue="0"
+            android:dialogTitle="@string/audio_stream_title"
+            android:entries="@array/audio_stream_entries"
+            android:entryValues="@array/audio_stream_values"
+            android:key="audio_stream"
+            android:title="@string/audio_stream_title" />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/fullscreen_alarm_settings"

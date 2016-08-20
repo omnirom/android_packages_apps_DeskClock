@@ -423,43 +423,7 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
         } else {
             // Timer is at view pager, so fab is "play" or "pause" or "square that means reset"
             final TimerObj t = getCurrentTimer();
-            switch (t.mState) {
-                case TimerObj.STATE_RUNNING:
-                    // Stop timer and save the remaining time of the timer
-                    t.mState = TimerObj.STATE_STOPPED;
-                    t.mView.pause();
-                    t.updateTimeLeft(true);
-                    updateTimerState(t, Timers.TIMER_STOP);
-                    break;
-                case TimerObj.STATE_STOPPED:
-                case TimerObj.STATE_RESTART:
-                    // Reset the remaining time and continue timer
-                    t.mState = TimerObj.STATE_RUNNING;
-                    t.mStartTime = Utils.getTimeNow() - (t.mOriginalLength - t.mTimeLeft);
-                    t.mView.start();
-                    updateTimerState(t, Timers.START_TIMER);
-                    break;
-                case TimerObj.STATE_TIMESUP:
-                    if (t.mDeleteAfterUse) {
-                        cancelTimerNotification(t.mTimerId);
-                        // Tell receiver the timer was deleted.
-                        // It will stop all activity related to the
-                        // timer
-                        t.mState = TimerObj.STATE_DELETED;
-                        updateTimerState(t, Timers.DELETE_TIMER);
-                    } else {
-                        t.mState = TimerObj.STATE_RESTART;
-                        t.mOriginalLength = t.mSetupLength;
-                        t.mTimeLeft = t.mSetupLength;
-                        t.mView.stop();
-                        t.mView.setTime(t.mTimeLeft, false);
-                        t.mView.set(t.mOriginalLength, t.mTimeLeft, false);
-                        updateTimerState(t, Timers.TIMER_RESET);
-                        cancelTimerNotification(t.mTimerId);
-                    }
-                    break;
-            }
-            setTimerViewFabIcon(t);
+            toggleTimerState(t);
         }
     }
 
@@ -729,5 +693,45 @@ public class TimerFragment extends DeskClockFragment implements OnSharedPreferen
 
     private void cancelTimerNotification(int timerId) {
         mNotificationManager.cancel(timerId);
+    }
+
+    public void toggleTimerState(TimerObj t) {
+        switch (t.mState) {
+            case TimerObj.STATE_RUNNING:
+                // Stop timer and save the remaining time of the timer
+                t.mState = TimerObj.STATE_STOPPED;
+                t.mView.pause();
+                t.updateTimeLeft(true);
+                updateTimerState(t, Timers.TIMER_STOP);
+                break;
+            case TimerObj.STATE_STOPPED:
+            case TimerObj.STATE_RESTART:
+                // Reset the remaining time and continue timer
+                t.mState = TimerObj.STATE_RUNNING;
+                t.mStartTime = Utils.getTimeNow() - (t.mOriginalLength - t.mTimeLeft);
+                t.mView.start();
+                updateTimerState(t, Timers.START_TIMER);
+                break;
+            case TimerObj.STATE_TIMESUP:
+                if (t.mDeleteAfterUse) {
+                    cancelTimerNotification(t.mTimerId);
+                    // Tell receiver the timer was deleted.
+                    // It will stop all activity related to the
+                    // timer
+                    t.mState = TimerObj.STATE_DELETED;
+                    updateTimerState(t, Timers.DELETE_TIMER);
+                } else {
+                    t.mState = TimerObj.STATE_RESTART;
+                    t.mOriginalLength = t.mSetupLength;
+                    t.mTimeLeft = t.mSetupLength;
+                    t.mView.stop();
+                    t.mView.setTime(t.mTimeLeft, false);
+                    t.mView.set(t.mOriginalLength, t.mTimeLeft, false);
+                    updateTimerState(t, Timers.TIMER_RESET);
+                    cancelTimerNotification(t.mTimerId);
+                }
+                break;
+        }
+        setTimerViewFabIcon(t);
     }
 }
