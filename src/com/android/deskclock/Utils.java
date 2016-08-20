@@ -38,6 +38,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.provider.CalendarContract;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -54,7 +55,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.webkit.MimeTypeMap;
 import android.widget.TextClock;
 import android.widget.TextView;
-import android.util.Log;
 
 import com.android.deskclock.stopwatch.Stopwatches;
 import com.android.deskclock.timer.Timers;
@@ -66,10 +66,7 @@ import java.text.Collator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -488,8 +485,7 @@ public class Utils {
     }
 
     /** Clock views can call this to refresh their date. **/
-    public static void updateDate(
-            String dateFormat, String dateFormatForAccessibility, View clock) {
+    public static void updateDate(String dateFormat, String dateFormatForAccessibility, View clock) {
 
         Date now = new Date();
         TextView dateDisplay;
@@ -663,5 +659,28 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    public static void startCalendarWithDate(final Context context, final Date date) {
+        /*Intent calIntent = new Intent(Intent.ACTION_MAIN);
+        calIntent.addCategory(Intent.CATEGORY_APP_CALENDAR);
+        context.startActivity(calIntent);*/
+        context.startActivity(getCalendarIntent(date));
+    }
+
+    public static Intent getCalendarIntent(final Date date) {
+        Uri.Builder builder = CalendarContract.CONTENT_URI.buildUpon();
+        builder.appendPath("time");
+        builder.appendPath(Long.toString(date.getTime()));
+        Intent intent = new Intent(Intent.ACTION_VIEW, builder.build());
+        return intent;
+    }
+
+    public static void openAlarmsTab(final Context context) {
+        context.startActivity(getAlarmTabIntent(context));
+    }
+
+    public static Intent getAlarmTabIntent(final Context context) {
+        return new Intent(new Intent(android.provider.AlarmClock.ACTION_SHOW_ALARMS));
     }
 }
