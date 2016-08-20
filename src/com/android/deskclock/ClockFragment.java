@@ -30,6 +30,7 @@ import android.graphics.Outline;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,9 +38,14 @@ import android.view.ViewOutlineProvider;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextClock;
+import android.widget.TextView;
 
 import com.android.deskclock.worldclock.CitiesActivity;
 import com.android.deskclock.worldclock.WorldClockAdapter;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Fragment that shows  the clock (analog or digital), the next alarm info and the world clock.
@@ -143,7 +149,26 @@ public class ClockFragment extends DeskClockFragment implements OnSharedPreferen
             }
         });
         mClockFrame.setOutlineProvider(MAIN_CLOCK_OUTLINE_PROVIDER);
-
+        final TextView dateDisplay = (TextView) mClockFrame.findViewById(R.id.date);
+        if (dateDisplay != null) {
+            dateDisplay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // start calendar
+                    Utils.startCalendarWithDate(getActivity(), new Date());
+                }
+            });
+        }
+        final TextView alarmDisplay = (TextView) mClockFrame.findViewById(R.id.nextAlarm);
+        if (alarmDisplay != null) {
+            alarmDisplay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // switch to alarms
+                    Utils.openAlarmsTab(getActivity());
+                }
+            });
+        }
         mDigitalClock = mClockFrame.findViewById(R.id.digital_clock);
         mAnalogClock = mClockFrame.findViewById(R.id.analog_clock);
         Utils.setTimeFormat((TextClock) (mDigitalClock.findViewById(R.id.digital_clock)),

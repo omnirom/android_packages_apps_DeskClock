@@ -102,9 +102,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
     private static final String KEY_UNDO_SHOWING = "undoShowing";
     private static final String KEY_SELECTED_ALARM = "selectedAlarm";
     private static final DeskClockExtensions sDeskClockExtensions = ExtensionsFactory
-                    .getDeskClockExtensions();
-
-    private static final long INVALID_ID = -1;
+            .getDeskClockExtensions();
 
     // This extra is used when receiving an intent to create an alarm, but no alarm details
     // have been passed in, so the alarm page should start the process of creating a new alarm.
@@ -123,7 +121,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
     private View mUndoFrame;
 
     private Alarm mSelectedAlarm;
-    private long mScrollToAlarmId = INVALID_ID;
+    private long mScrollToAlarmId = Alarm.INVALID_ID;
 
     private Loader mCursorLoader = null;
 
@@ -154,7 +152,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
         // Inflate the layout for this fragment
         final View v = inflater.inflate(R.layout.alarm_clock, container, false);
 
-        long expandedId = INVALID_ID;
+        long expandedId = Alarm.INVALID_ID;
 
         cacheSystemTones();
 
@@ -378,9 +376,9 @@ public class AlarmClockFragment extends DeskClockFragment implements
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, final Cursor data) {
         mAdapter.swapCursor(data);
-        if (mScrollToAlarmId != INVALID_ID) {
+        if (mScrollToAlarmId != Alarm.INVALID_ID) {
             scrollToAlarm(mScrollToAlarmId);
-            mScrollToAlarmId = INVALID_ID;
+            mScrollToAlarmId = Alarm.INVALID_ID;
         }
     }
 
@@ -399,7 +397,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
             }
         }
         if (alarmPosition >= 0) {
-            mAdapter.setNewAlarm(alarmId);
             mAlarmsList.smoothScrollToPositionFromTop(alarmPosition, 0);
         } else {
             // Trying to display a deleted alarm should only happen from a missed notification for
@@ -423,7 +420,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
         private final String[] mLongWeekDayStrings;
         private final ListView mList;
 
-        private long mExpandedId;
+        private long mExpandedId = Alarm.INVALID_ID;
         private ItemHolder mExpandedItemHolder;
 
         private final boolean mHasVibrator;
@@ -1045,10 +1042,6 @@ public class AlarmClockFragment extends DeskClockFragment implements
             }
         }
 
-        public void setNewAlarm(long alarmId) {
-            mExpandedId = alarmId;
-        }
-
         /**
          * Expands the alarm for editing.
          *
@@ -1107,7 +1100,7 @@ public class AlarmClockFragment extends DeskClockFragment implements
         }
 
         private void collapseAlarm(final ItemHolder itemHolder, boolean animate) {
-            mExpandedId = AlarmClockFragment.INVALID_ID;
+            mExpandedId = Alarm.INVALID_ID;
             mExpandedItemHolder = null;
 
             if (animate) {

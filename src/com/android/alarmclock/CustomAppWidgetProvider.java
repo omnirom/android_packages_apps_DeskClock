@@ -29,11 +29,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -45,11 +42,7 @@ import android.widget.RemoteViews;
 import com.android.deskclock.DeskClock;
 import com.android.deskclock.R;
 import com.android.deskclock.Utils;
-import com.android.deskclock.alarms.AlarmNotifications;
-import com.android.deskclock.worldclock.Cities;
-import com.android.deskclock.worldclock.CitiesActivity;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.text.SimpleDateFormat;
@@ -200,18 +193,21 @@ public class CustomAppWidgetProvider extends AppWidgetProvider {
         }
         RemoteViews widget = new RemoteViews(context.getPackageName(), R.layout.custom_appwidget);
 
+        widget.setViewVisibility(R.id.the_date_image, showDate ? View.VISIBLE : View.GONE);
+        widget.setViewVisibility(R.id.nextAlarm, showAlarm ? View.VISIBLE : View.GONE);
+
         // Launch clock when clicking on the time in the widget only if not a lock screen widget
         Bundle newOptions = appWidgetManager.getAppWidgetOptions(appWidgetId);
         if (newOptions != null &&
                 newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, -1)
-                != AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD) {
-            widget.setOnClickPendingIntent(R.id.custom_appwidget,
+                        != AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD) {
+            widget.setOnClickPendingIntent(R.id.the_clock_image,
                     PendingIntent.getActivity(context, 0, new Intent(context, DeskClock.class), 0));
+            widget.setOnClickPendingIntent(R.id.the_date_image,
+                    PendingIntent.getActivity(context, 0, Utils.getCalendarIntent(new Date()), 0));
+            widget.setOnClickPendingIntent(R.id.nextAlarm,
+                    PendingIntent.getActivity(context, 0, Utils.getAlarmTabIntent(context), 0));
         }
-
-        widget.setViewVisibility(R.id.the_date_image, showDate ? View.VISIBLE : View.GONE);
-        widget.setViewVisibility(R.id.nextAlarm, showAlarm ? View.VISIBLE : View.GONE);
-
         //widget.setTextColor(R.id.nextAlarm, clockColor);
 
         CharSequence timeFormat = DateFormat.is24HourFormat(context) ?
