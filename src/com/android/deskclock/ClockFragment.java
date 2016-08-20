@@ -37,6 +37,7 @@ import android.view.ViewOutlineProvider;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextClock;
+import android.widget.TextView;
 
 import com.android.deskclock.worldclock.CitiesActivity;
 import com.android.deskclock.worldclock.WorldClockAdapter;
@@ -143,7 +144,29 @@ public class ClockFragment extends DeskClockFragment implements OnSharedPreferen
             }
         });
         mClockFrame.setOutlineProvider(MAIN_CLOCK_OUTLINE_PROVIDER);
-
+        final TextView dateDisplay = (TextView) mClockFrame.findViewById(R.id.date);
+        if (dateDisplay != null) {
+            dateDisplay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // start calendar
+                    Intent calIntent = new Intent(Intent.ACTION_MAIN);
+                    calIntent.addCategory(Intent.CATEGORY_APP_CALENDAR);
+                    startActivity(calIntent);
+                }
+            });
+        }
+        final TextView alarmDisplay = (TextView) mClockFrame.findViewById(R.id.nextAlarm);
+        if (alarmDisplay != null) {
+            alarmDisplay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // switch to alarms
+                    startActivity(new Intent(getActivity(), DeskClock.class)
+                            .putExtra(DeskClock.SELECT_TAB_INTENT_EXTRA, DeskClock.ALARM_TAB_INDEX));
+                }
+            });
+        }
         mDigitalClock = mClockFrame.findViewById(R.id.digital_clock);
         mAnalogClock = mClockFrame.findViewById(R.id.analog_clock);
         Utils.setTimeFormat((TextClock) (mDigitalClock.findViewById(R.id.digital_clock)),
