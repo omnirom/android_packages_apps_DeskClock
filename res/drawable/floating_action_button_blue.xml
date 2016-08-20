@@ -19,7 +19,7 @@
         android:color="@color/white">
     <item>
         <shape android:shape="oval">
-            <solid android:color="@color/hot_blue" />
+            <solid android:color="@color/primary" />
         </shape>
     </item>
 </ripple>

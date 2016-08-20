@@ -16,27 +16,19 @@
 
 package com.android.deskclock;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Outline;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -60,7 +52,6 @@ import com.android.deskclock.widget.SlidingTabLayout;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -148,6 +139,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         if (mTabsAdapter == null) {
             getActionBar().setElevation(0);
             mViewPager = (ViewPager) findViewById(R.id.desk_clock_pager);
+            mViewPager.setOffscreenPageLimit(4);
             mTabsAdapter = new TabsAdapter(this, mViewPager);
             createTabs();
 

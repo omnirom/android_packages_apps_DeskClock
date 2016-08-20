@@ -79,12 +79,12 @@ public class AlarmTestDialog extends DialogFragment implements
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        TestAlarmKlaxon.stopTest(mAlarm);
+        TestAlarmKlaxon.stopTest(getActivity(), mAlarm);
     }
 
     @Override
     public void onDismiss(DialogInterface dialog) {
-        TestAlarmKlaxon.stopTest(mAlarm);
+        TestAlarmKlaxon.stopTest(getActivity(), mAlarm);
     }
 
     @Override

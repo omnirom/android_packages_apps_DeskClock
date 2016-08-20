@@ -196,7 +196,7 @@ public class Utils {
      *   any effect on the button press states, and those must be changed separately.
     **/
     public static int getPressedColorId() {
-        return R.color.hot_blue;
+        return R.color.primary;
     }
 
     /**  The un-pressed color used throughout the app. If this method is changed, it will not have

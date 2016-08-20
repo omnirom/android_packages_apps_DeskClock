@@ -126,7 +126,7 @@ public class CircleTimerView extends View {
         c.getTheme().resolveAttribute(android.R.attr.textColorPrimary, outValue, true);
         mWhiteColor = resources.getColor(outValue.resourceId);
 
-        mAccentColor = resources.getColor(R.color.hot_blue);
+        mAccentColor = resources.getColor(R.color.primary);
         mScreenDensity = resources.getDisplayMetrics().density;
 
         mFill.setAntiAlias(true);

@@ -295,14 +295,12 @@ public class StopwatchFragment extends DeskClockFragment
         mLapsAdapter = new LapsListAdapter(getActivity());
         mLapsList.setAdapter(mLapsAdapter);
 
-        // Timer text serves as a virtual start/stop button.
         mTimeText.registerVirtualButtonAction(new Runnable() {
             @Override
             public void run() {
                 toggleStopwatchState();
             }
         });
-        mTimeText.setVirtualButtonEnabled(true);
 
         mCircleLayout = (CircleButtonsLayout)v.findViewById(R.id.stopwatch_circle);
         mCircleLayout.setCircleTimerViewIds(R.id.stopwatch_time, 0 /* stopwatchId */ ,

@@ -79,6 +79,13 @@ public class TimerItemFragment extends Fragment {
                 }
             }
         });
+	v.registerVirtualButtonAction(new Runnable() {
+            @Override
+            public void run() {
+                final Fragment parent = getParentFragment();
+                ((TimerFragment) parent).toggleTimerState(mTimerObj);
+            }
+        });
         switch (mTimerObj.mState) {
             case TimerObj.STATE_RUNNING:
                 v.start();

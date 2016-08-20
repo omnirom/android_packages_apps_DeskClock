@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2008 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2008 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -17,250 +16,262 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:dc="http://schemas.android.com/apk/res-auto"
+    xmlns:cardview="http://schemas.android.com/apk/res-auto"
     android:id="@+id/alarm_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="@color/view_background"
-    android:elevation="@dimen/item_elevation" >
+    android:orientation="vertical" >
 
-    <LinearLayout
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingStart="@dimen/alarm_side_padding"
-        android:paddingEnd="@dimen/alarm_side_padding" >
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        cardview:cardCornerRadius="2dp"
+        cardview:contentPadding="5dp"
+        cardview:cardBackgroundColor="@color/view_background">
 
-        <Switch
-            android:id="@+id/onoff"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical" />
-
-        <com.android.deskclock.widget.TextTime
-            android:id="@+id/digital_clock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:paddingStart="12dip"
-            android:textSize="@dimen/alarm_time_font_size"
-            dc:format12Hour="@string/alarm_time_12_hours_format"
-            dc:format24Hour="@string/clock_24_hours_format"
-            android:background="?android:attr/selectableItemBackgroundBorderless" />
-
-        <Space
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <ImageButton
-            android:id="@+id/arrow"
-            android:layout_width="40dip"
-            android:layout_height="40dip"
-            android:layout_gravity="top|end"
-            android:contentDescription="@string/expand_alarm"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_expand_down_tint"
-            android:scaleType="center" />
-
-    </LinearLayout>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <LinearLayout
-            android:id="@+id/expand_area"
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="@dimen/collapse_expand_height"
-            android:orientation="vertical"
-            android:visibility="gone"
-            android:paddingStart="@dimen/alarm_side_padding"
-            android:paddingEnd="@dimen/alarm_side_padding"
-            android:paddingBottom="4dp" >
-
-            <CheckBox
-                android:id="@+id/repeat_onoff"
-                android:layout_width="wrap_content"
-                android:layout_height="28dip"
-                android:layout_gravity="center_vertical|start"
-                android:text="@string/alarm_repeat"
-                style="@style/TextAppearanceDayNight"
-                android:paddingStart="12dip" />
-
-            <LinearLayout
-                android:id="@+id/repeat_days"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/repeat_day_height"
-                android:layout_gravity="center_vertical"
-                android:orientation="horizontal"
-                android:visibility="gone">
-                <!-- Day buttons are put here programatically -->
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="28dip"
-                android:orientation="horizontal" >
-                <CheckBox
-                    android:id="@+id/alarm_select"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:includeFontPadding="false"
-                    android:text="@string/alarm_title"
-                    style="@style/TextAppearanceDayNight"
-                    android:paddingStart="12dip" />
-                <TextView
-                    android:id="@+id/choose_ringtone_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    style="@style/TextAppearanceDayNight"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:text="@string/alarm_ringtone_title" />
-                <TextView
-                    android:id="@+id/choose_ringtone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:ellipsize="start"
-                    android:gravity="center_vertical"
-                    style="@style/TextAppearanceDayNight"
-                    android:singleLine="true" />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="28dip"
-                android:orientation="horizontal" >
-                <CheckBox
-                    android:id="@+id/pre_alarm"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:includeFontPadding="false"
-                    android:text="@string/prealarm_title"
-                    style="@style/TextAppearanceDayNight"
-                    android:paddingStart="12dip" />
-                <TextView
-                    android:id="@+id/prealarm_choose_ringtone_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    style="@style/TextAppearanceDayNight"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:text="@string/alarm_ringtone_title" />
-                <TextView
-                    android:id="@+id/prealarm_choose_ringtone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:ellipsize="start"
-                    android:gravity="center_vertical"
-                    style="@style/TextAppearanceDayNight"
-                    android:singleLine="true"/>
-            </LinearLayout>
-            <CheckBox
-                android:id="@+id/vibrate_onoff"
-                android:layout_width="wrap_content"
-                android:layout_height="28dip"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:includeFontPadding="false"
-                android:text="@string/alarm_vibrate"
-                style="@style/TextAppearanceDayNight"
-                android:paddingStart="12dip" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/collapse_expand"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:orientation="vertical"
-            android:contentDescription="@string/collapse_alarm"
-            android:background="@color/collapse_expand_bg" >
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/list_divider_material" />
+            android:orientation="vertical" >
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingStart="@dimen/alarm_side_delete_padding"
-                android:paddingEnd="@dimen/alarm_side_padding">
+                android:paddingEnd="@dimen/alarm_side_padding"
+                android:paddingStart="@dimen/alarm_side_padding">
 
-                <com.android.deskclock.widget.EllipsizeLayout
-                    android:id="@+id/summary"
+                <com.android.deskclock.widget.TextTime
+                    android:id="@+id/digital_clock"
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:paddingStart="12dip"
+                    android:textSize="@dimen/alarm_time_font_size"
+                    dc:format12Hour="@string/alarm_time_12_hours_format"
+                    dc:format24Hour="@string/clock_24_hours_format" />
+
+                <Space
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <ImageButton
+                    android:id="@+id/arrow"
+                    android:layout_width="40dip"
                     android:layout_height="40dip"
-                    android:gravity="center_vertical"
-                    android:layout_weight="1"
-                    android:paddingStart="8dp"
-                    android:background="?android:attr/selectableItemBackgroundBorderless" >
-
-                    <TextView
-                        android:id="@+id/edit_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:ellipsize="end"
-                        android:singleLine="true"
-                        android:paddingEnd="8dip"
-                        style="@style/TextAppearanceDayNight"
-                        android:gravity="center_vertical|start" />
-
-                    <TextView
-                        android:id="@+id/daysOfWeek"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:ellipsize="end"
-                        android:singleLine="true"
-                        style="@style/TextAppearanceDayNight"
-                        android:gravity="center_vertical" />
-
-                    <TextView
-                        android:id="@+id/tomorrowLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:ellipsize="end"
-                        android:singleLine="true"
-                        style="@style/TextAppearanceDayNight"
-                        android:gravity="center_vertical"/>
-
-                </com.android.deskclock.widget.EllipsizeLayout>
-
-                <ImageButton
-                    android:id="@+id/clone"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:gravity="center_vertical"
+                    android:layout_gravity="top|end"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/clone_alarm"
-                    android:src="@drawable/ic_clone_alarm" />
+                    android:contentDescription="@string/expand_alarm"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_expand_down_tint" />
 
-                <ImageButton
-                    android:id="@+id/delete"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:gravity="center_vertical"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/delete_alarm"
-                    android:src="@drawable/ic_clear" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/expand_area"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:orientation="vertical"
+                android:paddingBottom="4dp"
+                android:paddingEnd="@dimen/alarm_side_padding"
+                android:paddingStart="@dimen/alarm_side_padding"
+                android:visibility="gone">
+
+                <CheckBox
+                    android:id="@+id/repeat_onoff"
+                    style="@style/TextAppearanceDayNight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dip"
+                    android:layout_gravity="center_vertical|start"
+                    android:paddingStart="12dip"
+                    android:text="@string/alarm_repeat" />
+
+                <LinearLayout
+                    android:id="@+id/repeat_days"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/repeat_day_height"
+                    android:layout_gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <!-- Day buttons are put here programatically -->
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="28dip"
+                    android:orientation="horizontal">
+
+                    <CheckBox
+                        android:id="@+id/alarm_select"
+                        style="@style/TextAppearanceDayNight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:includeFontPadding="false"
+                        android:paddingStart="12dip"
+                        android:text="@string/alarm_title" />
+
+                    <TextView
+                        android:id="@+id/choose_ringtone_title"
+                        style="@style/TextAppearanceDayNight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:text="@string/alarm_ringtone_title" />
+
+                    <TextView
+                        android:id="@+id/choose_ringtone"
+                        style="@style/TextAppearanceDayNight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginStart="4dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:ellipsize="start"
+                        android:gravity="center_vertical"
+                        android:singleLine="true" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="28dip"
+                    android:orientation="horizontal">
+
+                    <CheckBox
+                        android:id="@+id/pre_alarm"
+                        style="@style/TextAppearanceDayNight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:includeFontPadding="false"
+                        android:paddingStart="12dip"
+                        android:text="@string/prealarm_title" />
+
+                    <TextView
+                        android:id="@+id/prealarm_choose_ringtone_title"
+                        style="@style/TextAppearanceDayNight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:text="@string/alarm_ringtone_title" />
+
+                    <TextView
+                        android:id="@+id/prealarm_choose_ringtone"
+                        style="@style/TextAppearanceDayNight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginStart="4dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:ellipsize="start"
+                        android:gravity="center_vertical"
+                        android:singleLine="true" />
+                </LinearLayout>
+
+                <CheckBox
+                    android:id="@+id/vibrate_onoff"
+                    style="@style/TextAppearanceDayNight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dip"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:includeFontPadding="false"
+                    android:paddingStart="12dip"
+                    android:text="@string/alarm_vibrate" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/collapse_expand"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:contentDescription="@string/collapse_alarm"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/list_divider_material" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/primary"
+                    android:orientation="horizontal"
+                    android:paddingEnd="@dimen/alarm_side_padding"
+                    android:paddingStart="@dimen/alarm_side_delete_padding">
+
+                    <com.android.deskclock.widget.EllipsizeLayout
+                        android:id="@+id/summary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dip"
+                        android:layout_weight="1"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:gravity="center_vertical"
+                        android:paddingStart="8dp">
+
+                        <TextView
+                            android:id="@+id/edit_label"
+                            style="@style/TextAppearanceWhite"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:ellipsize="end"
+                            android:gravity="center_vertical|start"
+                            android:paddingEnd="8dip"
+                            android:singleLine="true" />
+
+                        <TextView
+                            android:id="@+id/daysOfWeek"
+                            style="@style/TextAppearanceWhite"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:ellipsize="end"
+                            android:gravity="center_vertical"
+                            android:singleLine="true" />
+
+                        <TextView
+                            android:id="@+id/tomorrowLabel"
+                            style="@style/TextAppearanceWhite"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:ellipsize="end"
+                            android:gravity="center_vertical"
+                            android:singleLine="true" />
+
+                    </com.android.deskclock.widget.EllipsizeLayout>
+
+                    <ImageButton
+                        android:id="@+id/clone"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/clone_alarm"
+                        android:gravity="center_vertical"
+                        android:src="@drawable/ic_clone_alarm" />
+
+                    <ImageButton
+                        android:id="@+id/delete"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/delete_alarm"
+                        android:gravity="center_vertical"
+                        android:src="@drawable/ic_clear" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-    </FrameLayout>
+    </android.support.v7.widget.CardView>
 </LinearLayout>

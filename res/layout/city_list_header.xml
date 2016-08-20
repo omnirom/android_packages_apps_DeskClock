@@ -23,5 +23,6 @@
     android:layout_marginBottom="8dip"
     android:paddingStart="20dip"
     android:gravity="center"
+    android:textStyle="bold"
     android:textAppearance="@style/PrimaryLabelTextAppearance"
     android:text="@string/selected_cities_label" />

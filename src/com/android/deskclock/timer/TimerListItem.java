@@ -148,4 +148,7 @@ public class TimerListItem extends LinearLayout {
         }
     }
 
+    public void registerVirtualButtonAction(final Runnable runnable) {
+        mTimerText.registerVirtualButtonAction(runnable);
+    }
 }
