@@ -249,7 +249,7 @@ public class WorldClockAdapter extends BaseAdapter {
         now.setTimeZone(TimeZone.getTimeZone(cityTZ));
         int cityDayOfWeek = now.get(Calendar.DAY_OF_WEEK);
         if (myDayOfWeek != cityDayOfWeek) {
-            dayOfWeek.setText(mContext.getString(R.string.world_day_of_week_label,
+            dayOfWeek.setText(mContext.getString(R.string.world_day_of_week_label_new,
                     now.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault())));
             dayOfWeek.setVisibility(View.VISIBLE);
         } else {

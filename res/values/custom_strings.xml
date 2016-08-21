@@ -116,4 +116,5 @@
     <string name="audio_stream_title">Audio stream</string>
     <string name="audio_stream_music">Music stream</string>
     <string name="audio_stream_alam">Alarm stream</string>
+    <string name="world_day_of_week_label_new"><xliff:g id="label">%s</xliff:g></string>
 </resources>
