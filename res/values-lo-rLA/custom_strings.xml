@@ -20,20 +20,7 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Setting title for the flip action setting. -->
-  <string name="flip_action_title">Snu-handling</string>
-  <string name="flip_action_dialog_title">Snu-handling</string>
   <!-- Setting title for the shake action setting. -->
-  <string name="shake_action_title">Riste-handling</string>
-  <string name="shake_action_dialog_title">Riste-handling</string>
   <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
-  <string name="alarm_increasing_volume">Øker volumet</string>
-  <string name="snooze_count_title">Antall tillatte slumringer</string>
-  <string name="entry_zero_count">Ubegrenset</string>
-  <string name="entry_one_count">1 gang</string>
-  <string name="entry_three_count">3 ganger</string>
-  <string name="entry_five_count">5 ganger</string>
-  <string name="entry_ten_count">10 ganger</string>
-  <string name="pick_media">Velg lyd</string>
-  <string name="ringtone_disabled">Deaktivert</string>
   <!-- User-defined cities -->
 </resources>

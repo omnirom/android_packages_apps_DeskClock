@@ -76,6 +76,7 @@
   <string name="prealarm_default_label">Vooralarm</string>
   <string name="fullscreen_alarm_settings">Volledig scherm alarmen</string>
   <string name="fullscreen_alarm_title">Volledig scherm alarmen</string>
+  <string name="fullscreen_alarm_summary">Gebruik altijd het volledige scherm bij het alarm in plaats van een heads-up notificatie</string>
   <string name="take_persistent_grant_uri_permission_failed_msg">Het is niet gelukt om de permanente permissie toe te kennen voor ringtones</string>
   <string name="notification_settings">Notificaties</string>
   <!-- User-defined cities -->
@@ -101,4 +102,15 @@
   <string name="clone_alarm">Alarm kopiëren</string>
   <string name="storage_title">Opslag:</string>
   <string name="folders_scanning">Scannen\u2026</string>
+  <string name="alarm_action_category">Alarm acties</string>
+  <string name="alarm_action_header">Opmerking: Deze opties zijn alleen beschikbaar voor volledig scherm alarm notificaties</string>
+  <string name="show_world_clock_title">Wereldklokken weergeven</string>
+  <string name="show_alarm_title">Weergeef volgende alarm</string>
+  <string name="show_date_title">Toon datum</string>
+  <string name="font_sample_text">11:57</string>
+  <string name="clock_font_title">Lettertype</string>
+  <string name="custom_gadget">Aangepaste klok</string>
+  <string name="clock_color_title">Kleur</string>
+  <string name="clock_shadow_title">Schaduw</string>
+  <string name="alarm_action_wireless_header_title">Opmerking: Voor dit apparaat zullen de schud en flip acties worden uitgeschakeld bij het gebruik van draadloos opladen</string>
 </resources>

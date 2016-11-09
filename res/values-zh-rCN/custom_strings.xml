@@ -97,13 +97,20 @@
   <string name="timer_settings">计时器</string>
   <string name="timer_alarm_title">铃声</string>
   <string name="timer_alarm_custom_title">自定义计时器铃声</string>
+  <string name="week_start_title">一周起始日</string>
   <string name="default_week_start">区域默认</string>
+  <string name="clone_alarm">复制闹钟</string>
+  <string name="storage_title">存储:</string>
+  <string name="folders_scanning">正在扫描\u2026</string>
   <string name="alarm_action_category">闹铃动作</string>
   <string name="alarm_action_header">注意：这些选项仅在全屏闹钟模式下生效。</string>
+  <string name="show_world_clock_title">显示世界时间</string>
   <string name="show_alarm_title">显示下一个闹钟</string>
+  <string name="show_date_title">显示日期</string>
   <string name="font_sample_text">11:57</string>
   <string name="clock_font_title">字体</string>
   <string name="custom_gadget">自定义时钟</string>
   <string name="clock_color_title">颜色</string>
   <string name="clock_shadow_title">阴影</string>
+  <string name="alarm_action_wireless_header_title">注意：使用无线充电时，设备的翻转和摇动手势将被禁用。</string>
 </resources>

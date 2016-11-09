@@ -20,7 +20,85 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!-- Setting title for the flip action setting. -->
+  <string name="flip_action_title">חיישן סיבוב</string>
+  <string name="flip_action_dialog_title">חיישן סיבוב</string>
   <!-- Setting title for the shake action setting. -->
+  <string name="shake_action_title">פעולת ניעור</string>
+  <string name="shake_action_dialog_title">פעולת ניעור</string>
   <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
+  <string name="alarm_increasing_volume">הגבר עוצמת צלצול</string>
+  <string name="snooze_count_title">אפשר זמני נמנום</string>
+  <string name="entry_zero_count">ללא הגבלה</string>
+  <string name="entry_one_count">פעם אחת</string>
+  <string name="entry_three_count">3 פעמים</string>
+  <string name="entry_five_count">5 פעמים</string>
+  <string name="entry_ten_count">10 פעמים</string>
+  <string name="pick_media">בחר צליל</string>
+  <string name="ringtone_disabled">מבוטל</string>
+  <string name="media_start">שלח התחלת שמע</string>
+  <string name="alarm_alert_prealarm_dismiss_title">טרום שעון מעורר נדחה</string>
+  <string name="prealarm_time_select">זמן טרום שעון מעורר:</string>
+  <string name="alarm_title">שעון מעורר</string>
+  <string name="prealarm_title">טרום שעון מעורר</string>
+  <string name="alarm_volume_enable_title">עוצמת שמע להתראת מערכת</string>
+  <string name="alarm_test_dialog_title">נגן התראה</string>
+  <string name="alarm_test_dialog_content">לחץ ביטול כדי לעצור</string>
+  <string name="alarm_test">נגן התראה</string>
+  <string name="alarmType">שעון מעורר</string>
+  <string name="ringtoneType">צלצול</string>
+  <string name="notificationType">התראה</string>
+  <string name="mediaType">קובץ מוזיקה</string>
+  <string name="folderType">תיקיית מוסיקה</string>
+  <string name="playlistType">רשימת השמעה</string>
+  <string name="alarm_type_select_title">מקור:</string>
+  <string name="alarm_ringtone_title">קול:</string>
+  <string name="alarm_test_button">בדיקה</string>
+  <string name="keep_screen_on_title">השאר את הצג פעיל</string>
+  <string name="keep_screen_on_summary">המסך לא יכבה כאשר השעון מעורר פעיל</string>
+  <string name="folder_dialog_title">בחר תיקיה</string>
+  <string name="play_error_title">שגיאה בהפעלת שעון מעורר</string>
+  <string name="random_mode_enable_title">ערבב</string>
+  <string name="volume_increase_speed_title">מרווח להגדלת עוצמת שמע</string>
+  <string name="entry_five_secs">5 שניות</string>
+  <string name="entry_ten_secs">10 שניות</string>
+  <string name="entry_fifteen_secs">15 שניות</string>
+  <string name="entry_thirty_secs">30 שניות</string>
+  <string name="pre_alarm_dismiss_all_summary">התעלמות מטרום שעון מעורר תתעלם גם מהשעון המעורר הראשי</string>
+  <string name="pre_alarm_dismiss_all_title">התעלם מהכל</string>
+  <string name="fallback_ringtone">ברירת המחדל</string>
+  <string name="ringtone_unknown">צלצול לא ידוע</string>
+  <string name="entry_one_minute">דקה אחת</string>
+  <string name="entry_three_minute">3 דקות</string>
+  <string name="entry_five_minute">5 דקות</string>
+  <string name="entry_ten_minute">10 דקות</string>
+  <string name="entry_fifteen_minute">15 דקות</string>
+  <string name="entry_thirty_minute">30 דקות</string>
+  <string name="prealarm_default_label">טרום שעון מעורר</string>
+  <string name="fullscreen_alarm_settings">שעונים מעוררים במסך מלא</string>
+  <string name="fullscreen_alarm_title">שעונים מעוררים במסך מלא</string>
+  <string name="take_persistent_grant_uri_permission_failed_msg">נכשל לתת הרשאה מתמשכת לצלצול</string>
+  <string name="notification_settings">התראות</string>
   <!-- User-defined cities -->
+  <string name="menu_item_add">הוסף</string>
+  <string name="cities_add_city_title">הוסף עיר</string>
+  <string name="cities_add_city_city">עיר:</string>
+  <string name="cities_add_city_timezone">איזור זמן:</string>
+  <string name="cities_add_city_gps_cd">לחץ כדי למקם את העיר הנוכחית</string>
+  <string name="cities_add_loading">טוען\u2026</string>
+  <string name="cities_add_searching">מחפש\u2026</string>
+  <string name="cities_add_gps_no_results">בקשת GPS לא הביאה תוצאות מיקום</string>
+  <string name="cities_add_gps_not_available">GPS לא זמין</string>
+  <string name="cities_add_already_exists">העיר כבר קיימת במאגר הנתונים</string>
+  <string name="cities_add_city_failed">לא ניתן ליצור את העיר</string>
+  <string name="cities_delete_city_title">מחק עיר</string>
+  <string name="cities_delete_city_msg">האם ברצונך למחוק <xliff:g id="city">%s</xliff:g>?</string>
+  <string name="cities_delete_city_failed">לא ניתן למחוק את העיר</string>
+  <string name="timer_settings">טיימר</string>
+  <string name="timer_alarm_title">צלצול</string>
+  <string name="timer_alarm_custom_title">טיימר צלצול מותאם אישית</string>
+  <string name="week_start_title">השבוע מתחיל ביום</string>
+  <string name="default_week_start">אזור ברירת מחדל</string>
+  <string name="clone_alarm">העתקת שעון מעורר</string>
+  <string name="storage_title">אחסון:</string>
+  <string name="folders_scanning">סורק\u2026</string>
 </resources>

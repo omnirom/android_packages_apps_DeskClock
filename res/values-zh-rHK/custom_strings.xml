@@ -22,5 +22,43 @@
   <!-- Setting title for the flip action setting. -->
   <!-- Setting title for the shake action setting. -->
   <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
+  <string name="alarm_increasing_volume">音量漸強</string>
+  <string name="snooze_count_title">允許小睡的時間</string>
+  <string name="entry_zero_count">無限制</string>
+  <string name="entry_one_count">1 次</string>
+  <string name="entry_three_count">3 次</string>
+  <string name="entry_five_count">5 次</string>
+  <string name="entry_ten_count">10 次</string>
+  <string name="pick_media">選擇音訊</string>
+  <string name="ringtone_disabled">已停用</string>
+  <string name="alarm_title">鬧鐘</string>
+  <string name="alarm_volume_enable_title">系統警示音量</string>
+  <string name="alarm_test_dialog_title">播放鬧鐘</string>
+  <string name="alarm_test_dialog_content">按取消以停止</string>
+  <string name="alarm_test">播放鬧鐘</string>
+  <string name="alarmType">鬧鐘</string>
+  <string name="ringtoneType">鈴聲</string>
+  <string name="notificationType">通知</string>
+  <string name="mediaType">音樂檔</string>
+  <string name="folderType">音樂資料夾</string>
+  <string name="playlistType">播放列表</string>
+  <string name="alarm_type_select_title">來源:</string>
+  <string name="alarm_test_button">測試</string>
+  <string name="keep_screen_on_title">保持螢幕開啟</string>
+  <string name="folder_dialog_title">選擇資料夾</string>
+  <string name="random_mode_enable_title">隨機播放</string>
+  <string name="entry_five_secs">5 秒</string>
+  <string name="entry_ten_secs">10 秒</string>
+  <string name="entry_fifteen_secs">15 秒</string>
+  <string name="entry_thirty_secs">30 秒</string>
+  <string name="pre_alarm_dismiss_all_summary">忽略啟用預先提醒時，主鬧鐘也會被忽略</string>
+  <string name="pre_alarm_dismiss_all_title">忽略全部</string>
+  <string name="fallback_ringtone">預設</string>
+  <string name="ringtone_unknown">未知的鈴聲</string>
+  <string name="entry_one_minute">1 分</string>
+  <string name="entry_three_minute">3 分</string>
+  <string name="entry_five_minute">5 分</string>
+  <string name="entry_ten_minute">10 分</string>
+  <string name="entry_fifteen_minute">15 分</string>
   <!-- User-defined cities -->
 </resources>

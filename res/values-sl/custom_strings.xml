@@ -98,7 +98,7 @@
   <string name="timer_alarm_title">Melodija zvonjenja</string>
   <string name="timer_alarm_custom_title">Melodija zvonjenja odštevalnika po meri</string>
   <string name="week_start_title">Teden se začne na</string>
-  <string name="default_week_start">Lokalno privzeto</string>
+  <string name="default_week_start">Krajevno privzeto</string>
   <string name="clone_alarm">Kopiraj budilko</string>
   <string name="storage_title">Pomnilniška naprava:</string>
   <string name="folders_scanning">Pregledovanje \u2026</string>

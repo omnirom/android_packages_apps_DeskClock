@@ -51,6 +51,7 @@
   <string name="folderType">Папка с музыкой</string>
   <string name="playlistType">Плейлист</string>
   <string name="alarm_type_select_title">Источник:</string>
+  <string name="alarm_ringtone_title">Звук:</string>
   <string name="alarm_test_button">Тест</string>
   <string name="keep_screen_on_title">Не выключать экран</string>
   <string name="keep_screen_on_summary">Экран не будет выключаться когда будильник активен</string>
@@ -76,6 +77,7 @@
   <string name="prealarm_default_label">Предварительный сигнал</string>
   <string name="fullscreen_alarm_settings">Полноэкранные будильники</string>
   <string name="fullscreen_alarm_title">Полноэкранные будильники</string>
+  <string name="fullscreen_alarm_summary">Открывать будильник во весь экран вместо всплывающего уведомления</string>
   <string name="take_persistent_grant_uri_permission_failed_msg">Не удалось получить постоянное разрешение для мелодии звонка</string>
   <string name="notification_settings">Уведомления</string>
   <!-- User-defined cities -->
@@ -98,4 +100,14 @@
   <string name="timer_alarm_custom_title">Другая мелодия таймера</string>
   <string name="week_start_title">Неделя начинается с</string>
   <string name="default_week_start">По умолчанию для данного региона</string>
+  <string name="clone_alarm">Копирование будильник</string>
+  <string name="storage_title">Хранилище:</string>
+  <string name="folders_scanning">Поиск\u2026</string>
+  <string name="alarm_action_category">Действия будильника</string>
+  <string name="show_alarm_title">Показывать следующий будильник</string>
+  <string name="show_date_title">Показывать дату</string>
+  <string name="font_sample_text">11:57</string>
+  <string name="clock_font_title">Шрифт</string>
+  <string name="clock_color_title">Выберите цвет</string>
+  <string name="clock_shadow_title">Тень</string>
 </resources>
