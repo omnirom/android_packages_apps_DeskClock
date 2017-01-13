@@ -97,6 +97,7 @@
   <string name="timer_settings">Таймер</string>
   <string name="timer_alarm_title">Мелодія</string>
   <string name="timer_alarm_custom_title">Інша мелодія таймера</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">Тиждень починається з</string>
   <string name="default_week_start">За промовчанням для даного регіону</string>
   <string name="clone_alarm">Скопіювати сигнал</string>

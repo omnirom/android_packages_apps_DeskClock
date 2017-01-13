@@ -96,6 +96,7 @@
   <string name="timer_settings">Χρονόμετρο</string>
   <string name="timer_alarm_title">Ήχος κλήσης</string>
   <string name="timer_alarm_custom_title">Προσαρμοσμένος ήχος χρονομέτρου</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">Ημέρα έναρξης της εβδομάδας</string>
   <string name="default_week_start">Προεπιλεγμένες τοπικές ρυθμίσεις</string>
   <string name="clone_alarm">Αντιγραφή αφύπνησης</string>

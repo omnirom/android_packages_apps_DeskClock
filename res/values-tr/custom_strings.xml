@@ -97,6 +97,7 @@
   <string name="timer_settings">Zamanlayıcı</string>
   <string name="timer_alarm_title">Zil Sesi</string>
   <string name="timer_alarm_custom_title">Özel zamanlayıcı zil sesi</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">Haftanın ilk günü</string>
   <string name="default_week_start">Varsayılan yerel ayar</string>
   <string name="clone_alarm">Alarmı kopyala</string>

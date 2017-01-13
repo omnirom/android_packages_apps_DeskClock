@@ -97,6 +97,7 @@
   <string name="timer_settings">定時器</string>
   <string name="timer_alarm_title">鈴聲</string>
   <string name="timer_alarm_custom_title">自訂定時器鈴聲</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">一周起始日</string>
   <string name="default_week_start">地區預設</string>
   <string name="clone_alarm">複製鬧鐘</string>

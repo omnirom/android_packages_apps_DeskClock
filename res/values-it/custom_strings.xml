@@ -97,6 +97,7 @@
   <string name="timer_settings">Timer</string>
   <string name="timer_alarm_title">Suoneria</string>
   <string name="timer_alarm_custom_title">Suoneria personalizzata</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">Inizio settimana</string>
   <string name="default_week_start">Predefinito locale</string>
   <string name="clone_alarm">Copia allarme</string>

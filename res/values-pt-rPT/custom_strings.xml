@@ -97,6 +97,7 @@
   <string name="timer_settings">Temporizador</string>
   <string name="timer_alarm_title">Tom de toque</string>
   <string name="timer_alarm_custom_title">Personalizar o tom de toque do temporizador</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">A semana inicia ao/aos/às</string>
   <string name="default_week_start">Localização padrão</string>
   <string name="clone_alarm">Copiar alarme</string>

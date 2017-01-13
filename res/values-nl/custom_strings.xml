@@ -97,6 +97,7 @@
   <string name="timer_settings">Timer</string>
   <string name="timer_alarm_title">Beltoon</string>
   <string name="timer_alarm_custom_title">Aangepaste ringtone timer</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">Week begint op</string>
   <string name="default_week_start">Locale standaard</string>
   <string name="clone_alarm">Alarm kopiëren</string>

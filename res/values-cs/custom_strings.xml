@@ -97,6 +97,7 @@
   <string name="timer_settings">Časovač</string>
   <string name="timer_alarm_title">Vyzvánění</string>
   <string name="timer_alarm_custom_title">Vlastní časovač vyzvánění</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">Začátek týdne</string>
   <string name="default_week_start">Výchozí hodnota</string>
   <string name="clone_alarm">Kopírovat budík</string>

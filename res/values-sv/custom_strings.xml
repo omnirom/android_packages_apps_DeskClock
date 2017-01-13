@@ -67,6 +67,7 @@
   <string name="cities_delete_city_title">Ta bort stad</string>
   <string name="timer_settings">Timer</string>
   <string name="timer_alarm_title">Ringsignal</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">Veckan startar på</string>
   <string name="show_alarm_title">Visa nästa larm</string>
   <string name="show_date_title">Visa datum</string>

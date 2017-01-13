@@ -97,6 +97,7 @@
   <string name="timer_settings">Temporitzador</string>
   <string name="timer_alarm_title">To de trucada</string>
   <string name="timer_alarm_custom_title">Personalització del to del temporitzador</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">La setmana comença en</string>
   <string name="default_week_start">Predeterminat de l\'idioma</string>
   <string name="clone_alarm">Copia l\'alarma</string>

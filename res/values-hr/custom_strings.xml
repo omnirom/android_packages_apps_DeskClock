@@ -24,4 +24,5 @@
   <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
   <!-- User-defined cities -->
   <string name="cities_add_city_timezone">Vremenska zona:</string>
+  <string name="timer_alarm_custom_summary"></string>
 </resources>

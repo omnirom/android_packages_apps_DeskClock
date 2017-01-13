@@ -97,6 +97,7 @@
   <string name="timer_settings">Temporizador</string>
   <string name="timer_alarm_title">Tono de llamada</string>
   <string name="timer_alarm_custom_title">Tono de llamada del temporizador personalizado</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">La semana empieza el</string>
   <string name="default_week_start">Configuración regional por defecto</string>
   <string name="clone_alarm">Copiar alarma</string>

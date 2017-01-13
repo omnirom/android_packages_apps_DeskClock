@@ -96,6 +96,7 @@
   <string name="timer_settings">טיימר</string>
   <string name="timer_alarm_title">צלצול</string>
   <string name="timer_alarm_custom_title">טיימר צלצול מותאם אישית</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">השבוע מתחיל ביום</string>
   <string name="default_week_start">אזור ברירת מחדל</string>
   <string name="clone_alarm">העתקת שעון מעורר</string>

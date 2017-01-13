@@ -98,6 +98,7 @@
   <string name="timer_settings">Таймер</string>
   <string name="timer_alarm_title">Мелодия звонка</string>
   <string name="timer_alarm_custom_title">Другая мелодия таймера</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">Неделя начинается с</string>
   <string name="default_week_start">По умолчанию для данного региона</string>
   <string name="clone_alarm">Копирование будильник</string>

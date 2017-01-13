@@ -92,6 +92,7 @@
   <string name="cities_delete_city_failed">Tidak dapat menghapuskan bandar</string>
   <string name="timer_settings">Pemasa</string>
   <string name="timer_alarm_title">Nada dering</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">Minggu bermula pada</string>
   <string name="default_week_start">Penempatan asal</string>
 </resources>

@@ -97,6 +97,7 @@
   <string name="timer_settings">타이머</string>
   <string name="timer_alarm_title">벨소리</string>
   <string name="timer_alarm_custom_title">임의의 타이머 벨소리</string>
+  <string name="timer_alarm_custom_summary"></string>
   <string name="week_start_title">한 주가 시작되는 요일</string>
   <string name="default_week_start">위치 기본값</string>
   <string name="clone_alarm">알람 복사</string>
