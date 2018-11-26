@@ -98,6 +98,8 @@ public class ScreensaverActivity extends BaseActivity {
 
     private MoveScreensaverRunnable mPositionUpdater;
 
+    private int mLastSystemUIVisibilityFlag = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -248,8 +250,11 @@ public class ScreensaverActivity extends BaseActivity {
     private final class InteractionListener implements View.OnSystemUiVisibilityChangeListener {
         @Override
         public void onSystemUiVisibilityChange(int visibility) {
+            int diff = mLastSystemUIVisibilityFlag ^ visibility;
+            mLastSystemUIVisibilityFlag = visibility;
             // When the user interacts with the screen, the navigation bar reappears
-            if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
+            if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0
+                    && (diff & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0) {
                 // We want the screen saver to exit upon user interaction.
                 finish();
             }
