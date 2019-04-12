@@ -127,7 +127,8 @@ class StopwatchNotificationBuilder {
             content.setViewVisibility(R.id.state, VISIBLE);
         }
 
-        final Builder notification = new NotificationCompat.Builder(context)
+        final Builder notification = new NotificationCompat.Builder(context, 
+            StopwatchModel.STOPWATCH_BASE_CHANNEL_ID)
                 .setLocalOnly(true)
                 .setOngoing(running)
                 .setCustomContentView(content)
