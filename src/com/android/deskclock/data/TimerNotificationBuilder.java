@@ -148,7 +148,8 @@ class TimerNotificationBuilder {
                 PendingIntent.getService(context, REQUEST_CODE_UPCOMING, showApp,
                         PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
 
-        final Builder notification = new NotificationCompat.Builder(context)
+        final Builder notification = new NotificationCompat.Builder(context,
+            TimerModel.TIMER_BASE_CHANNEL_ID)
                 .setOngoing(true)
                 .setLocalOnly(true)
                 .setShowWhen(false)
@@ -261,7 +262,8 @@ class TimerNotificationBuilder {
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION);
         final PendingIntent pendingFullScreen = Utils.pendingActivityIntent(context, fullScreen);
 
-        final Builder notification = new NotificationCompat.Builder(context)
+        final Builder notification = new NotificationCompat.Builder(context,
+            TimerModel.TIMER_BASE_CHANNEL_ID)
                 .setOngoing(true)
                 .setLocalOnly(true)
                 .setShowWhen(false)
