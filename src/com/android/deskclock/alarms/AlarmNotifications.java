@@ -104,7 +104,7 @@ public final class AlarmNotifications {
                 .setAutoCancel(false)
                 .setSortKey(createSortKey(instance))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setCategory(NotificationCompat.CATEGORY_EVENT)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setLocalOnly(true);
 
@@ -159,7 +159,7 @@ public final class AlarmNotifications {
                 .setAutoCancel(false)
                 .setSortKey(createSortKey(instance))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setCategory(NotificationCompat.CATEGORY_EVENT)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setLocalOnly(true);
 
@@ -277,7 +277,7 @@ public final class AlarmNotifications {
                     .setGroup(UPCOMING_GROUP_KEY)
                     .setGroupSummary(true)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setCategory(NotificationCompat.CATEGORY_ALARM)
+                    .setCategory(NotificationCompat.CATEGORY_EVENT)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setLocalOnly(true)
                     .build();
@@ -316,7 +316,7 @@ public final class AlarmNotifications {
                     .setGroup(MISSED_GROUP_KEY)
                     .setGroupSummary(true)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setCategory(NotificationCompat.CATEGORY_ALARM)
+                    .setCategory(NotificationCompat.CATEGORY_EVENT)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setLocalOnly(true)
                     .build();
@@ -339,7 +339,7 @@ public final class AlarmNotifications {
                 .setAutoCancel(false)
                 .setSortKey(createSortKey(instance))
                 .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setCategory(NotificationCompat.CATEGORY_EVENT)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setLocalOnly(true);
 
@@ -389,7 +389,7 @@ public final class AlarmNotifications {
                 .setSortKey(createSortKey(instance))
                 .setSmallIcon(R.drawable.stat_notify_alarm)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setCategory(NotificationCompat.CATEGORY_EVENT)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setLocalOnly(true);
 
